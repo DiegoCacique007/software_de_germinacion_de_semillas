@@ -78,8 +78,6 @@
                                 <option value="administrador">Administrador</option>
                                 <option value="super_admin">Super Admin</option>
                             </select>
-                            <input type="password" name="password" placeholder="Nueva contraseña (opcional)" class="w-full rounded-lg border-gray-300">
-                            
                             <div class="flex justify-end space-x-3 pt-4">
                                 <button type="button" @click="openEdit = false" class="text-gray-500 hover:text-gray-700">Cerrar</button>
                                 <button type="submit" class="bg-indigo-600 text-white px-6 py-2 rounded-lg font-bold hover:bg-indigo-700">Actualizar</button>

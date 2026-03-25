@@ -13,7 +13,7 @@ public function up(): void
 {
     Schema::table('users', function (Blueprint $table) {
         // Por defecto todos serán 'encargado' para mayor seguridad
-        $table->string('role')->default('encargado')->after('email'); 
+        $table->string('role')->default('UB')->after('email'); 
     });
 }
 

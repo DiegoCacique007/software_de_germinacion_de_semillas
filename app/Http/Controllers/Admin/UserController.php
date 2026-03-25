@@ -58,10 +58,7 @@ class UserController extends Controller
         $usuario->email = $request->email;
         $usuario->role  = $request->role;
 
-        // Solo cambiamos la contraseña si el Super Admin escribió algo en ese campo
-        if ($request->filled('password')) {
-            $usuario->password = Hash::make($request->password);
-        }
+
 
         $usuario->save();
 
