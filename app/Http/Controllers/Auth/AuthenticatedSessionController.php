@@ -31,7 +31,7 @@ public function store(LoginRequest $request): RedirectResponse
     $user = auth()->user();
     
     if ($user->role === 'super_admin') {
-        return redirect()->route('admin.users');
+        return redirect()->route('admin.dashboard');
     } 
     
     if ($user->role === 'administrador') {

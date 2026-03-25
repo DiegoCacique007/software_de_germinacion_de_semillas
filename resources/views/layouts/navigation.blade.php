@@ -3,35 +3,37 @@
         <div class="flex justify-between h-16">
             <div class="flex">
                 <div class="shrink-0 flex items-center">
-                    <a href="{{ route('dashboard') }}">
+                    <a href="">
                         <x-application-logo class="block h-9 w-auto fill-current text-gray-800" />
                     </a>
                 </div>
 
                 <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                    <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
-                        {{ __('Dashboard') }}
-                    </x-nav-link>
+
 
                     {{-- Links Dinámicos por Rol --}}
                     
                     @if(Auth::user()->role === 'super_admin')
-                        <x-nav-link :href="route('admin.users')" :active="request()->routeIs('admin.users')">
-                            {{ __('Gestión de Usuarios') }}
+                        <x-nav-link :href="route('admin.dashboard')" :active="request()->routeIs('admin.dashboard')">
+                            {{ __('Dashboard') }}
                         </x-nav-link>
                     @endif
+
+
 
                     @if(Auth::user()->role === 'administrador')
                         <x-nav-link :href="route('semillas.gestion')" :active="request()->routeIs('semillas.gestion')">
-                            {{ __('Gestión de Semillas') }}
+                            {{ __('Dashboard') }}
                         </x-nav-link>
-                    @endif
+                    @endif      
 
+           
                     @if(Auth::user()->role === 'encargado')
                         <x-nav-link :href="route('registro.diario')" :active="request()->routeIs('registro.diario')">
-                            {{ __('Bitácora Diaria') }}
+                            {{ __('Dashboard') }}
                         </x-nav-link>
-                    @endif
+                    @endif      
+
                 </div>
             </div>
 

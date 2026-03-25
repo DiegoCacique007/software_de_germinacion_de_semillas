@@ -1,51 +1,84 @@
 <?php
 
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\Admin\UserController;
 use Illuminate\Support\Facades\Route;
 
-// 1. Pantalla de inicio pública (Diseño verde/blanco)
+/*
+|--------------------------------------------------------------------------
+| 1. RUTAS PÚBLICAS
+|--------------------------------------------------------------------------
+*/
 Route::get('/', function () {
     return view('welcome');
 });
 
-// 2. Dashboard común (Punto de entrada para todos)
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+/*
+|--------------------------------------------------------------------------
+| 2. RUTAS COMUNES (AUTENTICADOS)
+|--------------------------------------------------------------------------
+*/
+Route::middleware(['auth', 'verified'])->group(function () {
+    
+    // Punto de entrada general
+    Route::get('/dashboard', function () {
+        return view('dashboard');
+    })->name('dashboard');
 
-// 3. Rutas protegidas generales (Perfil de usuario)
-Route::middleware('auth')->group(function () {
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    // Gestión de Perfil Personal
+    Route::controller(ProfileController::class)->group(function () {
+        Route::get('/profile', 'edit')->name('profile.edit');
+        Route::patch('/profile', 'update')->name('profile.update');
+        Route::delete('/profile', 'destroy')->name('profile.destroy');
+    });
 });
 
-// ---------------------------------------------------------
-// 4. RUTAS POR ROLES (Software de Germinación)
-// ---------------------------------------------------------
-
+/*
+|--------------------------------------------------------------------------
+| 3. RUTAS POR ROLES (Software de Germinación)
+|--------------------------------------------------------------------------
+*/
 Route::middleware(['auth'])->group(function () {
 
-    // Rutas solo para el SUPER ADMIN
-Route::middleware(['role:super_admin'])->group(function () {
-    Route::get('/admin/usuarios', function () {
-        return view('vistas_principales.super_admin.super_admin'); // <-- Agregamos "roles."
-    })->name('admin.users');
-});
+    /**
+     * ROL: SUPER ADMIN
+     * Panel maestro y control de personal
+     */
+    Route::middleware(['role:super_admin'])->prefix('admin')->group(function () {
+        
+        // Pantalla de Bienvenida (Tarjetas de acceso rápido)
+        Route::get('/panel', function () {
+            return view('vistas_principales.super_admin.super_admin');
+        })->name('admin.dashboard');
 
-// Rutas para ADMINISTRADORES
-Route::middleware(['role:administrador'])->group(function () {
-    Route::get('/gestion-semillas', function () {
-        return view('vistas_principales.administrador.administrador'); // <-- Agregamos "roles."
-    })->name('semillas.gestion');
-});
+        // CRUD de Usuarios (Gestión con Modales)
+        Route::resource('usuarios', UserController::class)->names([
+            'index'   => 'admin.users',
+            'store'   => 'admin.users.store',
+            'update'  => 'admin.users.update',
+            'destroy' => 'admin.users.destroy',
+        ]);
+    });
 
-// Rutas para ENCARGADOS
-Route::middleware(['role:encargado'])->group(function () {
-    Route::get('/registro-diario', function () {
-        return view('vistas_principales.encargado.encargado'); // <-- Agregamos "roles."
-    })->name('registro.diario');
-});
+    /**
+     * ROL: ADMINISTRADOR
+     * Gestión técnica de semillas e inventario
+     */
+    Route::middleware(['role:administrador'])->group(function () {
+        Route::get('/gestion-semillas', function () {
+            return view('vistas_principales.administrador.administrador');
+        })->name('semillas.gestion');
+    });
+
+    /**
+     * ROL: ENCARGADO
+     * Registro de bitácoras y riego
+     */
+    Route::middleware(['role:encargado'])->group(function () {
+        Route::get('/registro-diario', function () {
+            return view('vistas_principales.encargado.encargado');
+        })->name('registro.diario');
+    });
 
 });
 
