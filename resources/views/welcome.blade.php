@@ -1,97 +1,354 @@
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
-    <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
 
-        <title>Germinación de Semillas</title>
+    <title>Microseed Control - Monitoreo de Microclima</title>
 
-        <link rel="preconnect" href="https://fonts.bunny.net">
-        <link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600" rel="stylesheet" />
+    <link rel="preconnect" href="https://fonts.bunny.net">
+    <link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600,700" rel="stylesheet" />
 
-        @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
 
-        <style>
-            /* Personalización de colores temáticos */
-            .bg-seed-green { background-color: #f0fdf4; } /* Verde muy claro */
-            .text-seed-dark { color: #166534; } /* Verde bosque para textos */
-            .border-seed-light { border-color: #dcfce7; }
-            .accent-seed { color: #22c55e; } /* Verde vibrante para links */
-        </style>
-    </head>
-    <body class="bg-seed-green text-seed-dark flex p-6 lg:p-8 items-center lg:justify-center min-h-screen flex-col">
-        
-        <header class="w-full lg:max-w-4xl max-w-[335px] text-sm mb-6">
-            @if (Route::has('login'))
-                <nav class="flex items-center justify-end gap-4">
-                    @auth
-                        <a href="{{ url('/dashboard') }}" class="inline-block px-5 py-1.5 border-seed-dark border text-seed-dark rounded-sm text-sm font-medium hover:bg-green-100 transition-colors">
-                            Ir al Panel
-                        </a>
-                    @else
-                        <a href="{{ route('login') }}" class="inline-block px-5 py-1.5 text-seed-dark hover:underline font-medium">
-                            Ingresar
-                        </a>
+    <style>
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-15px); }
+            100% { transform: translateY(0px); }
+        }
 
-                        @if (Route::has('register'))
-                            <a href="{{ route('register') }}" class="inline-block px-5 py-1.5 bg-green-600 text-white rounded-sm text-sm font-medium hover:bg-green-700 shadow-sm transition-all">
-                                Registrarse
-                            </a>
-                        @endif
-                    @endauth
-                </nav>
-            @endif
-        </header>
+        @keyframes fadeUp {
+            0% {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
 
-        <div class="flex items-center justify-center w-full transition-opacity opacity-100 duration-750 lg:grow">
-            <main class="flex max-w-[335px] w-full flex-col-reverse lg:max-w-4xl lg:flex-row shadow-2xl rounded-lg overflow-hidden border border-green-200">
-                
-                <div class="flex-1 p-6 pb-12 lg:p-20 bg-white">
-                    <div class="mb-6">
-                        <span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">Proyecto Botánico</span>
-                    </div>
-                    
-                    <h1 class="mb-4 text-3xl font-bold text-gray-900 lg:text-4xl">Sistema de Control de Germinación</h1>
-                    <p class="mb-6 text-gray-600 leading-relaxed">
-                        Gestiona el ciclo de vida de tus semillas, desde la siembra hasta el primer brote. Monitorea tiempos, variedades y optimiza tu producción de forma digital.
-                    </p>
-                    
-                    <ul class="flex flex-col mb-8 space-y-4">
-                        <li class="flex items-start gap-3">
-                            <div class="mt-1 bg-green-500 rounded-full p-1">
-                                <svg class="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
-                            </div>
-                            <span>Registro detallado de variedades de semillas.</span>
-                        </li>
-                        <li class="flex items-start gap-3">
-                            <div class="mt-1 bg-green-500 rounded-full p-1">
-                                <svg class="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
-                            </div>
-                            <span>Seguimiento de fechas de brote y éxito.</span>
-                        </li>
-                    </ul>
+        @keyframes fadeLeft {
+            0% {
+                opacity: 0;
+                transform: translateX(-30px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
 
-                    <a href="" class="inline-block px-8 py-3 bg-green-600 text-white font-bold rounded-md hover:bg-green-700 transition-all shadow-md">
-                        Comenzar Cultivo
+        @keyframes fadeRight {
+            0% {
+                opacity: 0;
+                transform: translateX(35px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes zoomSoft {
+            0% {
+                opacity: 0;
+                transform: scale(0.92);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        @keyframes pulseGlow {
+            0%, 100% {
+                box-shadow: 0 0 0 rgba(59, 180, 156, 0);
+            }
+            50% {
+                box-shadow: 0 0 30px rgba(59, 180, 156, 0.22);
+            }
+        }
+
+        @keyframes shine {
+            0% {
+                transform: translateX(-140%) skewX(-20deg);
+            }
+            100% {
+                transform: translateX(220%) skewX(-20deg);
+            }
+        }
+
+        @keyframes drift {
+            0% {
+                transform: translateY(0px) translateX(0px);
+            }
+            50% {
+                transform: translateY(-10px) translateX(8px);
+            }
+            100% {
+                transform: translateY(0px) translateX(0px);
+            }
+        }
+
+        @keyframes gridMove {
+            0% {
+                transform: translateY(0px);
+            }
+            50% {
+                transform: translateY(-8px);
+            }
+            100% {
+                transform: translateY(0px);
+            }
+        }
+
+        .animate-float {
+            animation: float 4s ease-in-out infinite;
+        }
+
+        .bg-brand-gradient {
+            background: linear-gradient(135deg, #1c607a 0%, #3bb49c 100%);
+        }
+
+        .main-card {
+            animation: zoomSoft 0.9s ease-out;
+        }
+
+        .header-enter {
+            opacity: 0;
+            animation: fadeUp 0.8s ease-out forwards;
+        }
+
+        .hero-badge {
+            opacity: 0;
+            animation: zoomSoft 0.8s ease-out 0.2s forwards;
+        }
+
+        .hero-title-line-1 {
+            opacity: 0;
+            animation: fadeLeft 0.9s ease-out 0.35s forwards;
+        }
+
+        .hero-title-line-2 {
+            opacity: 0;
+            animation: fadeLeft 0.9s ease-out 0.55s forwards;
+        }
+
+        .hero-text {
+            opacity: 0;
+            animation: fadeUp 0.9s ease-out 0.75s forwards;
+        }
+
+        .feature-item {
+            opacity: 0;
+            animation: fadeLeft 0.8s ease-out forwards;
+            transition: transform 0.25s ease, background-color 0.25s ease;
+            border-radius: 14px;
+            padding: 6px 8px;
+        }
+
+        .feature-item:nth-child(1) { animation-delay: 0.95s; }
+        .feature-item:nth-child(2) { animation-delay: 1.10s; }
+        .feature-item:nth-child(3) { animation-delay: 1.25s; }
+
+        .feature-item:hover {
+            transform: translateX(8px);
+            background: rgba(28, 96, 122, 0.04);
+        }
+
+        .hero-actions {
+            opacity: 0;
+            animation: fadeUp 0.8s ease-out 1.35s forwards;
+        }
+
+        .btn-hero {
+            position: relative;
+            overflow: hidden;
+            animation: pulseGlow 3s ease-in-out infinite;
+        }
+
+        .btn-hero::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: -120%;
+            width: 60%;
+            height: 100%;
+            background: linear-gradient(
+                90deg,
+                transparent,
+                rgba(255,255,255,0.35),
+                transparent
+            );
+            transform: skewX(-20deg);
+        }
+
+        .btn-hero:hover::before {
+            animation: shine 0.9s ease;
+        }
+
+        .side-panel {
+            opacity: 0;
+            animation: fadeRight 1s ease-out 0.35s forwards;
+        }
+
+        .logo-wrap {
+            position: relative;
+        }
+
+        .logo-wrap::after {
+            content: "";
+            position: absolute;
+            inset: -20px;
+            border-radius: 9999px;
+            background: radial-gradient(circle, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0) 70%);
+            filter: blur(25px);
+            z-index: -1;
+            animation: drift 5s ease-in-out infinite;
+        }
+
+        .project-card {
+            opacity: 0;
+            animation: fadeUp 0.9s ease-out 1.05s forwards;
+            transition: transform 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;
+        }
+
+        .project-card:hover {
+            transform: translateY(-6px) scale(1.01);
+            box-shadow: 0 18px 40px rgba(0, 0, 0, 0.18);
+            background: rgba(28, 96, 122, 0.38);
+        }
+
+        .soft-orb {
+            animation: drift 6s ease-in-out infinite;
+        }
+
+        .grid-animate {
+            animation: gridMove 7s ease-in-out infinite;
+        }
+
+        .brand-hover {
+            transition: transform 0.3s ease, filter 0.3s ease;
+        }
+
+        .brand-hover:hover {
+            transform: translateY(-2px) scale(1.04);
+            filter: drop-shadow(0 8px 18px rgba(28, 96, 122, 0.2));
+        }
+
+        .nav-link-pro {
+            transition: all 0.28s ease;
+        }
+
+        .nav-link-pro:hover {
+            transform: translateY(-2px);
+        }
+
+        .footer-enter {
+            opacity: 0;
+            animation: fadeUp 0.8s ease-out 1.55s forwards;
+        }
+    </style>
+</head>
+<body class="bg-[#f0f6f6] text-gray-800 flex p-6 lg:p-8 items-center lg:justify-center min-h-screen flex-col font-sans">
+
+<header class="header-enter w-full lg:max-w-6xl text-sm mb-6 flex justify-between items-center">
+    <div class="brand-hover flex items-center gap-4 font-bold text-[#1c607a] text-2xl cursor-pointer">
+        <img src="{{ asset('img/logo.png') }}" alt="Logo" class="w-16 h-16 lg:w-20 lg:h-20 drop-shadow-md object-contain">
+        Microseed Control
+    </div>
+
+    @if (Route::has('login'))
+        <nav class="flex items-center gap-4">
+            @auth
+                <a href="{{ url('/dashboard') }}" class="nav-link-pro inline-block px-5 py-2 border-2 border-[#3bb49c] text-[#1c607a] rounded-md text-sm font-bold hover:bg-[#3bb49c] hover:text-white transition-all duration-300 shadow-sm">
+                    Ir a la Bitácora Electrónica
+                </a>
+            @else
+                <a href="{{ route('login') }}" class="nav-link-pro inline-block px-4 py-2 text-[#1c607a] hover:text-[#3bb49c] font-bold transition-colors">
+                    Login
+                </a>
+
+                @if (Route::has('register'))
+                    <a href="{{ route('register') }}" class="nav-link-pro inline-block px-5 py-2 bg-[#1c607a] text-white rounded-md text-sm font-bold hover:bg-[#3bb49c] shadow-md transition-all duration-300 hover:-translate-y-0.5">
+                        Registrarse
                     </a>
-                </div>
+                @endif
+            @endauth
+        </nav>
+    @endif
+</header>
 
-                <div class="bg-green-600 relative lg:w-[400px] shrink-0 flex items-center justify-center p-12 text-white">
-                    <div class="text-center">
-                        <svg class="w-32 h-32 mx-auto mb-4 opacity-80" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M17,8C8,10 5.9,16.17 3.82,21.34L5.71,22L6.66,19.7C7.14,19.87 7.64,20 8,20C19,20 22,3 22,3C21,3.05 16.21,4.57 14,8.31C13,8 12,8 11,8C11,10.29 11.41,12.26 12.09,13.91C10.85,14.08 9.53,14.24 8,14.24C8,14.24 8,14.24 8,14.24C12,14.24 11,12 11,12C11,12 11,12 11,12C11,12 11,12 11,12C11,12 12,14.24 8,14.24C8,14.24 8,14.24 8,14.24C4,14.24 3,11 3,11C3,11 3,11 3,11C6,11 6,8 11,8C11,8 12,8 13,8.31C14,8.31 15,8 17,8Z" />
-                        </svg>
-                        <h2 class="text-xl font-semibold italic">"Cada semilla es una promesa de vida."</h2>
+<div class="flex items-center justify-center w-full transition-opacity opacity-100 duration-700 lg:grow">
+    <main class="main-card flex w-full flex-col-reverse lg:max-w-6xl lg:flex-row shadow-2xl rounded-2xl overflow-hidden bg-white border border-gray-100">
+
+        <div class="flex-1 p-8 pb-12 lg:p-16 flex flex-col justify-center relative overflow-hidden">
+
+            <div class="absolute top-0 left-0 w-full h-full opacity-[0.02] pointer-events-none" style="background-image: url('{{ asset('img/logo.png') }}'); background-repeat: no-repeat; background-position: center; background-size: 80%;"></div>
+
+            <h1 class="mb-5 text-4xl font-extrabold text-[#1c607a] leading-tight lg:text-5xl relative z-10">
+                <span class="hero-title-line-1 block">Control microclimático para la</span>
+                <span class="hero-title-line-2 block text-[#3bb49c]">supervivencia forestal.</span>
+            </h1>
+
+            <p class="hero-text mb-8 text-gray-600 leading-relaxed text-lg relative z-10 font-medium">
+                Centraliza la gestión telemétrica de tu incubadora de semillas. Mitiga la pérdida de especímenes mediante la automatización de variables ambientales y asegura la viabilidad germinativa aislando las especies de fluctuaciones externas.
+            </p>
+
+            <ul class="flex flex-col mb-10 space-y-4 relative z-10">
+                <li class="feature-item flex items-start gap-3 text-gray-700 font-semibold group">
+                    <div class="bg-[#3bb49c]/20 rounded-full p-1.5 text-[#3bb49c] mt-0.5 group-hover:bg-[#3bb49c] group-hover:text-white transition-colors">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
                     </div>
-                    
-                    <div class="absolute bottom-0 right-0 w-32 h-32 bg-green-500 rounded-tl-full opacity-50"></div>
-                </div>
-            </main>
+                    <span>Registro continuo de temperatura y humedad en base de datos.</span>
+                </li>
+                <li class="feature-item flex items-start gap-3 text-gray-700 font-semibold group">
+                    <div class="bg-[#3bb49c]/20 rounded-full p-1.5 text-[#3bb49c] mt-0.5 group-hover:bg-[#3bb49c] group-hover:text-white transition-colors">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+                    </div>
+                    <span>Reducción de dependencia manual para evitar estrés biológico.</span>
+                </li>
+                <li class="feature-item flex items-start gap-3 text-gray-700 font-semibold group">
+                    <div class="bg-[#3bb49c]/20 rounded-full p-1.5 text-[#3bb49c] mt-0.5 group-hover:bg-[#3bb49c] group-hover:text-white transition-colors">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+                    </div>
+                    <span>Generación automática de reportes PDF para análisis metrológico.</span>
+                </li>
+            </ul>
+
+            <div class="hero-actions relative z-10 flex justify-center gap-4">
+                @auth
+                    <a href="{{ url('/dashboard') }}" class="btn-hero inline-block px-8 py-3.5 bg-[#3bb49c] text-white font-bold rounded-lg hover:bg-[#1c607a] transition-all duration-300 shadow-lg hover:shadow-xl hover:-translate-y-1">
+                        Panel de Control
+                    </a>
+                @else
+                    <a href="{{ route('login') }}" class="btn-hero inline-block px-8 py-3.5 bg-[#3bb49c] text-white font-bold rounded-lg hover:bg-[#1c607a] transition-all duration-300 shadow-lg hover:shadow-xl hover:-translate-y-1">
+                        Iniciar Monitoreo
+                    </a>
+                @endauth
+            </div>
         </div>
 
-        <footer class="mt-8 text-gray-400 text-xs">
-            &copy; {{ date('Y') }} - Software de Germinación de Semillas
-        </footer>
+        <div class="side-panel bg-brand-gradient relative lg:w-[480px] shrink-0 flex flex-col items-center justify-center p-12 text-white overflow-hidden shadow-inner">
 
-    </body>
+            <div class="logo-wrap relative z-10 animate-float">
+                <img src="{{ asset('img/logo.png') }}" alt="Logo Microseed" class="w-[300px] lg:w-[420px] h-auto drop-shadow-[0_25px_35px_rgba(0,0,0,0.4)] object-contain">
+            </div>
+
+            <div class="soft-orb absolute top-0 right-0 w-72 h-72 bg-white opacity-5 rounded-full -mr-24 -mt-24 blur-3xl"></div>
+            <div class="soft-orb absolute bottom-0 left-0 w-64 h-64 bg-[#3bb49c] opacity-50 rounded-full -ml-20 -mb-20 blur-3xl"></div>
+
+            <div class="grid-animate absolute inset-0 opacity-10" style="background-image: radial-gradient(circle at 2px 2px, white 1px, transparent 0); background-size: 24px 24px;"></div>
+        </div>
+    </main>
+</div>
+
+<footer class="footer-enter mt-8 flex flex-col items-center text-[#1c607a]/70 text-sm font-semibold">
+    <p>&copy; {{ date('Y') }} - Sistema web para la optimización del microclima en incubadoras</p>
+
+</footer>
+
+</body>
 </html>
