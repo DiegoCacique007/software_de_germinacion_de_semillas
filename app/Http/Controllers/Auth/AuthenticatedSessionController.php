@@ -12,7 +12,7 @@ use Illuminate\View\View;
 class AuthenticatedSessionController extends Controller
 {
     /**
-     * Display the login view.
+     * Muestra la vista de login.
      */
     public function create(): View
     {
@@ -20,34 +20,26 @@ class AuthenticatedSessionController extends Controller
     }
 
     /**
-     * Handle an incoming authentication request.
+     * Procesa el inicio de sesión.
      */
-public function store(LoginRequest $request): RedirectResponse
-{
-    $request->authenticate();
-    $request->session()->regenerate();
+    public function store(LoginRequest $request): RedirectResponse
+    {
+        $request->authenticate();
 
-    // Lógica de redirección por Rol
-    $user = auth()->user();
-    
-    if ($user->role === 'super_admin') {
-        return redirect()->route('admin.dashboard');
-    } 
-    
-    if ($user->role === 'administrador') {
-        return redirect()->route('semillas.gestion');
+        $request->session()->regenerate();
+
+        $user = Auth::user();
+
+        return match ($user->role) {
+            'super_admin'   => redirect()->route('super_admin.dashboard'),
+            'administrador' => redirect()->route('administrador.dashboard'),
+            'encargado'     => redirect()->route('encargado.dashboard'),
+            default         => redirect()->route('dashboard'),
+        };
     }
-
-    if ($user->role === 'encargado') {
-        return redirect()->route('registro.diario');
-    }
-
-    // Si no tiene rol o es el default, al dashboard normal
-    return redirect()->intended(route('dashboard'));
-}
 
     /**
-     * Destroy an authenticated session.
+     * Cierra la sesión.
      */
     public function destroy(Request $request): RedirectResponse
     {

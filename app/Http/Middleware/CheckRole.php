@@ -10,15 +10,19 @@ class CheckRole
 {
     /**
      * Handle an incoming request.
-     *
-     * @param  Closure(Request): (Response)  $next
      */
-public function handle(Request $request, Closure $next, string $role)
-{
-    if (auth()->user()->role !== $role) {
-        return redirect('dashboard')->with('error', 'No tienes permisos de ' . $role);
-    }
+    public function handle(Request $request, Closure $next, string ...$roles): Response
+    {
+        $user = auth()->user();
 
-    return $next($request);
-}
+        if (!$user) {
+            abort(403, 'No autenticado.');
+        }
+
+        if (!in_array($user->role, $roles)) {
+            abort(403, 'No tienes permisos para acceder a esta sección.');
+        }
+
+        return $next($request);
+    }
 }
