@@ -8,59 +8,43 @@ use Illuminate\Http\Request;
 
 class ModoControlIncubadoraController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
-        //
+        $registros = ModoControlIncubadora::latest()->get();
+
+        return view('vistas_principales.super_admin.modos_control_incubadora.index', ['modos' => $registros]);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
-        //
+        $data = $request->validate([
+            'clave' => 'required|string|max:50|unique:modos_control_incubadora,clave',
+            'nombre' => 'required|string|max:100',
+            'descripcion' => 'nullable|string|max:255',
+        ]);
+
+        ModoControlIncubadora::create($data);
+
+        return redirect()->route('super_admin.modos-control-incubadora.index')->with('success', 'Registro creado correctamente.');
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(ModoControlIncubadora $modoControlIncubadora)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(ModoControlIncubadora $modoControlIncubadora)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(Request $request, ModoControlIncubadora $modoControlIncubadora)
     {
-        //
+        $data = $request->validate([
+            'clave' => 'required|string|max:50|unique:modos_control_incubadora,clave,' . $modoControlIncubadora->id,
+            'nombre' => 'required|string|max:100',
+            'descripcion' => 'nullable|string|max:255',
+        ]);
+
+        $modoControlIncubadora->update($data);
+
+        return redirect()->route('super_admin.modos-control-incubadora.index')->with('success', 'Registro actualizado correctamente.');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(ModoControlIncubadora $modoControlIncubadora)
     {
-        //
+        $modoControlIncubadora->delete();
+
+        return redirect()->route('super_admin.modos-control-incubadora.index')->with('success', 'Registro eliminado correctamente.');
     }
 }

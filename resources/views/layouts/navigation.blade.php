@@ -27,12 +27,6 @@
                         </x-nav-link>
                     @endif      
 
-           
-                    @if(Auth::user()->role === 'encargado')
-                        <x-nav-link :href="route('registro.diario')" :active="request()->routeIs('registro.diario')">
-                            {{ __('Dashboard') }}
-                        </x-nav-link>
-                    @endif      
 
                 </div>
             </div>
@@ -98,11 +92,7 @@
                 </x-responsive-nav-link>
             @endif
 
-            @if(Auth::user()->role === 'encargado')
-                <x-responsive-nav-link :href="route('registro.diario')" :active="request()->routeIs('registro.diario')">
-                    {{ __('Bitácora Diaria') }}
-                </x-responsive-nav-link>
-            @endif
+
         </div>
 
         <div class="pt-4 pb-1 border-t border-gray-200">

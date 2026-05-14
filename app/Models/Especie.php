@@ -21,11 +21,11 @@ class Especie extends Model
 
     public function condicionesOptimas()
     {
-        return $this->hasMany(CondicionOptimaEspecie::class, 'especie_id');
+        return $this->hasMany(CondicionOptimaEspecie::class);
     }
 
     public function lotes()
     {
-        return $this->hasMany(Lote::class, 'especie_id');
+        return $this->hasMany(Lote::class);
     }
 }

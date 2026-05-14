@@ -12,6 +12,7 @@
 
     <script src="https://cdn.tailwindcss.com"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <style>
         html, body {
@@ -42,5 +43,33 @@
         {{ $slot }}
     </main>
 </div>
+
+<script>
+    @if(session('success'))
+        Swal.fire({
+            icon: 'success',
+            title: '¡Éxito!',
+            text: '{{ session('success') }}',
+            confirmButtonColor: '#39b39f',
+            timer: 3000,
+            timerProgressBar: true,
+            width: '18em',
+            customClass: { popup: 'text-sm' },
+            confirmButtonText: 'Aceptar'
+        });
+    @endif
+
+    @if(session('error'))
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: '{{ session('error') }}',
+            confirmButtonColor: '#1f6f86',
+            width: '18em',
+            customClass: { popup: 'text-sm' },
+            confirmButtonText: 'Aceptar'
+        });
+    @endif
+</script>
 </body>
 </html>

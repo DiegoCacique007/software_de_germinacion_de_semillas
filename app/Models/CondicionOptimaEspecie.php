@@ -22,6 +22,6 @@ class CondicionOptimaEspecie extends Model
 
     public function especie()
     {
-        return $this->belongsTo(Especie::class, 'especie_id');
+        return $this->belongsTo(Especie::class);
     }
 }

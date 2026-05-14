@@ -16,9 +16,4 @@ class TipoAlerta extends Model
         'nombre',
         'descripcion',
     ];
-
-    public function alertas()
-    {
-        return $this->hasMany(Alerta::class, 'tipo_alerta_id');
-    }
 }

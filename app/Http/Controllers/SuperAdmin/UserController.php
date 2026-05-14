@@ -12,65 +12,51 @@ class UserController extends Controller
 {
     public function index()
     {
-        $users = User::orderBy('id', 'desc')->get();
+        $usuarios = User::latest()->get();
 
-        return view('vistas_principales.super_admin.usuarios.index', compact('users'));
+        return view('vistas_principales.super_admin.usuarios.index', compact('usuarios'));
     }
 
     public function store(Request $request)
     {
-        $request->validate([
-            'name'     => 'required|string|max:255',
-            'email'    => 'required|email|max:255|unique:users,email',
+        $data = $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|max:255|unique:users,email',
+            'role' => ['required', Rule::in(['super_admin'])],
             'password' => 'required|string|min:8',
-            'role'     => 'required|in:super_admin,administrador,encargado',
         ]);
 
-        User::create([
-            'name'     => $request->name,
-            'email'    => $request->email,
-            'password' => Hash::make($request->password),
-            'role'     => $request->role,
-        ]);
+        $data['password'] = Hash::make($data['password']);
 
-        return back()->with('success', 'Usuario registrado con éxito.');
+        User::create($data);
+
+        return redirect()->route('super_admin.usuarios.index')->with('success', 'Usuario registrado correctamente.');
     }
 
     public function update(Request $request, User $usuario)
     {
-        $request->validate([
-            'name'     => 'required|string|max:255',
-            'email'    => [
-                'required',
-                'email',
-                'max:255',
-                Rule::unique('users', 'email')->ignore($usuario->id),
-            ],
-            'role'     => 'required|in:super_admin,administrador,encargado',
+        $data = $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|max:255|unique:users,email,' . $usuario->id,
+            'role' => ['required', Rule::in(['super_admin'])],
             'password' => 'nullable|string|min:8',
         ]);
 
-        $usuario->name = $request->name;
-        $usuario->email = $request->email;
-        $usuario->role = $request->role;
-
-        if ($request->filled('password')) {
-            $usuario->password = Hash::make($request->password);
+        if (!empty($data['password'])) {
+            $data['password'] = Hash::make($data['password']);
+        } else {
+            unset($data['password']);
         }
 
-        $usuario->save();
+        $usuario->update($data);
 
-        return back()->with('success', 'Usuario actualizado correctamente.');
+        return redirect()->route('super_admin.usuarios.index')->with('success', 'Usuario actualizado correctamente.');
     }
 
     public function destroy(User $usuario)
     {
-        if (auth()->id() === $usuario->id) {
-            return back()->with('error', 'No puedes eliminar tu propia cuenta.');
-        }
-
         $usuario->delete();
 
-        return back()->with('success', 'Usuario eliminado correctamente.');
+        return redirect()->route('super_admin.usuarios.index')->with('success', 'Usuario eliminado correctamente.');
     }
 }

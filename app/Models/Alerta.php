@@ -28,7 +28,7 @@ class Alerta extends Model
 
     public function incubadora()
     {
-        return $this->belongsTo(Incubadora::class, 'incubadora_id');
+        return $this->belongsTo(Incubadora::class);
     }
 
     public function tipo()

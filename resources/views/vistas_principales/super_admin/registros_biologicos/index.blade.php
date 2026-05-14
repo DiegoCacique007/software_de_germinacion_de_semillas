@@ -1,0 +1,26 @@
+@include('vistas_principales.shared.modulo-crud', [
+    'title' => 'Registros Biológicos',
+    'subtitle' => 'Administra los registros biológicos del sistema.',
+    'items' => $registros ?? collect(),
+    'routeBase' => 'super_admin.registros-biologicos',
+    'entitySingular' => 'Registro',
+    'entityPlural' => 'Registros',
+    'columns' => [
+        ['label' => 'Lote', 'key' => 'lote.codigo_lote'],
+        ['label' => 'Usuario', 'key' => 'user.name'],
+        ['label' => 'Fecha', 'key' => 'fecha_registro'],
+        ['label' => 'Días estratificación', 'key' => 'dias_estratificacion'],
+        ['label' => 'Tasa germinación', 'key' => 'tasa_germinacion'],
+    ],
+    'fields' => [
+        ['name' => 'lote_id', 'label' => 'Lote', 'type' => 'select', 'required' => true, 'options' => $lotes ?? [], 'option_value' => 'id', 'option_label' => 'codigo_lote', 'edit_key' => 'lote_id'],
+        ['name' => 'user_id', 'label' => 'Usuario', 'type' => 'select', 'options' => $usuarios ?? [], 'option_value' => 'id', 'option_label' => 'name', 'edit_key' => 'user_id'],
+        ['name' => 'fecha_registro', 'label' => 'Fecha registro', 'type' => 'date', 'required' => true],
+        ['name' => 'dias_estratificacion', 'label' => 'Días de estratificación', 'type' => 'number', 'required' => true],
+        ['name' => 'porcentaje_carbono', 'label' => '% Carbono', 'type' => 'number', 'step' => '0.01'],
+        ['name' => 'porcentaje_nitrogeno', 'label' => '% Nitrógeno', 'type' => 'number', 'step' => '0.01'],
+        ['name' => 'porcentaje_fosforo', 'label' => '% Fósforo', 'type' => 'number', 'step' => '0.01'],
+        ['name' => 'tasa_germinacion', 'label' => 'Tasa de germinación', 'type' => 'number', 'required' => true, 'step' => '0.01'],
+        ['name' => 'observaciones', 'label' => 'Observaciones', 'type' => 'textarea'],
+    ],
+])

@@ -1,0 +1,25 @@
+@include('vistas_principales.shared.modulo-crud', [
+    'title' => 'Controles de Microclima',
+    'subtitle' => 'Administra los controles aplicados a las incubadoras.',
+    'items' => $controles ?? collect(),
+    'routeBase' => 'super_admin.controles-incubadora',
+    'entitySingular' => 'Control',
+    'entityPlural' => 'Controles',
+    'columns' => [
+        ['label' => 'Incubadora', 'key' => 'incubadora.nombre'],
+        ['label' => 'Tipo de control', 'key' => 'tipo.nombre'],
+        ['label' => 'Modo de control', 'key' => 'modo.nombre'],
+        ['label' => 'Valor aplicado', 'key' => 'valor_aplicado'],
+        ['label' => 'Fecha/Hora', 'key' => 'fecha_hora'],
+        ['label' => 'Usuario', 'key' => 'user.name'],
+    ],
+    'fields' => [
+        ['name' => 'incubadora_id', 'label' => 'Incubadora', 'type' => 'select', 'required' => true, 'options' => $incubadoras ?? [], 'option_value' => 'id', 'option_label' => 'nombre', 'edit_key' => 'incubadora_id'],
+        ['name' => 'tipo_control_incubadora_id', 'label' => 'Tipo de control', 'type' => 'select', 'required' => true, 'options' => $tipos ?? [], 'option_value' => 'id', 'option_label' => 'nombre', 'edit_key' => 'tipo_control_incubadora_id'],
+        ['name' => 'modo_control_incubadora_id', 'label' => 'Modo de control', 'type' => 'select', 'required' => true, 'options' => $modos ?? [], 'option_value' => 'id', 'option_label' => 'nombre', 'edit_key' => 'modo_control_incubadora_id'],
+        ['name' => 'valor_aplicado', 'label' => 'Valor aplicado', 'type' => 'number', 'step' => '0.01'],
+        ['name' => 'fecha_hora', 'label' => 'Fecha y hora', 'type' => 'text', 'required' => true],
+        ['name' => 'user_id', 'label' => 'Usuario', 'type' => 'select', 'options' => $usuarios ?? [], 'option_value' => 'id', 'option_label' => 'name', 'edit_key' => 'user_id'],
+        ['name' => 'observaciones', 'label' => 'Observaciones', 'type' => 'textarea'],
+    ],
+])

@@ -8,59 +8,43 @@ use Illuminate\Http\Request;
 
 class EstadoFrascoController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
-        //
+        $registros = EstadoFrasco::latest()->get();
+
+        return view('vistas_principales.super_admin.estados_frasco.index', ['estados' => $registros]);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
-        //
+        $data = $request->validate([
+            'clave' => 'required|string|max:50|unique:estados_frasco,clave',
+            'nombre' => 'required|string|max:100',
+            'descripcion' => 'nullable|string|max:255',
+        ]);
+
+        EstadoFrasco::create($data);
+
+        return redirect()->route('super_admin.estados-frasco.index')->with('success', 'Registro creado correctamente.');
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(EstadoFrasco $estadoFrasco)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(EstadoFrasco $estadoFrasco)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(Request $request, EstadoFrasco $estadoFrasco)
     {
-        //
+        $data = $request->validate([
+            'clave' => 'required|string|max:50|unique:estados_frasco,clave,' . $estadoFrasco->id,
+            'nombre' => 'required|string|max:100',
+            'descripcion' => 'nullable|string|max:255',
+        ]);
+
+        $estadoFrasco->update($data);
+
+        return redirect()->route('super_admin.estados-frasco.index')->with('success', 'Registro actualizado correctamente.');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(EstadoFrasco $estadoFrasco)
     {
-        //
+        $estadoFrasco->delete();
+
+        return redirect()->route('super_admin.estados-frasco.index')->with('success', 'Registro eliminado correctamente.');
     }
 }

@@ -16,9 +16,4 @@ class EtapaDesarrollo extends Model
         'nombre',
         'descripcion',
     ];
-
-    public function seguimientosLote()
-    {
-        return $this->hasMany(SeguimientoLote::class, 'etapa_desarrollo_id');
-    }
 }

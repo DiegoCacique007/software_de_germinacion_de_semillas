@@ -16,9 +16,4 @@ class EstadoLote extends Model
         'nombre',
         'descripcion',
     ];
-
-    public function lotes()
-    {
-        return $this->hasMany(Lote::class, 'estado_lote_id');
-    }
 }

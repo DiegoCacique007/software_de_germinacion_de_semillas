@@ -21,19 +21,19 @@ class SeguimientoFrasco extends Model
         'user_id',
     ];
 
-    protected $casts = [
-        'fecha_revision' => 'date',
-        'altura_promedio_cm' => 'decimal:2',
-    ];
-
     public function frasco()
     {
-        return $this->belongsTo(Frasco::class, 'frasco_id');
+        return $this->belongsTo(Frasco::class);
     }
 
     public function estado()
     {
         return $this->belongsTo(EstadoFrasco::class, 'estado_frasco_id');
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
     }
 
     public function usuario()

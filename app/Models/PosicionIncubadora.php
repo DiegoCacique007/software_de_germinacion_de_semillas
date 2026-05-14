@@ -19,11 +19,11 @@ class PosicionIncubadora extends Model
 
     public function incubadora()
     {
-        return $this->belongsTo(Incubadora::class, 'incubadora_id');
+        return $this->belongsTo(Incubadora::class);
     }
 
     public function lotes()
     {
-        return $this->hasMany(Lote::class, 'posicion_incubadora_id');
+        return $this->hasMany(Lote::class);
     }
 }

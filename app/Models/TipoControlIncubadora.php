@@ -16,9 +16,4 @@ class TipoControlIncubadora extends Model
         'nombre',
         'descripcion',
     ];
-
-    public function controles()
-    {
-        return $this->hasMany(ControlIncubadora::class, 'tipo_control_incubadora_id');
-    }
 }

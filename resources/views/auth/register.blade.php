@@ -10,10 +10,13 @@
         }
 
         body {
+            min-height: 100vh;
             background:
                 radial-gradient(circle at top left, rgba(57, 179, 159, 0.18), transparent 30%),
                 radial-gradient(circle at bottom right, rgba(31, 111, 134, 0.20), transparent 30%),
                 linear-gradient(135deg, #eef8f7 0%, #f7fbfb 100%);
+            font-family: 'Segoe UI', sans-serif;
+            overflow-x: hidden;
         }
 
         .register-wrapper {
@@ -54,7 +57,6 @@
             position: relative;
             background: linear-gradient(135deg, #236f87 0%, #2f8f97 50%, #39b39f 100%);
             color: white;
-            /* Padding ajustado para mover el contenido hacia arriba */
             padding: 20px 45px 140px 45px;
             display: flex;
             flex-direction: column;
@@ -87,32 +89,12 @@
             animation: floatOrb 8s ease-in-out infinite;
         }
 
-        .brand-badge {
-            position: relative;
-            z-index: 2;
-            display: inline-block;
-            background: rgba(255,255,255,0.14);
-            border: 1px solid rgba(255,255,255,0.18);
-            color: #fff;
-            padding: 8px 16px;
-            border-radius: 999px;
-            font-size: 0.78rem;
-            font-weight: 700;
-            letter-spacing: 1px;
-            text-transform: uppercase;
-            margin-bottom: 24px;
-            backdrop-filter: blur(8px);
-            animation: fadeLeft 1s ease;
-        }
-
-        /* Contenedor del logo ajustado: sin fondo, sin sombra, más grande */
         .logo-box {
             position: relative;
             z-index: 2;
             width: 480px;
             height: 380px;
             background: transparent;
-            border-radius: 0;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -121,7 +103,6 @@
             animation: floatLogo 4.5s ease-in-out infinite;
         }
 
-        /* Imagen del logo ajustada: más grande */
         .logo-box img {
             width: 360px;
             height: 360px;
@@ -150,32 +131,6 @@
             max-width: 470px;
             margin-bottom: 30px;
             animation: fadeLeft 1.15s ease;
-        }
-
-        .info-card {
-            position: relative;
-            z-index: 2;
-            background: rgba(34, 122, 139, 0.35);
-            border: 1px solid rgba(255,255,255,0.10);
-            border-radius: 22px;
-            padding: 22px 24px;
-            backdrop-filter: blur(10px);
-            max-width: 480px;
-            animation: fadeLeft 1.25s ease;
-            box-shadow: inset 0 1px 0 rgba(255,255,255,0.06);
-        }
-
-        .info-card h6 {
-            font-weight: 800;
-            margin-bottom: 10px;
-            font-size: 1.05rem;
-        }
-
-        .info-card p {
-            margin: 0;
-            color: rgba(255,255,255,0.92);
-            font-size: 0.98rem;
-            line-height: 1.7;
         }
 
         .register-right {
@@ -230,6 +185,36 @@
             border-color: var(--brand-green);
             box-shadow: 0 0 0 0.22rem rgba(57, 179, 159, 0.18);
             transform: translateY(-1px);
+        }
+
+        .password-group .form-control {
+            border-top-right-radius: 0;
+            border-bottom-right-radius: 0;
+        }
+
+        .btn-toggle-password {
+            width: 56px;
+            min-height: 52px;
+            border-radius: 0 14px 14px 0;
+            border: 1px solid #d9e4e8;
+            border-left: none;
+            color: var(--brand-dark-blue);
+            background: #f7fbfb;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.25s ease;
+        }
+
+        .btn-toggle-password:hover {
+            background: var(--brand-soft);
+            color: var(--brand-green);
+        }
+
+        .btn-toggle-password svg {
+            width: 22px;
+            height: 22px;
+            stroke-width: 2.2;
         }
 
         .btn-register {
@@ -311,19 +296,21 @@
             box-shadow: 0 16px 28px rgba(28, 96, 122, 0.18);
         }
 
-        .login-link-centered::before {
-            content: "";
-            position: absolute;
-            top: 0;
-            left: -140%;
-            width: 60%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.26), transparent);
-            transform: skewX(-20deg);
+        .back-home {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            color: var(--brand-dark-blue);
+            font-weight: 700;
+            margin-top: 18px;
+            width: 100%;
+            transition: all 0.25s ease;
         }
 
-        .login-link-centered:hover::before {
-            animation: shine 0.8s ease;
+        .back-home:hover {
+            color: var(--brand-green);
+            transform: translateY(-1px);
         }
 
         @keyframes fadeUp {
@@ -360,13 +347,21 @@
         }
 
         @keyframes floatLogo {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-12px); }
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-12px);
+            }
         }
 
         @keyframes floatOrb {
-            0%, 100% { transform: translateY(0) translateX(0); }
-            50% { transform: translateY(-12px) translateX(8px); }
+            0%, 100% {
+                transform: translateY(0) translateX(0);
+            }
+            50% {
+                transform: translateY(-12px) translateX(8px);
+            }
         }
 
         @keyframes shine {
@@ -385,7 +380,6 @@
 
             .register-left {
                 min-height: auto;
-                /* Padding ajustado para móvil */
                 padding: 30px 28px 70px 28px;
             }
 
@@ -397,16 +391,12 @@
                 font-size: 2rem;
             }
 
-            /* Contenedor logo móvil */
             .logo-box {
                 width: 380px;
                 height: 280px;
-                background: transparent;
-                box-shadow: none;
                 margin-bottom: 10px;
             }
 
-            /* Logo móvil */
             .logo-box img {
                 width: 250px;
                 height: 250px;
@@ -422,17 +412,18 @@
     <div class="register-wrapper">
         <div class="card register-card">
             <div class="row g-0">
+
                 <div class="col-lg-6">
                     <div class="register-left">
 
                         <div class="logo-box">
-                            <img src="{{ asset('img/logo.png') }}" alt="Microseed Control Logo">
+                            <img src="{{ asset('img/logo.png') }}" alt="Logo Microseed Control">
                         </div>
 
                         <h1 class="left-title">Crea tu cuenta en Microseed Control</h1>
 
                         <p class="left-text">
-                            Registra tus credenciales para acceder al sistema de monitoreo, control y gestión de incubadoras de semillas en un entorno moderno y seguro.
+                            Registra tus datos para acceder al sistema de monitoreo, control y gestión de incubadoras de semillas desde una interfaz moderna, segura y profesional.
                         </p>
 
                     </div>
@@ -441,6 +432,7 @@
                 <div class="col-lg-6">
                     <div class="register-right">
                         <div class="form-area">
+
                             <div class="form-header">
                                 <h2 class="form-title">Registrarse</h2>
                                 <p class="form-subtitle">
@@ -456,13 +448,13 @@
                                     <input
                                         id="name"
                                         type="text"
-                                        class="form-control @error('name') is-invalid @enderror"
                                         name="name"
                                         value="{{ old('name') }}"
+                                        class="form-control @error('name') is-invalid @enderror"
                                         required
-                                        autocomplete="name"
                                         autofocus
-                                        placeholder="Ingresa tu nombre"
+                                        autocomplete="name"
+                                        placeholder="Ingresa tu nombre completo"
                                     >
                                     @error('name')
                                     <div class="error-text">{{ $message }}</div>
@@ -474,9 +466,9 @@
                                     <input
                                         id="email"
                                         type="email"
-                                        class="form-control @error('email') is-invalid @enderror"
                                         name="email"
                                         value="{{ old('email') }}"
+                                        class="form-control @error('email') is-invalid @enderror"
                                         required
                                         autocomplete="username"
                                         placeholder="ejemplo@correo.com"
@@ -488,15 +480,31 @@
 
                                 <div class="mb-3">
                                     <label for="password" class="form-label">Contraseña</label>
-                                    <input
-                                        id="password"
-                                        type="password"
-                                        class="form-control @error('password') is-invalid @enderror"
-                                        name="password"
-                                        required
-                                        autocomplete="new-password"
-                                        placeholder="••••••••"
-                                    >
+
+                                    <div class="input-group password-group">
+                                        <input
+                                            id="password"
+                                            type="password"
+                                            name="password"
+                                            class="form-control @error('password') is-invalid @enderror"
+                                            required
+                                            autocomplete="new-password"
+                                            placeholder="••••••••"
+                                        >
+
+                                        <button
+                                            type="button"
+                                            class="btn btn-toggle-password"
+                                            onclick="togglePassword('password', this)"
+                                            aria-label="Mostrar contraseña"
+                                        >
+                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12s3.75-6.75 9.75-6.75S21.75 12 21.75 12 18 18.75 12 18.75 2.25 12 2.25 12z" />
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 15.25A3.25 3.25 0 1 0 12 8.75a3.25 3.25 0 0 0 0 6.5z" />
+                                            </svg>
+                                        </button>
+                                    </div>
+
                                     @error('password')
                                     <div class="error-text">{{ $message }}</div>
                                     @enderror
@@ -504,15 +512,31 @@
 
                                 <div class="mb-4">
                                     <label for="password_confirmation" class="form-label">Confirmar contraseña</label>
-                                    <input
-                                        id="password_confirmation"
-                                        type="password"
-                                        class="form-control @error('password_confirmation') is-invalid @enderror"
-                                        name="password_confirmation"
-                                        required
-                                        autocomplete="new-password"
-                                        placeholder="••••••••"
-                                    >
+
+                                    <div class="input-group password-group">
+                                        <input
+                                            id="password_confirmation"
+                                            type="password"
+                                            name="password_confirmation"
+                                            class="form-control @error('password_confirmation') is-invalid @enderror"
+                                            required
+                                            autocomplete="new-password"
+                                            placeholder="••••••••"
+                                        >
+
+                                        <button
+                                            type="button"
+                                            class="btn btn-toggle-password"
+                                            onclick="togglePassword('password_confirmation', this)"
+                                            aria-label="Mostrar contraseña"
+                                        >
+                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12s3.75-6.75 9.75-6.75S21.75 12 21.75 12 18 18.75 12 18.75 2.25 12 2.25 12z" />
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 15.25A3.25 3.25 0 1 0 12 8.75a3.25 3.25 0 0 0 0 6.5z" />
+                                            </svg>
+                                        </button>
+                                    </div>
+
                                     @error('password_confirmation')
                                     <div class="error-text">{{ $message }}</div>
                                     @enderror
@@ -523,16 +547,56 @@
                                 </button>
                             </form>
 
-                            <div class="bottom-login-wrap">
-                                <div class="bottom-login-text">¿Ya tienes cuenta?</div>
-                                <a href="{{ route('login') }}" class="login-link-centered">
-                                    Iniciar sesión
-                                </a>
-                            </div>
+                            @if (Route::has('login'))
+                                <div class="bottom-login-wrap">
+                                    <div class="bottom-login-text">¿Ya tienes cuenta?</div>
+                                    <a href="{{ route('login') }}" class="login-link-centered">
+                                        Iniciar sesión
+                                    </a>
+                                </div>
+                            @endif
+
+                            <a href="{{ url('/') }}" class="back-home">
+                                ← Volver al inicio
+                            </a>
+
                         </div>
                     </div>
                 </div>
+
             </div>
         </div>
     </div>
+
+    <script>
+        const eyeIcon = `
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12s3.75-6.75 9.75-6.75S21.75 12 21.75 12 18 18.75 12 18.75 2.25 12 2.25 12z" />
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 15.25A3.25 3.25 0 1 0 12 8.75a3.25 3.25 0 0 0 0 6.5z" />
+        </svg>
+    `;
+
+        const eyeOffIcon = `
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3 3l18 18" />
+            <path stroke-linecap="round" stroke-linejoin="round" d="M10.58 10.58A2 2 0 0 0 12 14a2 2 0 0 0 1.42-.58" />
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9.88 5.5A9.7 9.7 0 0 1 12 5.25c6 0 9.75 6.75 9.75 6.75a17.9 17.9 0 0 1-3.1 3.85" />
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6.5 6.9C3.85 8.55 2.25 12 2.25 12s3.75 6.75 9.75 6.75c1.25 0 2.42-.3 3.47-.78" />
+        </svg>
+    `;
+
+        function togglePassword(inputId, button) {
+            const input = document.getElementById(inputId);
+
+            if (input.type === 'password') {
+                input.type = 'text';
+                button.innerHTML = eyeOffIcon;
+                button.setAttribute('aria-label', 'Ocultar contraseña');
+            } else {
+                input.type = 'password';
+                button.innerHTML = eyeIcon;
+                button.setAttribute('aria-label', 'Mostrar contraseña');
+            }
+        }
+    </script>
 @endsection

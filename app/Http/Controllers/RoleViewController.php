@@ -14,7 +14,4 @@ class RoleViewController extends Controller
         return view('roles.administrador');
     }
 
-    public function encargado() {
-        return view('roles.encargado');
-    }
 }

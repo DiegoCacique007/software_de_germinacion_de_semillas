@@ -1,1 +1,26 @@
-<?php
+@include('vistas_principales.shared.modulo-crud', [
+    'title' => 'Alertas',
+    'subtitle' => 'Administra las alertas registradas en el sistema.',
+    'items' => $alertas ?? collect(),
+    'routeBase' => 'super_admin.alertas',
+    'entitySingular' => 'Alerta',
+    'entityPlural' => 'Alertas',
+    'columns' => [
+        ['label' => 'Incubadora', 'key' => 'incubadora.nombre'],
+        ['label' => 'Tipo', 'key' => 'tipo.nombre'],
+        ['label' => 'Nivel', 'key' => 'nivel.nombre'],
+        ['label' => 'Estado', 'key' => 'estado.nombre'],
+        ['label' => 'Mensaje', 'key' => 'mensaje'],
+        ['label' => 'Fecha/Hora', 'key' => 'fecha_hora'],
+    ],
+    'fields' => [
+        ['name' => 'incubadora_id', 'label' => 'Incubadora', 'type' => 'select', 'required' => true, 'options' => $incubadoras ?? [], 'option_value' => 'id', 'option_label' => 'nombre', 'edit_key' => 'incubadora_id'],
+        ['name' => 'tipo_alerta_id', 'label' => 'Tipo de alerta', 'type' => 'select', 'required' => true, 'options' => $tipos ?? [], 'option_value' => 'id', 'option_label' => 'nombre', 'edit_key' => 'tipo_alerta_id'],
+        ['name' => 'nivel_alerta_id', 'label' => 'Nivel de alerta', 'type' => 'select', 'required' => true, 'options' => $niveles ?? [], 'option_value' => 'id', 'option_label' => 'nombre', 'edit_key' => 'nivel_alerta_id'],
+        ['name' => 'estado_alerta_id', 'label' => 'Estado de alerta', 'type' => 'select', 'required' => true, 'options' => $estados ?? [], 'option_value' => 'id', 'option_label' => 'nombre', 'edit_key' => 'estado_alerta_id'],
+        ['name' => 'mensaje', 'label' => 'Mensaje', 'type' => 'text', 'required' => true],
+        ['name' => 'fecha_hora', 'label' => 'Fecha y hora', 'type' => 'text', 'required' => true],
+        ['name' => 'atendida_por', 'label' => 'Atendida por', 'type' => 'select', 'options' => $usuarios ?? [], 'option_value' => 'id', 'option_label' => 'name', 'edit_key' => 'atendida_por'],
+        ['name' => 'observaciones', 'label' => 'Observaciones', 'type' => 'textarea'],
+    ],
+])

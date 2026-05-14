@@ -1,0 +1,25 @@
+@include('vistas_principales.shared.modulo-crud', [
+    'title' => 'Lotes',
+    'subtitle' => 'Administra los lotes registrados en el sistema.',
+    'items' => $lotes ?? collect(),
+    'routeBase' => 'super_admin.lotes',
+    'entitySingular' => 'Lote',
+    'entityPlural' => 'Lotes',
+    'columns' => [
+        ['label' => 'Posición', 'key' => 'posicion.numero_posicion'],
+        ['label' => 'Especie', 'key' => 'especie.nombre_comun'],
+        ['label' => 'Código de lote', 'key' => 'codigo_lote'],
+        ['label' => 'Fecha siembra', 'key' => 'fecha_siembra'],
+        ['label' => 'Estado', 'key' => 'estado.nombre'],
+    ],
+    'fields' => [
+        ['name' => 'posicion_incubadora_id', 'label' => 'Posición incubadora', 'type' => 'select', 'required' => true, 'options' => $posiciones ?? [], 'option_value' => 'id', 'option_label' => 'numero_posicion', 'edit_key' => 'posicion_incubadora_id'],
+        ['name' => 'especie_id', 'label' => 'Especie', 'type' => 'select', 'required' => true, 'options' => $especies ?? [], 'option_value' => 'id', 'option_label' => 'nombre_comun', 'edit_key' => 'especie_id'],
+        ['name' => 'codigo_lote', 'label' => 'Código de lote', 'type' => 'text', 'required' => true],
+        ['name' => 'fecha_siembra', 'label' => 'Fecha de siembra', 'type' => 'date', 'required' => true],
+        ['name' => 'fecha_inicio', 'label' => 'Fecha de inicio', 'type' => 'date'],
+        ['name' => 'fecha_fin', 'label' => 'Fecha de fin', 'type' => 'date'],
+        ['name' => 'estado_lote_id', 'label' => 'Estado del lote', 'type' => 'select', 'required' => true, 'options' => $estados ?? [], 'option_value' => 'id', 'option_label' => 'nombre', 'edit_key' => 'estado_lote_id'],
+        ['name' => 'observaciones', 'label' => 'Observaciones', 'type' => 'textarea'],
+    ],
+])

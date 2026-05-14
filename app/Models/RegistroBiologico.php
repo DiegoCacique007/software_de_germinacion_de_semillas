@@ -25,15 +25,17 @@ class RegistroBiologico extends Model
 
     protected $casts = [
         'fecha_registro' => 'date',
-        'porcentaje_carbono' => 'decimal:2',
-        'porcentaje_nitrogeno' => 'decimal:2',
-        'porcentaje_fosforo' => 'decimal:2',
-        'tasa_germinacion' => 'decimal:2',
+        'tasa_germinacion' => 'float',
     ];
 
     public function lote()
     {
         return $this->belongsTo(Lote::class);
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
     }
 
     public function usuario()

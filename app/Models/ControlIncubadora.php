@@ -23,12 +23,11 @@ class ControlIncubadora extends Model
 
     protected $casts = [
         'fecha_hora' => 'datetime',
-        'valor_aplicado' => 'decimal:2',
     ];
 
     public function incubadora()
     {
-        return $this->belongsTo(Incubadora::class, 'incubadora_id');
+        return $this->belongsTo(Incubadora::class);
     }
 
     public function tipo()
@@ -39,6 +38,11 @@ class ControlIncubadora extends Model
     public function modo()
     {
         return $this->belongsTo(ModoControlIncubadora::class, 'modo_control_incubadora_id');
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
     }
 
     public function usuario()

@@ -23,20 +23,19 @@ class SeguimientoLote extends Model
         'user_id',
     ];
 
-    protected $casts = [
-        'fecha_revision' => 'date',
-        'porcentaje_germinacion' => 'decimal:2',
-        'altura_promedio_cm' => 'decimal:2',
-    ];
-
     public function lote()
     {
-        return $this->belongsTo(Lote::class, 'lote_id');
+        return $this->belongsTo(Lote::class);
     }
 
     public function etapa()
     {
         return $this->belongsTo(EtapaDesarrollo::class, 'etapa_desarrollo_id');
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
     }
 
     public function usuario()
@@ -46,6 +45,6 @@ class SeguimientoLote extends Model
 
     public function evidencias()
     {
-        return $this->hasMany(EvidenciaLote::class, 'seguimiento_lote_id');
+        return $this->hasMany(EvidenciaLote::class);
     }
 }

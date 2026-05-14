@@ -16,9 +16,4 @@ class NivelAlerta extends Model
         'nombre',
         'descripcion',
     ];
-
-    public function alertas()
-    {
-        return $this->hasMany(Alerta::class, 'nivel_alerta_id');
-    }
 }

@@ -3,6 +3,7 @@
         $usuario = Auth::user();
         $nombreCorto = $usuario ? explode(' ', $usuario->name)[0] : 'Usuario';
         $rolNombre = strtoupper(str_replace('_', ' ', $usuario->role ?? 'super_admin'));
+        $incubadoraTiempoRealId = $incubadoraActualId ?? optional($incubadoras->first())->id ?? 106;
     @endphp
 
     <style>
@@ -30,13 +31,19 @@
             100% { opacity: 1; transform: scale(1) translateY(0); filter: blur(0); }
         }
 
-        .animate-epic {
-            animation: epicEnter 1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        @keyframes statusPulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(59,180,156,.5); }
+            50% { box-shadow: 0 0 0 6px rgba(59,180,156,0); }
         }
 
-        .animate-float {
-            animation: float 6s ease-in-out infinite;
+        @keyframes dataFlash {
+            0% { transform: scale(1); filter: brightness(1); }
+            50% { transform: scale(1.08); filter: brightness(1.2); }
+            100% { transform: scale(1); filter: brightness(1); }
         }
+
+        .animate-epic { animation: epicEnter 1s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        .animate-float { animation: float 6s ease-in-out infinite; }
 
         .glass-card {
             background: rgba(255, 255, 255, 0.72);
@@ -73,6 +80,103 @@
             font-size: .75rem;
             font-weight: 700;
         }
+
+        .microseed-sensor-value {
+            font-size: 2.2rem;
+            font-weight: 800;
+            line-height: 1.1;
+        }
+
+        .microseed-setpoint {
+            font-size: 1.75rem;
+            font-weight: 700;
+        }
+
+        .microseed-range {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 100%;
+            height: 8px;
+            border-radius: 9999px;
+            background: #e5e7eb;
+            outline: none;
+            cursor: pointer;
+        }
+
+        .microseed-range::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: #3bb49c;
+            border: 3px solid #fff;
+            box-shadow: 0 2px 6px rgba(0,0,0,.2);
+            cursor: pointer;
+        }
+
+        .microseed-range.range-warning::-webkit-slider-thumb { background: #eab308; }
+
+        .toggle-switch {
+            position: relative;
+            width: 52px;
+            height: 28px;
+            background: #d1d5db;
+            border-radius: 9999px;
+            cursor: pointer;
+            transition: background .3s;
+            flex-shrink: 0;
+        }
+
+        .toggle-switch.active { background: #3bb49c; }
+
+        .toggle-switch::after {
+            content: '';
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: #fff;
+            box-shadow: 0 1px 4px rgba(0,0,0,.2);
+            transition: transform .3s;
+        }
+
+        .toggle-switch.active::after { transform: translateX(24px); }
+
+        .toggle-switch-lg {
+            width: 60px;
+            height: 32px;
+        }
+
+        .toggle-switch-lg::after {
+            width: 26px;
+            height: 26px;
+        }
+
+        .toggle-switch-lg.active::after { transform: translateX(28px); }
+
+        .btn-adjust {
+            width: 34px;
+            height: 34px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            border: 2px solid;
+            background: transparent;
+            font-weight: 700;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all .2s;
+        }
+
+        .btn-adjust:hover { transform: scale(1.1); }
+
+        .status-pulse { animation: statusPulse 2s infinite; }
+
+        .dato-real-actualizado { animation: dataFlash .45s ease-in-out; }
     </style>
 
     <div class="flex min-h-screen bg-animated-mesh relative overflow-hidden">
@@ -88,13 +192,24 @@
                 },
                 updateClock() {
                     const d = new Date();
-                    this.time = d.toLocaleTimeString('es-MX', {
+
+                    this.time = new Intl.DateTimeFormat('es-MX', {
+                        timeZone: 'America/Mexico_City',
                         hour: '2-digit',
                         minute: '2-digit',
-                        second: '2-digit'
-                    });
+                        second: '2-digit',
+                        hour12: false
+                    }).format(d);
 
-                    let h = d.getHours();
+                    const parts = new Intl.DateTimeFormat('es-MX', {
+                        timeZone: 'America/Mexico_City',
+                        hour: '2-digit',
+                        hour12: false
+                    }).formatToParts(d);
+
+                    let h = Number(parts.find(part => part.type === 'hour')?.value || 0);
+                    if (h === 24) h = 0;
+
                     this.greeting = h < 12 ? 'Buenos días' : (h < 19 ? 'Buenas tardes' : 'Buenas noches');
                 }
              }">
@@ -131,6 +246,7 @@
                                                   d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0"></path>
                                         </svg>
                                     </div>
+
                                     <div>
                                         <p class="text-[10px] font-black uppercase tracking-widest text-gray-400">Tiempo local</p>
                                         <p class="text-2xl font-black text-[#144255] font-mono tracking-tight" x-text="time">--:--:--</p>
@@ -164,200 +280,232 @@
                                 </div>
                             @endif
 
-                            <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-6 mb-8">
+                            <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mb-8">
                                 <div class="bg-white/70 rounded-2xl p-6 border border-white hover-glow transition-all duration-300">
                                     <p class="text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Usuarios</p>
-                                    <h3 class="text-3xl font-black text-[#144255]">{{ $usuariosTotal }}</h3>
+                                    <h3 id="metricUsuariosTotal" class="text-3xl font-black text-[#144255]">{{ $usuariosTotal }}</h3>
                                     <p class="text-sm text-gray-600 mt-2">Cuentas registradas</p>
                                 </div>
 
                                 <div class="bg-white/70 rounded-2xl p-6 border border-white hover-glow transition-all duration-300">
                                     <p class="text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Incubadoras</p>
-                                    <h3 class="text-3xl font-black text-[#144255]">{{ $incubadorasTotal }}</h3>
+                                    <h3 id="metricIncubadorasTotal" class="text-3xl font-black text-[#144255]">{{ $incubadorasTotal }}</h3>
                                     <p class="text-sm text-gray-600 mt-2">Dispositivos gestionados</p>
                                 </div>
 
                                 <div class="bg-white/70 rounded-2xl p-6 border border-white hover-glow transition-all duration-300">
                                     <p class="text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Lecturas hoy</p>
-                                    <h3 class="text-3xl font-black text-[#144255]">{{ $lecturasHoy }}</h3>
+                                    <h3 id="metricLecturasHoy" class="text-3xl font-black text-[#144255]">{{ $lecturasHoy }}</h3>
                                     <p class="text-sm text-gray-600 mt-2">Datos recibidos de sensores</p>
                                 </div>
 
                                 <div class="bg-white/70 rounded-2xl p-6 border border-white hover-glow transition-all duration-300">
                                     <p class="text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Alertas activas</p>
-                                    <h3 class="text-3xl font-black text-[#144255]">{{ $alertasActivas }}</h3>
+                                    <h3 id="metricAlertasActivas" class="text-3xl font-black text-[#144255]">{{ $alertasActivas }}</h3>
                                     <p class="text-sm text-gray-600 mt-2">Pendientes o en revisión</p>
                                 </div>
-
-                                <div class="bg-white/70 rounded-2xl p-6 border border-white hover-glow transition-all duration-300">
-                                    <p class="text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Órdenes pendientes</p>
-                                    <h3 class="text-3xl font-black text-[#144255]">{{ $ordenesPendientes }}</h3>
-                                    <p class="text-sm text-gray-600 mt-2">Esperando dispositivo</p>
-                                </div>
-                            </div>
-
-                            <div class="bg-white/70 rounded-2xl p-6 border border-white mb-8">
-                                <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-5">
-                                    <div>
-                                        <h3 class="font-black text-[#144255] text-lg uppercase tracking-wide">Control manual de incubadora</h3>
-                                        <p class="text-sm text-gray-500">Envía órdenes manuales al dispositivo y deja bitácora en el sistema.</p>
-                                    </div>
-
-                                    <div class="inline-flex items-center gap-2 rounded-full bg-[#144255] px-4 py-2 text-xs font-bold uppercase tracking-wider text-white">
-                                        Controles hoy: {{ $controlesHoy }}
-                                    </div>
-                                </div>
-
-                                <form action="{{ route('super_admin.control-manual.store') }}" method="POST" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-4">
-                                    @csrf
-
-                                    <div>
-                                        <label class="block text-sm font-bold text-[#1c607a] mb-1">Incubadora</label>
-                                        <select name="incubadora_id" class="w-full rounded-xl border-gray-300 focus:border-[#3bb49c] focus:ring-[#3bb49c]">
-                                            @foreach($incubadoras as $incubadora)
-                                                <option value="{{ $incubadora->id }}">{{ $incubadora->nombre }} ({{ $incubadora->codigo }})</option>
-                                            @endforeach
-                                        </select>
-                                    </div>
-
-                                    <div>
-                                        <label class="block text-sm font-bold text-[#1c607a] mb-1">Tipo de control</label>
-                                        <select name="tipo_control_incubadora_id" class="w-full rounded-xl border-gray-300 focus:border-[#3bb49c] focus:ring-[#3bb49c]">
-                                            @foreach($tiposControl as $tipo)
-                                                <option value="{{ $tipo->id }}">{{ $tipo->nombre }}</option>
-                                            @endforeach
-                                        </select>
-                                    </div>
-
-                                    <div>
-                                        <label class="block text-sm font-bold text-[#1c607a] mb-1">Modo</label>
-                                        <select name="modo_control_incubadora_id" class="w-full rounded-xl border-gray-300 focus:border-[#3bb49c] focus:ring-[#3bb49c]">
-                                            @foreach($modosControl as $modo)
-                                                <option value="{{ $modo->id }}">{{ $modo->nombre }}</option>
-                                            @endforeach
-                                        </select>
-                                    </div>
-
-                                    <div>
-                                        <label class="block text-sm font-bold text-[#1c607a] mb-1">Acción</label>
-                                        <select name="accion" class="w-full rounded-xl border-gray-300 focus:border-[#3bb49c] focus:ring-[#3bb49c]">
-                                            <option value="encender">Encender</option>
-                                            <option value="apagar">Apagar</option>
-                                            <option value="ajustar">Ajustar</option>
-                                        </select>
-                                    </div>
-
-                                    <div>
-                                        <label class="block text-sm font-bold text-[#1c607a] mb-1">Valor aplicado</label>
-                                        <input type="number" step="0.01" name="valor_aplicado" class="w-full rounded-xl border-gray-300 focus:border-[#3bb49c] focus:ring-[#3bb49c]" placeholder="Opcional">
-                                    </div>
-
-                                    <div class="md:col-span-2 xl:col-span-5">
-                                        <button type="submit" class="rounded-xl bg-[#144255] px-6 py-3 text-white font-bold hover:bg-[#1c607a] transition">
-                                            Enviar orden al dispositivo
-                                        </button>
-                                    </div>
-                                </form>
                             </div>
 
                             <div class="mb-8">
-                                <h3 class="font-black text-[#144255] text-lg uppercase tracking-wide mb-4">Accesos rápidos completos</h3>
+                                <h3 class="font-black text-[#144255] text-lg uppercase tracking-wide mb-2">Monitoreo Ambiental en Tiempo Real</h3>
+                                <p class="text-sm text-gray-600 mb-6">Visualización continua del microclima registrada por el sensor DHT22 conectado al ESP32.</p>
 
-                                <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
-                                    <a href="{{ route('super_admin.usuarios.index') }}" class="block bg-white/70 rounded-2xl p-6 border border-white hover-glow transition-all duration-300">
-                                        <p class="text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Global</p>
-                                        <h3 class="font-black text-[#144255] text-xl mb-2">Usuarios</h3>
-                                        <p class="text-sm text-gray-600">Administrar accesos y roles.</p>
-                                    </a>
+                                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                                    <div class="bg-white/70 rounded-2xl p-6 border border-white hover-glow transition-all duration-300">
+                                        <div class="flex justify-between items-center mb-4">
+                                            <h4 class="font-black text-[#eab308] text-md uppercase tracking-wide">Temperatura (°C)</h4>
+                                            <span class="badge-soft bg-green-100 text-green-700 animate-pulse">
+                                                <span class="w-2 h-2 rounded-full bg-green-500"></span> En vivo
+                                            </span>
+                                        </div>
 
-                                    <a href="{{ route('super_admin.incubadoras.index') }}" class="block bg-white/70 rounded-2xl p-6 border border-white hover-glow transition-all duration-300">
-                                        <p class="text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Infraestructura</p>
-                                        <h3 class="font-black text-[#144255] text-xl mb-2">Incubadoras</h3>
-                                        <p class="text-sm text-gray-600">Gestionar equipos y estados.</p>
-                                    </a>
+                                        <div class="relative h-64 w-full">
+                                            <canvas id="temperaturaChart"></canvas>
+                                        </div>
+                                    </div>
 
-                                    <a href="{{ route('super_admin.especies.index') }}" class="block bg-white/70 rounded-2xl p-6 border border-white hover-glow transition-all duration-300">
-                                        <p class="text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Catálogo</p>
-                                        <h3 class="font-black text-[#144255] text-xl mb-2">Especies</h3>
-                                        <p class="text-sm text-gray-600">Administrar especies forestales.</p>
-                                    </a>
+                                    <div class="bg-white/70 rounded-2xl p-6 border border-white hover-glow transition-all duration-300">
+                                        <div class="flex justify-between items-center mb-4">
+                                            <h4 class="font-black text-[#3bb49c] text-md uppercase tracking-wide">Humedad Relativa (%)</h4>
+                                            <span class="badge-soft bg-green-100 text-green-700 animate-pulse">
+                                                <span class="w-2 h-2 rounded-full bg-green-500"></span> En vivo
+                                            </span>
+                                        </div>
 
-                                    <a href="{{ route('super_admin.condiciones-optimas-especie.index') }}" class="block bg-white/70 rounded-2xl p-6 border border-white hover-glow transition-all duration-300">
-                                        <p class="text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Catálogo</p>
-                                        <h3 class="font-black text-[#144255] text-xl mb-2">Condiciones</h3>
-                                        <p class="text-sm text-gray-600">Configurar rangos ideales.</p>
-                                    </a>
+                                        <div class="relative h-64 w-full">
+                                            <canvas id="humedadChart"></canvas>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
 
-                                    <a href="{{ route('super_admin.posiciones-incubadora.index') }}" class="block bg-white/70 rounded-2xl p-6 border border-white hover-glow transition-all duration-300">
-                                        <p class="text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Estructura</p>
-                                        <h3 class="font-black text-[#144255] text-xl mb-2">Posiciones</h3>
-                                        <p class="text-sm text-gray-600">Distribuir lotes en incubadoras.</p>
-                                    </a>
+                            <div class="mb-8">
+                                <div class="flex items-center justify-between mb-2">
+                                    <div>
+                                        <h3 class="font-black text-[#144255] text-lg uppercase tracking-wide">Panel Microseed Control</h3>
+                                        <p class="text-sm text-gray-600">Sensores en tiempo real, configuración de microclima y control manual de actuadores.</p>
+                                    </div>
 
-                                    <a href="{{ route('super_admin.lotes.index') }}" class="block bg-white/70 rounded-2xl p-6 border border-white hover-glow transition-all duration-300">
-                                        <p class="text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Producción</p>
-                                        <h3 class="font-black text-[#144255] text-xl mb-2">Lotes</h3>
-                                        <p class="text-sm text-gray-600">Gestionar siembra y seguimiento.</p>
-                                    </a>
+                                    <div class="flex items-center gap-2">
+                                        <span class="w-2.5 h-2.5 rounded-full bg-[#3bb49c] status-pulse"></span>
+                                        <span class="text-xs font-bold text-gray-500 uppercase tracking-wider">En línea</span>
+                                    </div>
+                                </div>
 
-                                    <a href="{{ route('super_admin.frascos.index') }}" class="block bg-white/70 rounded-2xl p-6 border border-white hover-glow transition-all duration-300">
-                                        <p class="text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Producción</p>
-                                        <h3 class="font-black text-[#144255] text-xl mb-2">Frascos</h3>
-                                        <p class="text-sm text-gray-600">Gestionar unidades por lote.</p>
-                                    </a>
+                                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-5">
+                                    <div class="space-y-4">
+                                        <p class="text-xs font-black text-[#3bb49c] uppercase tracking-[0.15em] mb-1">🔴 Monitoreo en Tiempo Real</p>
 
-                                    <a href="{{ route('super_admin.lecturas-microclima.index') }}" class="block bg-white/70 rounded-2xl p-6 border border-white hover-glow transition-all duration-300">
-                                        <p class="text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Monitoreo</p>
-                                        <h3 class="font-black text-[#144255] text-xl mb-2">Lecturas</h3>
-                                        <p class="text-sm text-gray-600">Ver temperatura y humedad.</p>
-                                    </a>
+                                        <div class="bg-white/70 rounded-2xl p-5 border border-white hover-glow transition-all duration-300">
+                                            <div class="flex justify-between items-center mb-3">
+                                                <h4 class="font-bold text-[#144255] text-sm">Sensor DHT22</h4>
+                                                <span class="badge-soft bg-blue-100 text-blue-700">Aire</span>
+                                            </div>
 
-                                    <a href="{{ route('super_admin.controles-incubadora.index') }}" class="block bg-white/70 rounded-2xl p-6 border border-white hover-glow transition-all duration-300">
-                                        <p class="text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Control</p>
-                                        <h3 class="font-black text-[#144255] text-xl mb-2">Controles</h3>
-                                        <p class="text-sm text-gray-600">Aplicar y auditar acciones.</p>
-                                    </a>
+                                            <div class="grid grid-cols-2 gap-3">
+                                                <div class="bg-amber-50 rounded-xl p-3 text-center">
+                                                    <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Temperatura</p>
+                                                    <p class="microseed-sensor-value text-amber-500 mt-1" id="dht22Temp">--</p>
+                                                    <p class="text-xs text-gray-500 font-semibold">°C</p>
+                                                </div>
 
-                                    <a href="{{ route('super_admin.seguimientos-lote.index') }}" class="block bg-white/70 rounded-2xl p-6 border border-white hover-glow transition-all duration-300">
-                                        <p class="text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Seguimiento</p>
-                                        <h3 class="font-black text-[#144255] text-xl mb-2">Seguimientos Lote</h3>
-                                        <p class="text-sm text-gray-600">Avance general por lote.</p>
-                                    </a>
+                                                <div class="bg-sky-50 rounded-xl p-3 text-center">
+                                                    <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Humedad</p>
+                                                    <p class="microseed-sensor-value text-sky-500 mt-1" id="dht22Hum">--</p>
+                                                    <p class="text-xs text-gray-500 font-semibold">% HR</p>
+                                                </div>
+                                            </div>
 
-                                    <a href="{{ route('super_admin.seguimientos-frasco.index') }}" class="block bg-white/70 rounded-2xl p-6 border border-white hover-glow transition-all duration-300">
-                                        <p class="text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Seguimiento</p>
-                                        <h3 class="font-black text-[#144255] text-xl mb-2">Seguimientos Frasco</h3>
-                                        <p class="text-sm text-gray-600">Avance individual por frasco.</p>
-                                    </a>
+                                            <p class="text-[10px] text-gray-400 text-right mt-2">
+                                                Últ: <span id="dht22Time">--:--:--</span>
+                                            </p>
+                                        </div>
 
-                                    <a href="{{ route('super_admin.evidencias-lote.index') }}" class="block bg-white/70 rounded-2xl p-6 border border-white hover-glow transition-all duration-300">
-                                        <p class="text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Seguimiento</p>
-                                        <h3 class="font-black text-[#144255] text-xl mb-2">Evidencias</h3>
-                                        <p class="text-sm text-gray-600">Archivos y soportes visuales.</p>
-                                    </a>
+                                        <div class="bg-white/70 rounded-2xl p-5 border border-white hover-glow transition-all duration-300">
+                                            <div class="flex justify-between items-center mb-3">
+                                                <h4 class="font-bold text-[#144255] text-sm">Sensor DS18B20</h4>
+                                                <span class="badge-soft bg-emerald-100 text-emerald-700">Sustrato</span>
+                                            </div>
 
-                                    <a href="{{ route('super_admin.alertas.index') }}" class="block bg-white/70 rounded-2xl p-6 border border-white hover-glow transition-all duration-300">
-                                        <p class="text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Alerta</p>
-                                        <h3 class="font-black text-[#144255] text-xl mb-2">Alertas</h3>
-                                        <p class="text-sm text-gray-600">Incidencias del microclima.</p>
-                                    </a>
+                                            <div class="bg-emerald-50 rounded-xl p-4 text-center">
+                                                <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Temperatura</p>
+                                                <p class="microseed-sensor-value text-emerald-600 mt-1" id="ds18Temp">--</p>
+                                                <p class="text-xs text-gray-500 font-semibold">°C</p>
+                                            </div>
+
+                                            <p class="text-[10px] text-gray-400 text-right mt-2">
+                                                Últ: <span id="ds18Time">--:--:--</span>
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    <div class="space-y-4">
+                                        <p class="text-xs font-black text-[#eab308] uppercase tracking-[0.15em] mb-1">⚙️ Configuración de Microclima</p>
+
+                                        <div class="bg-white/70 rounded-2xl p-5 border border-white hover-glow transition-all duration-300">
+                                            <div class="flex justify-between items-center mb-1">
+                                                <h4 class="font-bold text-[#144255] text-sm">Humedad Deseada</h4>
+                                                <span class="badge-soft bg-sky-100 text-sky-700">Setpoint</span>
+                                            </div>
+
+                                            <div class="text-center my-3">
+                                                <span class="microseed-setpoint text-sky-500" id="humSetpointDisplay">70</span>
+                                                <span class="text-sm text-gray-500 font-bold">% HR</span>
+                                            </div>
+
+                                            <div class="flex items-center gap-2">
+                                                <button type="button" class="btn-adjust border-sky-400 text-sky-500 hover:bg-sky-50" onclick="ajustarSlider('humSetpoint', -1)">−</button>
+                                                <input type="range" class="microseed-range flex-1" id="humSetpoint" min="40" max="100" step="1" value="70">
+                                                <button type="button" class="btn-adjust border-sky-400 text-sky-500 hover:bg-sky-50" onclick="ajustarSlider('humSetpoint', 1)">+</button>
+                                            </div>
+
+                                            <div class="flex justify-between mt-1">
+                                                <span class="text-[10px] text-gray-400">40%</span>
+                                                <span class="text-[10px] text-gray-400">100%</span>
+                                            </div>
+                                        </div>
+
+                                        <div class="bg-white/70 rounded-2xl p-5 border border-white hover-glow transition-all duration-300">
+                                            <div class="flex justify-between items-center mb-1">
+                                                <h4 class="font-bold text-[#144255] text-sm">Temperatura Deseada</h4>
+                                                <span class="badge-soft bg-amber-100 text-amber-700">Setpoint</span>
+                                            </div>
+
+                                            <div class="text-center my-3">
+                                                <span class="microseed-setpoint text-amber-500" id="tempSetpointDisplay">25</span>
+                                                <span class="text-sm text-gray-500 font-bold">°C</span>
+                                            </div>
+
+                                            <div class="flex items-center gap-2">
+                                                <button type="button" class="btn-adjust border-amber-400 text-amber-500 hover:bg-amber-50" onclick="ajustarSlider('tempSetpoint', -1)">−</button>
+                                                <input type="range" class="microseed-range range-warning flex-1" id="tempSetpoint" min="15" max="40" step="1" value="25">
+                                                <button type="button" class="btn-adjust border-amber-400 text-amber-500 hover:bg-amber-50" onclick="ajustarSlider('tempSetpoint', 1)">+</button>
+                                            </div>
+
+                                            <div class="flex justify-between mt-1">
+                                                <span class="text-[10px] text-gray-400">15°C</span>
+                                                <span class="text-[10px] text-gray-400">40°C</span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="space-y-4">
+                                        <p class="text-xs font-black text-red-500 uppercase tracking-[0.15em] mb-1">🎛️ Control de Actuadores</p>
+
+                                        <div class="bg-white/70 rounded-2xl p-5 border border-white hover-glow transition-all duration-300">
+                                            <div class="flex justify-between items-center">
+                                                <div>
+                                                    <h4 class="font-bold text-[#144255] text-sm">Modo de Operación</h4>
+                                                    <p class="text-xs text-gray-500 mt-1" id="modoLabel">Modo Automático activo</p>
+                                                </div>
+
+                                                <div class="toggle-switch-lg toggle-switch" id="modoSwitch" onclick="toggleModo()"></div>
+                                            </div>
+
+                                            <div class="mt-2">
+                                                <span class="badge-soft bg-emerald-100 text-emerald-700" id="modoBadge">⚙️ AUTOMÁTICO</span>
+                                            </div>
+                                        </div>
+
+                                        <div class="bg-white/70 rounded-2xl p-5 border border-white hover-glow transition-all duration-300">
+                                            <div class="flex justify-between items-center mb-2">
+                                                <h4 class="font-bold text-[#144255] text-sm">🌫️ Generador de Niebla</h4>
+                                                <span class="badge-soft bg-gray-100 text-gray-500" id="nieblaBadge">APAGADO</span>
+                                            </div>
+
+                                            <p class="text-xs text-gray-400 mb-3">Relé del módulo ultrasónico de niebla.</p>
+
+                                            <div class="flex justify-between items-center bg-white/60 rounded-xl p-3 border border-gray-100">
+                                                <span class="text-sm font-semibold text-gray-600" id="nieblaLabel">Apagado</span>
+                                                <div class="toggle-switch-lg toggle-switch actuador-toggle" id="nieblaSwitch" onclick="toggleNiebla()" style="pointer-events: none; opacity: .5;"></div>
+                                            </div>
+                                        </div>
+
+                                        <div class="bg-white/70 rounded-2xl p-5 border border-white hover-glow transition-all duration-300">
+                                            <div class="flex justify-between items-center mb-2">
+                                                <h4 class="font-bold text-[#144255] text-sm">💡 Tira LED Blanca</h4>
+                                                <span class="badge-soft bg-gray-100 text-gray-500" id="ledBadge">APAGADO</span>
+                                            </div>
+
+                                            <p class="text-xs text-gray-400 mb-3">Relé de iluminación LED para fotoperiodo.</p>
+
+                                            <div class="flex justify-between items-center bg-white/60 rounded-xl p-3 border border-gray-100">
+                                                <span class="text-sm font-semibold text-gray-600" id="ledLabel">Apagado</span>
+                                                <div class="toggle-switch-lg toggle-switch actuador-toggle" id="ledSwitch" onclick="toggleLed()" style="pointer-events: none; opacity: .5;"></div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
 
                             <div class="grid grid-cols-1 xl:grid-cols-3 gap-6 mb-8">
                                 <div class="xl:col-span-2 bg-white/70 rounded-2xl p-6 border border-white">
-                                    <div class="flex items-center justify-between mb-5">
-                                        <div>
-                                            <h3 class="font-black text-[#144255] text-lg uppercase tracking-wide">Estado actual por incubadora</h3>
-                                            <p class="text-sm text-gray-500">Resumen en tiempo real del microclima</p>
-                                        </div>
-                                        <a href="{{ route('super_admin.lecturas-microclima.index') }}"
-                                           class="px-4 py-2 rounded-lg bg-[#144255] text-white text-sm font-semibold hover:bg-[#1c607a] transition">
-                                            Ir a lecturas
-                                        </a>
+                                    <div class="mb-5">
+                                        <h3 class="font-black text-[#144255] text-lg uppercase tracking-wide">Estado actual por incubadora</h3>
+                                        <p class="text-sm text-gray-500">Resumen en tiempo real del microclima</p>
                                     </div>
 
-                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div id="resumenIncubadorasLive" class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                         @forelse($resumenIncubadoras as $item)
                                             @php
                                                 $inc = $item['incubadora'];
@@ -390,13 +538,17 @@
                                                             <span class="text-gray-500">Temperatura</span>
                                                             <span class="font-semibold text-[#144255]">{{ $lectura->temperatura }} °C</span>
                                                         </div>
+
                                                         <div class="flex justify-between">
                                                             <span class="text-gray-500">Humedad</span>
                                                             <span class="font-semibold text-[#144255]">{{ $lectura->humedad }} %</span>
                                                         </div>
+
                                                         <div class="flex justify-between">
                                                             <span class="text-gray-500">Última lectura</span>
-                                                            <span class="font-semibold text-gray-700">{{ \Carbon\Carbon::parse($lectura->fecha_hora)->format('d/m/Y H:i') }}</span>
+                                                            <span class="font-semibold text-gray-700">
+                                                                {{ \Carbon\Carbon::parse($lectura->fecha_hora)->format('d/m/Y H:i') }}
+                                                            </span>
                                                         </div>
                                                     @else
                                                         <div class="text-sm text-gray-500 italic pt-2">
@@ -419,6 +571,7 @@
                                     <div class="space-y-4">
                                         <div class="rounded-xl bg-white border border-gray-200 p-4">
                                             <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Nivel de acceso</p>
+
                                             <div class="inline-flex items-center gap-2 px-3 py-1 bg-[#144255] text-[#3bb49c] rounded-md text-sm font-bold uppercase tracking-wider shadow-inner">
                                                 {{ $rolNombre }}
                                             </div>
@@ -426,176 +579,540 @@
 
                                         <div class="rounded-xl bg-white border border-gray-200 p-4">
                                             <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Lotes registrados</p>
-                                            <p class="text-2xl font-black text-[#144255]">{{ $lotesTotal }}</p>
+                                            <p id="metricLotesTotal" class="text-2xl font-black text-[#144255]">{{ $lotesTotal }}</p>
                                         </div>
 
                                         <div class="rounded-xl bg-white border border-gray-200 p-4">
                                             <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Frascos registrados</p>
-                                            <p class="text-2xl font-black text-[#144255]">{{ $frascosTotal }}</p>
+                                            <p id="metricFrascosTotal" class="text-2xl font-black text-[#144255]">{{ $frascosTotal }}</p>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-
-                            <div class="grid grid-cols-1 xl:grid-cols-2 gap-6 mb-8">
-                                <div class="bg-white/70 rounded-2xl p-6 border border-white">
-                                    <div class="flex items-center justify-between mb-4">
-                                        <h3 class="font-black text-[#144255] text-lg uppercase tracking-wide">Últimas lecturas</h3>
-                                        <a href="{{ route('super_admin.lecturas-microclima.index') }}"
-                                           class="px-4 py-2 rounded-lg bg-[#144255] text-white text-sm font-semibold hover:bg-[#1c607a] transition">
-                                            Ver módulo
-                                        </a>
-                                    </div>
-
-                                    <div class="overflow-x-auto">
-                                        <table class="min-w-full text-sm">
-                                            <thead>
-                                            <tr class="border-b border-gray-200 text-left text-gray-500 uppercase text-xs">
-                                                <th class="py-2 pr-4">Incubadora</th>
-                                                <th class="py-2 pr-4">Temp.</th>
-                                                <th class="py-2 pr-4">Hum.</th>
-                                                <th class="py-2">Fecha</th>
-                                            </tr>
-                                            </thead>
-                                            <tbody>
-                                            @forelse($ultimasLecturas as $lectura)
-                                                <tr class="border-b border-gray-100">
-                                                    <td class="py-3 pr-4 font-semibold text-[#144255]">{{ $lectura->incubadora->nombre ?? 'Sin incubadora' }}</td>
-                                                    <td class="py-3 pr-4 text-gray-700">{{ $lectura->temperatura }} °C</td>
-                                                    <td class="py-3 pr-4 text-gray-700">{{ $lectura->humedad }} %</td>
-                                                    <td class="py-3 text-gray-500">{{ \Carbon\Carbon::parse($lectura->fecha_hora)->format('d/m H:i') }}</td>
-                                                </tr>
-                                            @empty
-                                                <tr>
-                                                    <td colspan="4" class="py-6 text-center text-gray-500">No hay lecturas registradas.</td>
-                                                </tr>
-                                            @endforelse
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </div>
-
-                                <div class="bg-white/70 rounded-2xl p-6 border border-white">
-                                    <div class="flex items-center justify-between mb-4">
-                                        <h3 class="font-black text-[#144255] text-lg uppercase tracking-wide">Últimos controles</h3>
-                                        <a href="{{ route('super_admin.controles-incubadora.index') }}"
-                                           class="px-4 py-2 rounded-lg bg-[#144255] text-white text-sm font-semibold hover:bg-[#1c607a] transition">
-                                            Ver módulo
-                                        </a>
-                                    </div>
-
-                                    <div class="overflow-x-auto">
-                                        <table class="min-w-full text-sm">
-                                            <thead>
-                                            <tr class="border-b border-gray-200 text-left text-gray-500 uppercase text-xs">
-                                                <th class="py-2 pr-4">Incubadora</th>
-                                                <th class="py-2 pr-4">Tipo</th>
-                                                <th class="py-2 pr-4">Modo</th>
-                                                <th class="py-2">Usuario</th>
-                                            </tr>
-                                            </thead>
-                                            <tbody>
-                                            @forelse($ultimosControles as $control)
-                                                <tr class="border-b border-gray-100">
-                                                    <td class="py-3 pr-4 font-semibold text-[#144255]">{{ $control->incubadora->nombre ?? 'Sin incubadora' }}</td>
-                                                    <td class="py-3 pr-4 text-gray-700">{{ $control->tipo->nombre ?? 'Sin tipo' }}</td>
-                                                    <td class="py-3 pr-4 text-gray-700">{{ $control->modo->nombre ?? 'Sin modo' }}</td>
-                                                    <td class="py-3 text-gray-500">{{ $control->usuario->name ?? 'Sin usuario' }}</td>
-                                                </tr>
-                                            @empty
-                                                <tr>
-                                                    <td colspan="4" class="py-6 text-center text-gray-500">No hay controles registrados.</td>
-                                                </tr>
-                                            @endforelse
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="grid grid-cols-1 xl:grid-cols-2 gap-6 mb-8">
-                                <div class="bg-white/70 rounded-2xl p-6 border border-white">
-                                    <div class="flex items-center justify-between mb-4">
-                                        <h3 class="font-black text-[#144255] text-lg uppercase tracking-wide">Órdenes recientes</h3>
-                                        <div class="inline-flex items-center rounded-full bg-[#144255] px-4 py-2 text-xs font-bold uppercase tracking-wider text-white">
-                                            Control manual
-                                        </div>
-                                    </div>
-
-                                    <div class="overflow-x-auto">
-                                        <table class="min-w-full text-sm">
-                                            <thead>
-                                            <tr class="border-b border-gray-200 text-left text-gray-500 uppercase text-xs">
-                                                <th class="py-2 pr-4">Incubadora</th>
-                                                <th class="py-2 pr-4">Tipo</th>
-                                                <th class="py-2 pr-4">Acción</th>
-                                                <th class="py-2 pr-4">Estado</th>
-                                                <th class="py-2">Fecha</th>
-                                            </tr>
-                                            </thead>
-                                            <tbody>
-                                            @forelse($ordenesRecientes as $orden)
-                                                <tr class="border-b border-gray-100">
-                                                    <td class="py-3 pr-4 font-semibold text-[#144255]">{{ $orden->incubadora->nombre ?? 'Sin incubadora' }}</td>
-                                                    <td class="py-3 pr-4 text-gray-700">{{ $orden->tipo->nombre ?? 'Sin tipo' }}</td>
-                                                    <td class="py-3 pr-4 text-gray-700 capitalize">{{ $orden->accion }}</td>
-                                                    <td class="py-3 pr-4 text-gray-700 capitalize">{{ $orden->estado_orden }}</td>
-                                                    <td class="py-3 text-gray-500">{{ optional($orden->fecha_solicitud)->format('d/m H:i') }}</td>
-                                                </tr>
-                                            @empty
-                                                <tr>
-                                                    <td colspan="5" class="py-6 text-center text-gray-500">No hay órdenes registradas.</td>
-                                                </tr>
-                                            @endforelse
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </div>
-
-                                <div class="bg-white/70 rounded-2xl p-6 border border-white">
-                                    <div class="flex items-center justify-between mb-4">
-                                        <h3 class="font-black text-[#144255] text-lg uppercase tracking-wide">Alertas recientes</h3>
-                                        <a href="{{ route('super_admin.alertas.index') }}"
-                                           class="px-4 py-2 rounded-lg bg-[#144255] text-white text-sm font-semibold hover:bg-[#1c607a] transition">
-                                            Ver módulo
-                                        </a>
-                                    </div>
-
-                                    <div class="overflow-x-auto">
-                                        <table class="min-w-full text-sm">
-                                            <thead>
-                                            <tr class="border-b border-gray-200 text-left text-gray-500 uppercase text-xs">
-                                                <th class="py-2 pr-4">Incubadora</th>
-                                                <th class="py-2 pr-4">Tipo</th>
-                                                <th class="py-2 pr-4">Nivel</th>
-                                                <th class="py-2 pr-4">Estado</th>
-                                                <th class="py-2">Fecha</th>
-                                            </tr>
-                                            </thead>
-                                            <tbody>
-                                            @forelse($ultimasAlertas as $alerta)
-                                                <tr class="border-b border-gray-100">
-                                                    <td class="py-3 pr-4 font-semibold text-[#144255]">{{ $alerta->incubadora->nombre ?? 'Sin incubadora' }}</td>
-                                                    <td class="py-3 pr-4 text-gray-700">{{ $alerta->tipo->nombre ?? 'Sin tipo' }}</td>
-                                                    <td class="py-3 pr-4 text-gray-700">{{ $alerta->nivel->nombre ?? 'Sin nivel' }}</td>
-                                                    <td class="py-3 pr-4 text-gray-700">{{ $alerta->estado->nombre ?? 'Sin estado' }}</td>
-                                                    <td class="py-3 text-gray-500">{{ \Carbon\Carbon::parse($alerta->fecha_hora)->format('d/m H:i') }}</td>
-                                                </tr>
-                                            @empty
-                                                <tr>
-                                                    <td colspan="5" class="py-6 text-center text-gray-500">No hay alertas registradas.</td>
-                                                </tr>
-                                            @endforelse
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </div>
-                            </div>
-
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+
+    {{-- Chart.js --}}
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const INCUBADORA_ID = @json($incubadoraTiempoRealId ?? 106);
+            const URL_TIEMPO_REAL = `{{ route('super_admin.dashboard.tiempo-real') }}?incubadora_id=${INCUBADORA_ID}`;
+            const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+
+            const URL_ACTUADORES = {
+                niebla: @json(route('super_admin.microclima.actuadores.update', 'niebla')),
+                luz: @json(route('super_admin.microclima.actuadores.update', 'luz')),
+            };
+
+            const dhtTemp = document.getElementById('dht22Temp');
+            const dhtHum = document.getElementById('dht22Hum');
+            const dhtTime = document.getElementById('dht22Time');
+
+            const ds18Temp = document.getElementById('ds18Temp');
+            const ds18Time = document.getElementById('ds18Time');
+
+            const modoSwitch = document.getElementById('modoSwitch');
+            const modoLabel = document.getElementById('modoLabel');
+            const modoBadge = document.getElementById('modoBadge');
+
+            const nieblaSwitch = document.getElementById('nieblaSwitch');
+            const nieblaLabel = document.getElementById('nieblaLabel');
+            const nieblaBadge = document.getElementById('nieblaBadge');
+
+            const ledSwitch = document.getElementById('ledSwitch');
+            const ledLabel = document.getElementById('ledLabel');
+            const ledBadge = document.getElementById('ledBadge');
+
+            if (ds18Temp) ds18Temp.textContent = '--';
+            if (ds18Time) ds18Time.textContent = '--:--:--';
+
+            let temperaturaChart = null;
+            let humedadChart = null;
+            let peticionActiva = false;
+
+            let modoManual = false;
+            let nieblaActiva = false;
+            let ledActivo = false;
+
+            function normalizarArray(valor) {
+                if (!valor) return [];
+                if (Array.isArray(valor)) return valor;
+                return Object.values(valor);
+            }
+
+            function marcarActualizacion(elemento) {
+                if (!elemento) return;
+
+                elemento.classList.remove('dato-real-actualizado');
+                void elemento.offsetWidth;
+                elemento.classList.add('dato-real-actualizado');
+            }
+
+            function setText(id, value) {
+                const el = document.getElementById(id);
+
+                if (el) {
+                    el.textContent = value;
+                }
+            }
+
+            function iniciarGraficas() {
+                if (typeof Chart === 'undefined') {
+                    console.warn('Chart.js no cargó.');
+                    return;
+                }
+
+                const commonOptions = {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    animation: {
+                        duration: 250
+                    },
+                    scales: {
+                        x: {
+                            grid: {
+                                display: false
+                            },
+                            ticks: {
+                                color: '#6b7280',
+                                font: {
+                                    size: 10
+                                }
+                            }
+                        },
+                        y: {
+                            grid: {
+                                color: '#e5e7eb'
+                            },
+                            ticks: {
+                                color: '#6b7280',
+                                font: {
+                                    size: 11
+                                }
+                            },
+                            beginAtZero: false
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            backgroundColor: '#144255',
+                            titleFont: {
+                                size: 13
+                            },
+                            bodyFont: {
+                                size: 14,
+                                weight: 'bold'
+                            },
+                            padding: 10,
+                            cornerRadius: 8,
+                            displayColors: false
+                        }
+                    }
+                };
+
+                const canvasTemp = document.getElementById('temperaturaChart');
+
+                if (canvasTemp) {
+                    const ctxTemp = canvasTemp.getContext('2d');
+                    const gradientTemp = ctxTemp.createLinearGradient(0, 0, 0, 400);
+
+                    gradientTemp.addColorStop(0, 'rgba(234, 179, 8, 0.4)');
+                    gradientTemp.addColorStop(1, 'rgba(234, 179, 8, 0.0)');
+
+                    temperaturaChart = new Chart(ctxTemp, {
+                        type: 'line',
+                        data: {
+                            labels: [],
+                            datasets: [{
+                                label: 'Temperatura (°C)',
+                                data: [],
+                                borderColor: '#eab308',
+                                backgroundColor: gradientTemp,
+                                borderWidth: 3,
+                                pointBackgroundColor: '#ffffff',
+                                pointBorderColor: '#eab308',
+                                pointBorderWidth: 2,
+                                pointRadius: 4,
+                                pointHoverRadius: 6,
+                                tension: 0.4,
+                                fill: true
+                            }]
+                        },
+                        options: commonOptions
+                    });
+                }
+
+                const canvasHum = document.getElementById('humedadChart');
+
+                if (canvasHum) {
+                    const ctxHum = canvasHum.getContext('2d');
+                    const gradientHum = ctxHum.createLinearGradient(0, 0, 0, 400);
+
+                    gradientHum.addColorStop(0, 'rgba(59, 180, 156, 0.4)');
+                    gradientHum.addColorStop(1, 'rgba(59, 180, 156, 0.0)');
+
+                    humedadChart = new Chart(ctxHum, {
+                        type: 'line',
+                        data: {
+                            labels: [],
+                            datasets: [{
+                                label: 'Humedad (%)',
+                                data: [],
+                                borderColor: '#3bb49c',
+                                backgroundColor: gradientHum,
+                                borderWidth: 3,
+                                pointBackgroundColor: '#ffffff',
+                                pointBorderColor: '#3bb49c',
+                                pointBorderWidth: 2,
+                                pointRadius: 4,
+                                pointHoverRadius: 6,
+                                tension: 0.4,
+                                fill: true
+                            }]
+                        },
+                        options: commonOptions
+                    });
+                }
+            }
+
+            function actualizarGraficas(grafica) {
+                const labels = normalizarArray(grafica?.labels);
+                const temperaturas = normalizarArray(grafica?.temperaturas).map(Number);
+                const humedades = normalizarArray(grafica?.humedades).map(Number);
+
+                if (temperaturaChart) {
+                    temperaturaChart.data.labels = labels;
+                    temperaturaChart.data.datasets[0].data = temperaturas;
+                    temperaturaChart.update('none');
+                }
+
+                if (humedadChart) {
+                    humedadChart.data.labels = labels;
+                    humedadChart.data.datasets[0].data = humedades;
+                    humedadChart.update('none');
+                }
+            }
+
+            function renderResumenIncubadoras(items) {
+                const contenedor = document.getElementById('resumenIncubadorasLive');
+
+                if (!contenedor) return;
+
+                if (!items || items.length === 0) {
+                    contenedor.innerHTML = `
+                <div class="col-span-full text-center text-gray-500 py-8">
+                    No hay incubadoras registradas.
+                </div>
+            `;
+                    return;
+                }
+
+                contenedor.innerHTML = items.map(item => {
+                    const alertaHtml = item.alertas_abiertas > 0
+                        ? `<span class="badge-soft bg-red-100 text-red-700">Alerta activa</span>`
+                        : `<span class="badge-soft bg-emerald-100 text-emerald-700">Estable</span>`;
+
+                    const lecturaHtml = item.temperatura !== null
+                        ? `
+                    <div class="flex justify-between">
+                        <span class="text-gray-500">Temperatura</span>
+                        <span class="font-semibold text-[#144255]">${item.temperatura} °C</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-500">Humedad</span>
+                        <span class="font-semibold text-[#144255]">${item.humedad} %</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-500">Última lectura</span>
+                        <span class="font-semibold text-gray-700">${item.fecha}</span>
+                    </div>
+                `
+                        : `
+                    <div class="text-sm text-gray-500 italic pt-2">
+                        Sin lecturas registradas todavía.
+                    </div>
+                `;
+
+                    return `
+                <div class="rounded-2xl border border-gray-200 bg-white/80 p-5">
+                    <div class="flex items-start justify-between gap-3 mb-3">
+                        <div>
+                            <h4 class="text-base font-black text-[#144255]">${item.nombre}</h4>
+                            <p class="text-xs text-gray-500">${item.codigo ?? ''}</p>
+                        </div>
+                        ${alertaHtml}
+                    </div>
+
+                    <div class="space-y-2 text-sm">
+                        <div class="flex justify-between">
+                            <span class="text-gray-500">Estado incubadora</span>
+                            <span class="font-semibold text-gray-700">${item.estado}</span>
+                        </div>
+                        ${lecturaHtml}
+                    </div>
+                </div>
+            `;
+                }).join('');
+            }
+
+            async function actualizarDashboardTiempoReal() {
+                if (peticionActiva) return;
+
+                peticionActiva = true;
+
+                try {
+                    const response = await fetch(`${URL_TIEMPO_REAL}&t=${Date.now()}`, {
+                        method: 'GET',
+                        headers: {
+                            'Accept': 'application/json',
+                            'Cache-Control': 'no-cache',
+                            'Pragma': 'no-cache'
+                        },
+                        cache: 'no-store'
+                    });
+
+                    const data = await response.json();
+
+                    if (!data.ok) {
+                        console.warn('No se pudo actualizar el dashboard.');
+                        return;
+                    }
+
+                    setText('metricUsuariosTotal', data.metricas.usuarios_total);
+                    setText('metricIncubadorasTotal', data.metricas.incubadoras_total);
+                    setText('metricLecturasHoy', data.metricas.lecturas_hoy);
+                    setText('metricAlertasActivas', data.metricas.alertas_activas);
+                    setText('metricLotesTotal', data.metricas.lotes_total);
+                    setText('metricFrascosTotal', data.metricas.frascos_total);
+
+                    if (data.dht22 && data.dht22.temperatura !== null) {
+                        const temperatura = parseFloat(data.dht22.temperatura);
+                        const humedad = parseFloat(data.dht22.humedad);
+
+                        if (dhtTemp && !Number.isNaN(temperatura)) {
+                            dhtTemp.textContent = temperatura.toFixed(1);
+                            marcarActualizacion(dhtTemp);
+                        }
+
+                        if (dhtHum && !Number.isNaN(humedad)) {
+                            dhtHum.textContent = humedad.toFixed(1);
+                            marcarActualizacion(dhtHum);
+                        }
+
+                        if (dhtTime) {
+                            dhtTime.textContent = data.dht22.fecha_hora;
+                        }
+                    }
+
+                    actualizarGraficas(data.grafica);
+                    renderResumenIncubadoras(data.resumen_incubadoras);
+
+                } catch (error) {
+                    console.error('Error al actualizar dashboard en tiempo real:', error);
+                } finally {
+                    peticionActiva = false;
+                }
+            }
+
+            function cambiarEstadoVisualActuador(actuador, activo) {
+                let switchElement = null;
+                let labelElement = null;
+                let badgeElement = null;
+
+                if (actuador === 'niebla') {
+                    switchElement = nieblaSwitch;
+                    labelElement = nieblaLabel;
+                    badgeElement = nieblaBadge;
+                    nieblaActiva = activo;
+                }
+
+                if (actuador === 'luz') {
+                    switchElement = ledSwitch;
+                    labelElement = ledLabel;
+                    badgeElement = ledBadge;
+                    ledActivo = activo;
+                }
+
+                if (switchElement) {
+                    switchElement.classList.toggle('active', activo);
+                }
+
+                if (labelElement) {
+                    labelElement.textContent = activo ? 'Encendido' : 'Apagado';
+                }
+
+                if (badgeElement) {
+                    if (activo) {
+                        badgeElement.textContent = 'ENCENDIDO';
+                        badgeElement.className = actuador === 'luz'
+                            ? 'badge-soft bg-amber-100 text-amber-700'
+                            : 'badge-soft bg-emerald-100 text-emerald-700';
+                    } else {
+                        badgeElement.textContent = 'APAGADO';
+                        badgeElement.className = 'badge-soft bg-gray-100 text-gray-500';
+                    }
+                }
+            }
+
+            function habilitarActuadores(habilitar) {
+                [nieblaSwitch, ledSwitch].forEach(function (sw) {
+                    if (!sw) return;
+
+                    sw.style.pointerEvents = habilitar ? 'auto' : 'none';
+                    sw.style.opacity = habilitar ? '1' : '.5';
+                });
+            }
+
+            function actualizarModoVisual() {
+                if (modoSwitch) {
+                    modoSwitch.classList.toggle('active', modoManual);
+                }
+
+                if (modoLabel) {
+                    modoLabel.textContent = modoManual ? 'Modo Manual activo' : 'Modo Automático activo';
+                }
+
+                if (modoBadge) {
+                    if (modoManual) {
+                        modoBadge.textContent = '✋ MANUAL';
+                        modoBadge.className = 'badge-soft bg-amber-100 text-amber-700';
+                    } else {
+                        modoBadge.textContent = '⚙️ AUTOMÁTICO';
+                        modoBadge.className = 'badge-soft bg-emerald-100 text-emerald-700';
+                    }
+                }
+
+                habilitarActuadores(modoManual);
+            }
+
+            async function enviarOrdenActuador(actuador, accion) {
+                if (!URL_ACTUADORES[actuador]) {
+                    alert('Actuador no válido.');
+                    return false;
+                }
+
+                try {
+                    const response = await fetch(URL_ACTUADORES[actuador], {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json',
+                            'X-CSRF-TOKEN': csrfToken,
+                        },
+                        body: JSON.stringify({
+                            accion: accion
+                        })
+                    });
+
+                    const data = await response.json();
+
+                    if (!response.ok || !data.ok) {
+                        console.error('Error al enviar orden:', data);
+                        alert('No se pudo enviar la orden al actuador.');
+                        return false;
+                    }
+
+                    console.log('Orden enviada:', data);
+                    return true;
+
+                } catch (error) {
+                    console.error('Error de conexión al enviar orden:', error);
+                    alert('Error de conexión al enviar la orden.');
+                    return false;
+                }
+            }
+
+            window.toggleModo = async function () {
+                modoManual = !modoManual;
+                actualizarModoVisual();
+
+                if (!modoManual) {
+                    cambiarEstadoVisualActuador('niebla', false);
+                    cambiarEstadoVisualActuador('luz', false);
+
+                    await enviarOrdenActuador('niebla', 'apagar');
+                    await enviarOrdenActuador('luz', 'apagar');
+                }
+            };
+
+            window.toggleNiebla = async function () {
+                if (!modoManual) {
+                    alert('Activa primero el modo manual para controlar la niebla.');
+                    return;
+                }
+
+                const nuevoEstado = !nieblaActiva;
+                const accion = nuevoEstado ? 'encender' : 'apagar';
+
+                const ok = await enviarOrdenActuador('niebla', accion);
+
+                if (ok) {
+                    cambiarEstadoVisualActuador('niebla', nuevoEstado);
+                }
+            };
+
+            window.toggleLed = async function () {
+                if (!modoManual) {
+                    alert('Activa primero el modo manual para controlar la luz.');
+                    return;
+                }
+
+                const nuevoEstado = !ledActivo;
+                const accion = nuevoEstado ? 'encender' : 'apagar';
+
+                const ok = await enviarOrdenActuador('luz', accion);
+
+                if (ok) {
+                    cambiarEstadoVisualActuador('luz', nuevoEstado);
+                }
+            };
+
+            const humSlider = document.getElementById('humSetpoint');
+            const humDisplay = document.getElementById('humSetpointDisplay');
+            const tempSlider = document.getElementById('tempSetpoint');
+            const tempDisplay = document.getElementById('tempSetpointDisplay');
+
+            if (humSlider && humDisplay) {
+                humSlider.addEventListener('input', function () {
+                    humDisplay.textContent = this.value;
+                });
+            }
+
+            if (tempSlider && tempDisplay) {
+                tempSlider.addEventListener('input', function () {
+                    tempDisplay.textContent = this.value;
+                });
+            }
+
+            window.ajustarSlider = function (sliderId, delta) {
+                const slider = document.getElementById(sliderId);
+
+                if (!slider) return;
+
+                let value = parseInt(slider.value) + delta;
+
+                value = Math.max(parseInt(slider.min), Math.min(parseInt(slider.max), value));
+
+                slider.value = value;
+                slider.dispatchEvent(new Event('input'));
+            };
+
+            iniciarGraficas();
+            actualizarDashboardTiempoReal();
+            actualizarModoVisual();
+            cambiarEstadoVisualActuador('niebla', false);
+            cambiarEstadoVisualActuador('luz', false);
+
+            setInterval(actualizarDashboardTiempoReal, 2000);
+        });
+    </script>
 </x-app-layout>

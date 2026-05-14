@@ -1,0 +1,27 @@
+@include('vistas_principales.shared.modulo-crud', [
+    'title' => 'Seguimientos de Lote',
+    'subtitle' => 'Administra los seguimientos realizados a los lotes.',
+    'items' => $seguimientos ?? collect(),
+    'routeBase' => 'super_admin.seguimientos-lote',
+    'entitySingular' => 'Seguimiento',
+    'entityPlural' => 'Seguimientos',
+    'columns' => [
+        ['label' => 'Lote', 'key' => 'lote.codigo_lote'],
+        ['label' => 'Fecha revisión', 'key' => 'fecha_revision'],
+        ['label' => 'Frascos activos', 'key' => 'frascos_activos'],
+        ['label' => 'Semillas germinadas', 'key' => 'semillas_germinadas'],
+        ['label' => '% Germinación', 'key' => 'porcentaje_germinacion'],
+        ['label' => 'Etapa', 'key' => 'etapa.nombre'],
+    ],
+    'fields' => [
+        ['name' => 'lote_id', 'label' => 'Lote', 'type' => 'select', 'required' => true, 'options' => $lotes ?? [], 'option_value' => 'id', 'option_label' => 'codigo_lote', 'edit_key' => 'lote_id'],
+        ['name' => 'fecha_revision', 'label' => 'Fecha revisión', 'type' => 'date', 'required' => true],
+        ['name' => 'frascos_activos', 'label' => 'Frascos activos', 'type' => 'number', 'required' => true],
+        ['name' => 'semillas_germinadas', 'label' => 'Semillas germinadas', 'type' => 'number', 'required' => true],
+        ['name' => 'porcentaje_germinacion', 'label' => 'Porcentaje de germinación', 'type' => 'number', 'required' => true, 'step' => '0.01'],
+        ['name' => 'altura_promedio_cm', 'label' => 'Altura promedio (cm)', 'type' => 'number', 'step' => '0.01'],
+        ['name' => 'etapa_desarrollo_id', 'label' => 'Etapa de desarrollo', 'type' => 'select', 'required' => true, 'options' => $etapas ?? [], 'option_value' => 'id', 'option_label' => 'nombre', 'edit_key' => 'etapa_desarrollo_id'],
+        ['name' => 'user_id', 'label' => 'Usuario', 'type' => 'select', 'required' => true, 'options' => $usuarios ?? [], 'option_value' => 'id', 'option_label' => 'name', 'edit_key' => 'user_id'],
+        ['name' => 'observaciones', 'label' => 'Observaciones', 'type' => 'textarea'],
+    ],
+])

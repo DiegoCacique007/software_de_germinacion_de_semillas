@@ -3,58 +3,69 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Models\Incubadora;
 use App\Models\LecturaMicroclima;
-use App\Services\MicroclimaAlertService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class SensorLecturaController extends Controller
 {
-    public function store(Request $request, MicroclimaAlertService $alertService)
+    public function store(Request $request)
     {
         $token = $request->header('X-SENSOR-TOKEN');
 
         if (!$token || $token !== env('SENSOR_API_TOKEN')) {
             return response()->json([
                 'ok' => false,
-                'message' => 'Token de sensor inválido.'
+                'message' => 'Token inválido.',
             ], 401);
         }
 
-        $validator = Validator::make($request->all(), [
-            'incubadora_id' => 'required|exists:incubadoras,id',
-            'temperatura'   => 'required|numeric|min:-50|max:100',
-            'humedad'       => 'required|numeric|min:0|max:100',
-            'fecha_hora'    => 'nullable|date',
-            'observaciones' => 'nullable|string',
+        $validated = $request->validate([
+            'incubadora_id' => ['nullable', 'integer'],
+            'temperatura' => ['required', 'numeric', 'between:-20,80'],
+            'humedad' => ['required', 'numeric', 'between:0,100'],
         ]);
 
-        if ($validator->fails()) {
+        $incubadoraId = $validated['incubadora_id'] ?? 106;
+
+        $existeIncubadora = DB::table('incubadoras')
+            ->where('id', $incubadoraId)
+            ->exists();
+
+        if (!$existeIncubadora) {
             return response()->json([
                 'ok' => false,
-                'message' => 'Datos inválidos.',
-                'errors' => $validator->errors(),
-            ], 422);
+                'message' => 'La incubadora indicada no existe.',
+                'incubadora_id' => $incubadoraId,
+            ], 404);
         }
 
-        $incubadora = Incubadora::findOrFail($request->incubadora_id);
+        try {
+            $lectura = LecturaMicroclima::create([
+                'incubadora_id' => $incubadoraId,
+                'fecha_hora' => now('America/Mexico_City')->format('Y-m-d H:i:s'),
+                'temperatura' => $validated['temperatura'],
+                'humedad' => $validated['humedad'],
+                'observaciones' => 'Lectura enviada por ESP32-WROOM-32 con sensor DHT22.',
+            ]);
 
-        $lectura = LecturaMicroclima::create([
-            'incubadora_id' => $incubadora->id,
-            'fecha_hora'    => $request->fecha_hora ?? now(),
-            'temperatura'   => $request->temperatura,
-            'humedad'       => $request->humedad,
-            'observaciones' => $request->observaciones,
-        ]);
+            return response()->json([
+                'ok' => true,
+                'message' => 'Lectura registrada correctamente.',
+                'data' => $lectura,
+            ], 201);
+        } catch (\Throwable $e) {
+            Log::error('Error al registrar lectura de microclima desde ESP32', [
+                'error' => $e->getMessage(),
+                'payload' => $request->all(),
+            ]);
 
-        $alertasGeneradas = $alertService->evaluarLectura($lectura);
-
-        return response()->json([
-            'ok' => true,
-            'message' => 'Lectura registrada correctamente.',
-            'lectura_id' => $lectura->id,
-            'alertas_generadas' => $alertasGeneradas,
-        ], 201);
+            return response()->json([
+                'ok' => false,
+                'message' => 'Error interno al registrar la lectura.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
     }
 }

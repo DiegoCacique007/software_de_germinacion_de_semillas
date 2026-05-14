@@ -29,7 +29,7 @@ class Lote extends Model
 
     public function especie()
     {
-        return $this->belongsTo(Especie::class, 'especie_id');
+        return $this->belongsTo(Especie::class);
     }
 
     public function estado()
@@ -39,11 +39,16 @@ class Lote extends Model
 
     public function frascos()
     {
-        return $this->hasMany(Frasco::class, 'lote_id');
+        return $this->hasMany(Frasco::class);
     }
 
     public function seguimientos()
     {
-        return $this->hasMany(SeguimientoLote::class, 'lote_id');
+        return $this->hasMany(SeguimientoLote::class);
+    }
+
+    public function registrosBiologicos()
+    {
+        return $this->hasMany(RegistroBiologico::class);
     }
 }

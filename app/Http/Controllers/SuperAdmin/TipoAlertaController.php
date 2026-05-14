@@ -8,59 +8,43 @@ use Illuminate\Http\Request;
 
 class TipoAlertaController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
-        //
+        $registros = TipoAlerta::latest()->get();
+
+        return view('vistas_principales.super_admin.tipos_alerta.index', ['tipos' => $registros]);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
-        //
+        $data = $request->validate([
+            'clave' => 'required|string|max:50|unique:tipos_alerta,clave',
+            'nombre' => 'required|string|max:100',
+            'descripcion' => 'nullable|string|max:255',
+        ]);
+
+        TipoAlerta::create($data);
+
+        return redirect()->route('super_admin.tipos-alerta.index')->with('success', 'Registro creado correctamente.');
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(TipoAlerta $tipoAlerta)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(TipoAlerta $tipoAlerta)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(Request $request, TipoAlerta $tipoAlerta)
     {
-        //
+        $data = $request->validate([
+            'clave' => 'required|string|max:50|unique:tipos_alerta,clave,' . $tipoAlerta->id,
+            'nombre' => 'required|string|max:100',
+            'descripcion' => 'nullable|string|max:255',
+        ]);
+
+        $tipoAlerta->update($data);
+
+        return redirect()->route('super_admin.tipos-alerta.index')->with('success', 'Registro actualizado correctamente.');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(TipoAlerta $tipoAlerta)
     {
-        //
+        $tipoAlerta->delete();
+
+        return redirect()->route('super_admin.tipos-alerta.index')->with('success', 'Registro eliminado correctamente.');
     }
 }

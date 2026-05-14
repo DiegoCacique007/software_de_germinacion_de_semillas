@@ -2,13 +2,10 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class LecturaMicroclima extends Model
 {
-    use HasFactory;
-
     protected $table = 'lecturas_microclima';
 
     protected $fillable = [
@@ -21,8 +18,8 @@ class LecturaMicroclima extends Model
 
     protected $casts = [
         'fecha_hora' => 'datetime',
-        'temperatura' => 'decimal:2',
-        'humedad' => 'decimal:2',
+        'temperatura' => 'float',
+        'humedad' => 'float',
     ];
 
     public function incubadora()

@@ -31,10 +31,9 @@ class AuthenticatedSessionController extends Controller
         $user = Auth::user();
 
         return match ($user->role) {
-            'super_admin'   => redirect()->route('super_admin.dashboard'),
-            'administrador' => redirect()->route('administrador.dashboard'),
-            'encargado'     => redirect()->route('encargado.dashboard'),
-            default         => redirect()->route('dashboard'),
+            'super_admin'   => redirect()->route('super_admin.dashboard')->with('success', 'Bienvenido de nuevo al sistema.'),
+            'administrador' => redirect()->route('administrador.dashboard')->with('success', 'Bienvenido de nuevo al sistema.'),
+            default         => redirect()->route('dashboard')->with('success', 'Bienvenido de nuevo.'),
         };
     }
 
@@ -49,6 +48,6 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerateToken();
 
-        return redirect('/');
+        return redirect()->route('login')->with('success', 'Sesión cerrada correctamente.');
     }
 }

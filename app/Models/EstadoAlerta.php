@@ -16,9 +16,4 @@ class EstadoAlerta extends Model
         'nombre',
         'descripcion',
     ];
-
-    public function alertas()
-    {
-        return $this->hasMany(Alerta::class, 'estado_alerta_id');
-    }
 }

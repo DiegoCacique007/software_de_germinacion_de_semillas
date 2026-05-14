@@ -16,9 +16,4 @@ class ModoControlIncubadora extends Model
         'nombre',
         'descripcion',
     ];
-
-    public function controles()
-    {
-        return $this->hasMany(ControlIncubadora::class, 'modo_control_incubadora_id');
-    }
 }

@@ -16,14 +16,4 @@ class EstadoFrasco extends Model
         'nombre',
         'descripcion',
     ];
-
-    public function frascos()
-    {
-        return $this->hasMany(Frasco::class, 'estado_frasco_id');
-    }
-
-    public function seguimientos()
-    {
-        return $this->hasMany(SeguimientoFrasco::class, 'estado_frasco_id');
-    }
 }

@@ -21,7 +21,7 @@ class Frasco extends Model
 
     public function lote()
     {
-        return $this->belongsTo(Lote::class, 'lote_id');
+        return $this->belongsTo(Lote::class);
     }
 
     public function estado()
@@ -31,6 +31,6 @@ class Frasco extends Model
 
     public function seguimientos()
     {
-        return $this->hasMany(SeguimientoFrasco::class, 'frasco_id');
+        return $this->hasMany(SeguimientoFrasco::class);
     }
 }
