@@ -30,7 +30,7 @@ use App\Http\Controllers\SuperAdmin\SeguimientoFrascoController;
 use App\Http\Controllers\SuperAdmin\SeguimientoLoteController;
 use App\Http\Controllers\SuperAdmin\TipoAlertaController;
 use App\Http\Controllers\SuperAdmin\TipoControlIncubadoraController;
-
+use App\Http\Controllers\SuperAdmin\PerfilFotoController;
 
 Route::get('/', function () {
     return auth()->check()
@@ -52,6 +52,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/profile', 'edit')->name('profile.edit');
         Route::patch('/profile', 'update')->name('profile.update');
         Route::delete('/profile', 'destroy')->name('profile.destroy');
+    });
+    Route::patch('/perfil/foto', [PerfilFotoController::class, 'update'])->name('perfil.foto.update');
+
+    Route::get('/perfil/foto', function () { return redirect()->route('dashboard');
     });
 });
 
