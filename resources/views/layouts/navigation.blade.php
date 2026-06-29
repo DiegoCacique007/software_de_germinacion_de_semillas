@@ -19,7 +19,7 @@
         str_replace(['_', '-'], ' ', $rolUsuario)
     );
 
-    $fotoUsuario = $usuario && $usuario->foto_perfil
+    $fotoUsuario = $usuario && isset($usuario->foto_perfil) && $usuario->foto_perfil
         ? asset('storage/' . $usuario->foto_perfil)
         : null;
 
@@ -228,13 +228,39 @@
     }
 
     .microseed-topbar,
+    .microseed-topbar *,
     .microseed-topbar button,
     .microseed-topbar input,
     .microseed-topbar label,
     .microseed-topbar a,
     .microseed-topbar p,
     .microseed-topbar span {
-        font-family: 'Instrument Sans', sans-serif;
+        box-sizing: border-box;
+        font-family:
+            'Instrument Sans',
+            ui-sans-serif,
+            system-ui,
+            -apple-system,
+            BlinkMacSystemFont,
+            'Segoe UI',
+            sans-serif;
+    }
+
+    .microseed-topbar button {
+        margin: 0;
+        border: 0;
+        outline: none;
+        background: transparent;
+        color: inherit;
+        font: inherit;
+        cursor: pointer;
+        appearance: none;
+        -webkit-appearance: none;
+    }
+
+    .microseed-topbar a {
+        color: inherit;
+        text-decoration: none;
     }
 
     .microseed-topbar {
@@ -388,6 +414,7 @@
         align-items: center;
         gap: 11px;
         padding: 11px 13px;
+        color: inherit;
         text-align: left;
         transition: background 0.16s ease;
     }
@@ -528,6 +555,7 @@
     }
 
     .microseed-dropdown-title {
+        margin: 0;
         color: #334155;
         font-size: 13px;
         font-weight: 700;
@@ -600,14 +628,14 @@
     }
 
     .microseed-empty-title {
-        margin-top: 11px;
+        margin: 11px 0 0;
         color: #475569;
         font-size: 12px;
         font-weight: 700;
     }
 
     .microseed-empty-description {
-        margin-top: 4px;
+        margin: 4px 0 0;
         color: #94a3b8;
         font-size: 10px;
         font-weight: 500;
@@ -632,6 +660,7 @@
     .microseed-profile-wrapper {
         position: relative;
         margin-left: 7px;
+        flex-shrink: 0;
     }
 
     .microseed-profile-button {
@@ -641,13 +670,22 @@
         align-items: center;
         gap: 10px;
         padding: 6px 9px;
+        border: 0;
         border-radius: 14px;
-        transition: background 0.17s ease;
+        color: #334155;
+        background: transparent;
+        box-shadow: none;
+        transition:
+            background 0.17s ease,
+            transform 0.17s ease,
+            box-shadow 0.17s ease;
     }
 
     .microseed-profile-button:hover,
     .microseed-profile-active {
         background: #f5f7fa;
+        transform: translateY(-1px);
+        box-shadow: none;
     }
 
     .microseed-profile-button:focus-visible {
@@ -659,21 +697,33 @@
         position: relative;
         width: 38px;
         height: 38px;
+        min-width: 38px;
+        max-width: 38px;
+        min-height: 38px;
+        max-height: 38px;
         display: flex;
         align-items: center;
         justify-content: center;
         flex-shrink: 0;
         overflow: visible;
+        border: 0;
         border-radius: 11px;
         color: #ffffff;
         background: linear-gradient(135deg, #144255, #3bb49c);
+        box-shadow: none;
         font-size: 13px;
         font-weight: 700;
+        line-height: 1;
     }
 
     .microseed-profile-avatar img {
-        width: 100%;
-        height: 100%;
+        width: 38px;
+        height: 38px;
+        min-width: 38px;
+        max-width: 38px;
+        min-height: 38px;
+        max-height: 38px;
+        display: block;
         border-radius: 11px;
         object-fit: cover;
     }
@@ -684,37 +734,43 @@
         bottom: -3px;
         width: 11px;
         height: 11px;
+        display: block;
         border: 2px solid #ffffff;
         border-radius: 9999px;
         background: #10b981;
+        box-shadow: none;
     }
 
     .microseed-profile-information {
         min-width: 0;
         flex: 1;
+        display: block;
         text-align: left;
     }
 
     .microseed-profile-name {
         display: block;
+        max-width: 122px;
         overflow: hidden;
-        color: #475569;
-        font-size: 11px;
-        font-weight: 700;
+        color: #334155;
+        font-size: 12px;
+        font-weight: 800;
         line-height: 1.15;
+        letter-spacing: -0.015em;
         text-overflow: ellipsis;
         white-space: nowrap;
     }
 
     .microseed-profile-role {
         display: block;
-        margin-top: 3px;
+        max-width: 122px;
+        margin-top: 4px;
         overflow: hidden;
-        color: #94a3b8;
-        font-size: 8px;
-        font-weight: 600;
+        color: #3bb49c;
+        font-size: 9px;
+        font-weight: 800;
         line-height: 1;
-        letter-spacing: 0.08em;
+        letter-spacing: 0.12em;
         text-overflow: ellipsis;
         text-transform: uppercase;
         white-space: nowrap;
@@ -758,6 +814,10 @@
     .microseed-profile-large-avatar {
         width: 50px;
         height: 50px;
+        min-width: 50px;
+        max-width: 50px;
+        min-height: 50px;
+        max-height: 50px;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -765,14 +825,16 @@
         overflow: hidden;
         border: 1px solid rgba(255, 255, 255, 0.22);
         border-radius: 14px;
+        color: #ffffff;
         background: rgba(255, 255, 255, 0.13);
         font-size: 17px;
         font-weight: 700;
     }
 
     .microseed-profile-large-avatar img {
-        width: 100%;
-        height: 100%;
+        width: 50px;
+        height: 50px;
+        border-radius: 14px;
         object-fit: cover;
     }
 
@@ -813,6 +875,10 @@
 
     .microseed-profile-body {
         padding: 9px;
+    }
+
+    .microseed-profile-body form {
+        margin: 0;
     }
 
     .microseed-profile-action {
@@ -911,7 +977,10 @@
 
         .microseed-profile-button {
             min-width: 48px;
+            width: 48px;
+            height: 48px;
             padding: 5px;
+            justify-content: center;
         }
 
         .microseed-profile-information,
@@ -963,6 +1032,10 @@
             left: 12px;
             width: auto;
         }
+
+        .microseed-profile-dropdown {
+            width: auto;
+        }
     }
 
     @media (max-width: 560px) {
@@ -985,6 +1058,162 @@
 
         .microseed-mobile-menu-button {
             display: flex;
+        }
+    }
+
+    /*
+        FIX FINAL:
+        Mantiene el perfil superior derecho compacto aunque profile/edit.blade.php
+        tenga clases parecidas como .microseed-profile-avatar.
+    */
+    .microseed-topbar .microseed-profile-wrapper {
+        position: relative !important;
+        margin-left: 7px !important;
+        flex-shrink: 0 !important;
+    }
+
+    .microseed-topbar .microseed-profile-button {
+        min-width: 170px !important;
+        height: 50px !important;
+        display: flex !important;
+        align-items: center !important;
+        gap: 10px !important;
+        padding: 6px 9px !important;
+        border: 0 !important;
+        border-radius: 14px !important;
+        color: #334155 !important;
+        background: transparent !important;
+        box-shadow: none !important;
+        cursor: pointer !important;
+    }
+
+    .microseed-topbar .microseed-profile-button:hover,
+    .microseed-topbar .microseed-profile-active {
+        background: #f5f7fa !important;
+        transform: translateY(-1px) !important;
+        box-shadow: none !important;
+    }
+
+    .microseed-topbar .microseed-profile-avatar {
+        position: relative !important;
+        width: 38px !important;
+        height: 38px !important;
+        min-width: 38px !important;
+        max-width: 38px !important;
+        min-height: 38px !important;
+        max-height: 38px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        flex-shrink: 0 !important;
+        overflow: visible !important;
+        border: 0 !important;
+        border-radius: 11px !important;
+        color: #ffffff !important;
+        background: linear-gradient(135deg, #144255, #3bb49c) !important;
+        box-shadow: none !important;
+        font-size: 13px !important;
+        font-weight: 700 !important;
+        line-height: 1 !important;
+    }
+
+    .microseed-topbar .microseed-profile-avatar img {
+        width: 38px !important;
+        height: 38px !important;
+        min-width: 38px !important;
+        max-width: 38px !important;
+        min-height: 38px !important;
+        max-height: 38px !important;
+        display: block !important;
+        border-radius: 11px !important;
+        object-fit: cover !important;
+    }
+
+    .microseed-topbar .microseed-profile-online {
+        position: absolute !important;
+        right: -3px !important;
+        bottom: -3px !important;
+        width: 11px !important;
+        height: 11px !important;
+        display: block !important;
+        border: 2px solid #ffffff !important;
+        border-radius: 9999px !important;
+        background: #10b981 !important;
+        box-shadow: none !important;
+    }
+
+    .microseed-topbar .microseed-profile-information {
+        min-width: 0 !important;
+        flex: 1 !important;
+        display: block !important;
+        text-align: left !important;
+    }
+
+    .microseed-topbar .microseed-profile-name {
+        display: block !important;
+        max-width: 122px !important;
+        overflow: hidden !important;
+        color: #334155 !important;
+        font-size: 12px !important;
+        font-weight: 800 !important;
+        line-height: 1.15 !important;
+        letter-spacing: -0.015em !important;
+        text-overflow: ellipsis !important;
+        white-space: nowrap !important;
+    }
+
+    .microseed-topbar .microseed-profile-role {
+        display: block !important;
+        max-width: 122px !important;
+        margin-top: 4px !important;
+        overflow: hidden !important;
+        color: #3bb49c !important;
+        font-size: 9px !important;
+        font-weight: 800 !important;
+        line-height: 1 !important;
+        letter-spacing: 0.12em !important;
+        text-overflow: ellipsis !important;
+        text-transform: uppercase !important;
+        white-space: nowrap !important;
+    }
+
+    .microseed-topbar .microseed-profile-chevron {
+        width: 14px !important;
+        height: 14px !important;
+        flex-shrink: 0 !important;
+        color: #94a3b8 !important;
+        transition: transform 0.18s ease !important;
+    }
+
+    .microseed-topbar .microseed-profile-dropdown .microseed-profile-large-avatar {
+        width: 50px !important;
+        height: 50px !important;
+        min-width: 50px !important;
+        max-width: 50px !important;
+        min-height: 50px !important;
+        max-height: 50px !important;
+        border-radius: 14px !important;
+    }
+
+    .microseed-topbar .microseed-profile-dropdown .microseed-profile-large-avatar img {
+        width: 50px !important;
+        height: 50px !important;
+        border-radius: 14px !important;
+        object-fit: cover !important;
+    }
+
+    @media (max-width: 1100px) {
+        .microseed-topbar .microseed-profile-button {
+            min-width: 48px !important;
+            width: 48px !important;
+            height: 48px !important;
+            padding: 5px !important;
+            justify-content: center !important;
+        }
+
+        .microseed-topbar .microseed-profile-information,
+        .microseed-topbar .microseed-profile-chevron {
+            display: none !important;
         }
     }
 </style>
@@ -1089,8 +1318,6 @@
                             }
                         "
                     >
-
-
                 </div>
 
                 <div
