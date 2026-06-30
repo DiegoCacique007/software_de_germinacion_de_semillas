@@ -1,4 +1,3 @@
-
 @php
     $user = Auth::user();
 
@@ -323,9 +322,27 @@
 <div
     class="microseed-sidebar relative z-50 h-dvh min-h-0 shrink-0"
     x-data="{
-        openGroup: @js($initialGroup),
+        sidebarOpen: false,
+        openGroup: null,
+        initialGroup: @js($initialGroup),
+
+        openSidebar() {
+            this.sidebarOpen = true;
+        },
+
+        closeSidebar() {
+            this.sidebarOpen = false;
+            this.openGroup = null;
+        },
+
+        openGroupOnHover(group) {
+            if (this.sidebarOpen) {
+                this.openGroup = group;
+            }
+        },
 
         toggleGroup(group) {
+            this.sidebarOpen = true;
             this.openGroup = this.openGroup === group ? null : group;
         },
 
@@ -333,8 +350,10 @@
             this.openGroup = null;
         }
     }"
-    :class="openGroup ? 'sidebar-expanded' : 'sidebar-collapsed'"
-    @keydown.escape.window="openGroup = null"
+    :class="sidebarOpen ? 'sidebar-expanded' : 'sidebar-collapsed'"
+    @mouseenter="openSidebar()"
+    @mouseleave="closeSidebar()"
+    @keydown.escape.window="closeSidebar()"
 >
     <style>
         [x-cloak] {
@@ -376,8 +395,8 @@
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
             transition:
-                width 0.26s cubic-bezier(0.4, 0, 0.2, 1),
-                box-shadow 0.26s ease;
+                width 0.22s cubic-bezier(0.4, 0, 0.2, 1),
+                box-shadow 0.22s ease;
         }
 
         .microseed-sidebar *,
@@ -995,9 +1014,9 @@
                 </span>
 
                 <span
-                    x-show="openGroup"
+                    x-show="sidebarOpen"
                     x-cloak
-                    x-transition.opacity.duration.200ms
+                    x-transition.opacity.duration.160ms
                     class="sidebar-brand-information"
                 >
                     <span class="sidebar-brand-name">
@@ -1030,6 +1049,7 @@
                                     ? 'sidebar-group-open'
                                     : ''
                             "
+                            @mouseenter="openGroupOnHover(@js($group['key']))"
                         >
                             <button
                                 type="button"
@@ -1045,9 +1065,9 @@
                                 </span>
 
                                 <span
-                                    x-show="openGroup"
+                                    x-show="sidebarOpen"
                                     x-cloak
-                                    x-transition.opacity
+                                    x-transition.opacity.duration.140ms
                                     class="sidebar-group-content"
                                 >
                                     <span class="sidebar-group-text">
@@ -1082,7 +1102,10 @@
                             </button>
 
                             <div
-                                x-show="openGroup === @js($group['key'])"
+                                x-show="
+                                    sidebarOpen
+                                    && openGroup === @js($group['key'])
+                                "
                                 x-cloak
                                 x-collapse
                                 class="sidebar-submenu"
@@ -1124,6 +1147,7 @@
                                 ? 'sidebar-group-open'
                                 : ''
                         "
+                        @mouseenter="openGroupOnHover('reportes')"
                     >
                         <button
                             type="button"
@@ -1137,9 +1161,9 @@
                             </span>
 
                             <span
-                                x-show="openGroup"
+                                x-show="sidebarOpen"
                                 x-cloak
-                                x-transition.opacity
+                                x-transition.opacity.duration.140ms
                                 class="sidebar-group-content"
                             >
                                 <span class="sidebar-group-text">
@@ -1174,7 +1198,7 @@
                         </button>
 
                         <div
-                            x-show="openGroup === 'reportes'"
+                            x-show="sidebarOpen && openGroup === 'reportes'"
                             x-cloak
                             x-collapse
                             class="sidebar-submenu"
@@ -1185,7 +1209,7 @@
                                 role="button"
                                 @click.prevent="
                                     $dispatch('open-microclima-modal');
-                                    closeGroup();
+                                    closeSidebar();
                                 "
                             >
                                 <span class="sidebar-submenu-label">
@@ -1199,7 +1223,7 @@
                                 role="button"
                                 @click.prevent="
                                     $dispatch('open-biologico-modal');
-                                    closeGroup();
+                                    closeSidebar();
                                 "
                             >
                                 <span class="sidebar-submenu-label">
@@ -1216,6 +1240,7 @@
                                 ? 'sidebar-group-open'
                                 : ''
                         "
+                        @mouseenter="openGroupOnHover('sin-permisos')"
                     >
                         <button
                             type="button"
@@ -1229,7 +1254,7 @@
                             </span>
 
                             <span
-                                x-show="openGroup"
+                                x-show="sidebarOpen"
                                 x-cloak
                                 class="sidebar-group-content"
                             >
@@ -1246,7 +1271,7 @@
                         </button>
 
                         <div
-                            x-show="openGroup === 'sin-permisos'"
+                            x-show="sidebarOpen && openGroup === 'sin-permisos'"
                             x-cloak
                             x-collapse
                             class="sidebar-permission-content"
@@ -1275,4 +1300,3 @@
         </nav>
     </div>
 </div>
-

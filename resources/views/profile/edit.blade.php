@@ -193,25 +193,30 @@
             min-width: 0;
             display: flex;
             align-items: center;
-            gap: 20px;
+            gap: 24px;
         }
 
-        .microseed-profile-avatar-wrap {
+        /* =========================================================
+           IMAGEN PRINCIPAL DEL PERFIL
+           Estas clases son únicas para evitar conflicto con navigation
+        ========================================================= */
+
+        .microseed-main-profile-avatar-wrap {
             position: relative;
-            width: 88px;
-            height: 88px;
+            width: 160px;
+            height: 160px;
             flex-shrink: 0;
         }
 
-        .microseed-profile-avatar {
-            width: 88px;
-            height: 88px;
+        .microseed-main-profile-avatar {
+            width: 160px;
+            height: 160px;
             display: flex;
             align-items: center;
             justify-content: center;
             overflow: hidden;
             border: 3px solid rgba(255, 255, 255, 0.28);
-            border-radius: 26px;
+            border-radius: 42px;
             color: #ffffff;
             background:
                 linear-gradient(
@@ -222,22 +227,24 @@
             box-shadow:
                 0 18px 36px rgba(7, 37, 49, 0.28),
                 inset 0 1px 0 rgba(255, 255, 255, 0.24);
-            font-size: 30px;
+            font-size: 46px;
             font-weight: 800;
         }
 
-        .microseed-profile-avatar img {
+        .microseed-main-profile-avatar img {
             width: 100%;
             height: 100%;
+            display: block;
             object-fit: cover;
+            object-position: center;
         }
 
-        .microseed-profile-photo-button {
+        .microseed-main-profile-photo-button {
             position: absolute;
-            right: -7px;
-            bottom: -7px;
-            width: 34px;
-            height: 34px;
+            right: -10px;
+            bottom: -10px;
+            width: 44px;
+            height: 44px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -252,7 +259,7 @@
                 background 0.16s ease;
         }
 
-        .microseed-profile-photo-button:hover {
+        .microseed-main-profile-photo-button:hover {
             background: #2fa58e;
             transform: translateY(-1px) scale(1.05);
         }
@@ -639,6 +646,25 @@
                 flex-direction: column;
             }
 
+            .microseed-main-profile-avatar-wrap {
+                width: 130px;
+                height: 130px;
+            }
+
+            .microseed-main-profile-avatar {
+                width: 130px;
+                height: 130px;
+                border-radius: 34px;
+                font-size: 38px;
+            }
+
+            .microseed-main-profile-photo-button {
+                right: -8px;
+                bottom: -8px;
+                width: 40px;
+                height: 40px;
+            }
+
             .microseed-profile-title {
                 white-space: normal;
             }
@@ -654,8 +680,8 @@
             <section class="microseed-profile-hero">
                 <div class="microseed-profile-hero-content">
                     <div class="microseed-profile-identity">
-                        <div class="microseed-profile-avatar-wrap">
-                            <div class="microseed-profile-avatar">
+                        <div class="microseed-main-profile-avatar-wrap">
+                            <div class="microseed-main-profile-avatar">
                                 @if($fotoUsuario)
                                     <img
                                         src="{{ $fotoUsuario }}"
@@ -678,7 +704,7 @@
 
                                     <label
                                         for="profile_foto_perfil"
-                                        class="microseed-profile-photo-button"
+                                        class="microseed-main-profile-photo-button"
                                         title="Cambiar fotografía"
                                     >
                                         <svg

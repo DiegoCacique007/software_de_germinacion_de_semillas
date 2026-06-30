@@ -227,16 +227,8 @@
         display: none !important;
     }
 
-    .microseed-topbar,
-    .microseed-topbar *,
-    .microseed-topbar button,
-    .microseed-topbar input,
-    .microseed-topbar label,
-    .microseed-topbar a,
-    .microseed-topbar p,
-    .microseed-topbar span {
-        box-sizing: border-box;
-        font-family:
+    .microseed-topbar {
+        --microseed-system-font:
             'Instrument Sans',
             ui-sans-serif,
             system-ui,
@@ -244,6 +236,45 @@
             BlinkMacSystemFont,
             'Segoe UI',
             sans-serif;
+
+        position: relative;
+        z-index: 90;
+        width: 100%;
+        height: 82px;
+        display: flex;
+        align-items: center;
+        flex-shrink: 0;
+        border-bottom: 1px solid #e5eaf0;
+        background: rgba(255, 255, 255, 0.97);
+        box-shadow: 0 5px 20px rgba(15, 23, 42, 0.05);
+        backdrop-filter: blur(18px);
+        -webkit-backdrop-filter: blur(18px);
+        font-family: var(--microseed-system-font) !important;
+        font-size: 14px;
+        font-style: normal;
+        font-weight: 400;
+        font-synthesis: none;
+        line-height: 1.5;
+        text-rendering: optimizeLegibility;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+    }
+
+    .microseed-topbar,
+    .microseed-topbar *,
+    .microseed-topbar *::before,
+    .microseed-topbar *::after {
+        box-sizing: border-box;
+        font-family: var(--microseed-system-font) !important;
+    }
+
+    .microseed-topbar button,
+    .microseed-topbar input,
+    .microseed-topbar label,
+    .microseed-topbar a,
+    .microseed-topbar p,
+    .microseed-topbar span {
+        font-family: var(--microseed-system-font) !important;
     }
 
     .microseed-topbar button {
@@ -261,21 +292,6 @@
     .microseed-topbar a {
         color: inherit;
         text-decoration: none;
-    }
-
-    .microseed-topbar {
-        position: relative;
-        z-index: 90;
-        width: 100%;
-        height: 82px;
-        display: flex;
-        align-items: center;
-        flex-shrink: 0;
-        border-bottom: 1px solid #e5eaf0;
-        background: rgba(255, 255, 255, 0.97);
-        box-shadow: 0 5px 20px rgba(15, 23, 42, 0.05);
-        backdrop-filter: blur(18px);
-        -webkit-backdrop-filter: blur(18px);
     }
 
     .microseed-topbar-content {
@@ -330,8 +346,10 @@
         outline: none;
         color: #334155;
         background: #f3f5f9;
+        font-family: var(--microseed-system-font) !important;
         font-size: 13px;
         font-weight: 500;
+        line-height: 1.2;
         transition:
             border-color 0.17s ease,
             background 0.17s ease,
@@ -340,30 +358,14 @@
 
     .microseed-search-input::placeholder {
         color: #9da7b6;
+        font-size: 13px;
+        font-weight: 500;
     }
 
     .microseed-search-input:focus {
         border-color: rgba(59, 180, 156, 0.38);
         background: #ffffff;
         box-shadow: 0 0 0 4px rgba(59, 180, 156, 0.09);
-    }
-
-    .microseed-search-key {
-        position: absolute;
-        right: 11px;
-        min-width: 30px;
-        height: 28px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border: 1px solid #e2e8f0;
-        border-radius: 9px;
-        color: #94a3b8;
-        background: #ffffff;
-        box-shadow: 0 3px 8px rgba(15, 23, 42, 0.04);
-        font-size: 10px;
-        font-weight: 700;
-        pointer-events: none;
     }
 
     .microseed-search-results {
@@ -443,6 +445,7 @@
         color: #334155;
         font-size: 12px;
         font-weight: 700;
+        line-height: 1.15;
         text-overflow: ellipsis;
         white-space: nowrap;
     }
@@ -454,6 +457,7 @@
         color: #94a3b8;
         font-size: 10px;
         font-weight: 500;
+        line-height: 1.2;
         text-overflow: ellipsis;
         white-space: nowrap;
     }
@@ -559,6 +563,7 @@
         color: #334155;
         font-size: 13px;
         font-weight: 700;
+        line-height: 1.2;
     }
 
     .microseed-dropdown-count {
@@ -568,6 +573,7 @@
         background: #ecfdf5;
         font-size: 9px;
         font-weight: 700;
+        line-height: 1;
     }
 
     .microseed-notification {
@@ -599,6 +605,7 @@
         color: #334155;
         font-size: 12px;
         font-weight: 700;
+        line-height: 1.2;
     }
 
     .microseed-notification-description {
@@ -632,6 +639,7 @@
         color: #475569;
         font-size: 12px;
         font-weight: 700;
+        line-height: 1.2;
     }
 
     .microseed-empty-description {
@@ -639,6 +647,7 @@
         color: #94a3b8;
         font-size: 10px;
         font-weight: 500;
+        line-height: 1.3;
     }
 
     .microseed-dropdown-footer {
@@ -649,6 +658,7 @@
         background: #f8fafc;
         font-size: 11px;
         font-weight: 700;
+        line-height: 1.2;
         text-align: center;
         transition: background 0.16s ease;
     }
@@ -829,6 +839,7 @@
         background: rgba(255, 255, 255, 0.13);
         font-size: 17px;
         font-weight: 700;
+        line-height: 1;
     }
 
     .microseed-profile-large-avatar img {
@@ -844,6 +855,7 @@
         color: #ffffff;
         font-size: 13px;
         font-weight: 700;
+        line-height: 1.2;
         text-overflow: ellipsis;
         white-space: nowrap;
     }
@@ -855,6 +867,7 @@
         color: rgba(255, 255, 255, 0.68);
         font-size: 10px;
         font-weight: 500;
+        line-height: 1.2;
         text-overflow: ellipsis;
         white-space: nowrap;
     }
@@ -870,6 +883,7 @@
         background: rgba(255, 255, 255, 0.1);
         font-size: 8px;
         font-weight: 700;
+        line-height: 1;
         letter-spacing: 0.09em;
     }
 
@@ -881,41 +895,121 @@
         margin: 0;
     }
 
-    .microseed-profile-action {
+    .microseed-profile-body .microseed-profile-action,
+    .microseed-profile-body a.microseed-profile-action,
+    .microseed-profile-body label.microseed-profile-action,
+    .microseed-profile-body button.microseed-profile-action {
         width: 100%;
-        min-height: 43px;
+        min-height: 56px;
         display: flex;
         align-items: center;
-        gap: 11px;
-        padding: 9px 11px;
-        border-radius: 11px;
-        color: #64748b;
-        font-size: 11px;
-        font-weight: 600;
-        text-align: left;
+        gap: 12px;
+        padding: 10px;
+        margin: 0;
+        border: 0;
+        border-radius: 16px;
+        outline: none;
+        color: #475569;
+        background: transparent;
+        font-family: var(--microseed-system-font) !important;
+        font-size: 12px !important;
+        font-style: normal !important;
+        font-weight: 800 !important;
+        line-height: 1.2 !important;
+        letter-spacing: 0 !important;
+        text-align: left !important;
+        text-decoration: none !important;
+        text-transform: none !important;
         cursor: pointer;
+        appearance: none;
+        -webkit-appearance: none;
         transition:
             color 0.16s ease,
-            background 0.16s ease;
+            background 0.16s ease,
+            transform 0.16s ease;
     }
 
-    .microseed-profile-action:hover {
+    .microseed-profile-body .microseed-profile-action:hover {
+        color: #216a73;
+        background: #ecfeff;
+        transform: translateX(2px);
+    }
+
+    .microseed-profile-action-icon {
+        width: 37px;
+        height: 37px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        border-radius: 13px;
         color: #1c607a;
-        background: #f0fdfa;
+        background:
+            linear-gradient(
+                135deg,
+                rgba(33, 106, 115, 0.1),
+                rgba(59, 180, 156, 0.14)
+            );
     }
 
-    .microseed-profile-action svg {
+    .microseed-profile-action-icon svg {
         width: 18px;
         height: 18px;
+        flex-shrink: 0;
+    }
+
+    .microseed-profile-action-text {
+        min-width: 0;
+        display: block;
+    }
+
+    .microseed-profile-action-label {
+        display: block;
+        color: inherit;
+        font-family: var(--microseed-system-font) !important;
+        font-size: 12px !important;
+        font-style: normal !important;
+        font-weight: 800 !important;
+        line-height: 1.2 !important;
+        letter-spacing: 0 !important;
+        text-align: left !important;
+        text-transform: none !important;
+        white-space: nowrap !important;
+    }
+
+    .microseed-profile-action-description {
+        display: block;
+        margin-top: 3px;
+        color: #94a3b8;
+        font-family: var(--microseed-system-font) !important;
+        font-size: 10px !important;
+        font-style: normal !important;
+        font-weight: 600 !important;
+        line-height: 1.2 !important;
+        letter-spacing: 0 !important;
+        text-align: left !important;
+        text-transform: none !important;
+        white-space: nowrap !important;
+    }
+
+    .microseed-profile-separator {
+        height: 1px;
+        margin: 7px 8px;
+        background: #eef2f6;
     }
 
     .microseed-profile-action-danger {
-        color: #e11d48;
+        color: #e11d48 !important;
     }
 
     .microseed-profile-action-danger:hover {
-        color: #be123c;
-        background: #fff1f2;
+        color: #e11d48 !important;
+        background: #fff1f2 !important;
+    }
+
+    .microseed-profile-action-danger:hover .microseed-profile-action-icon {
+        color: #e11d48 !important;
+        background: #ffe4e6 !important;
     }
 
     .microseed-mobile-menu-button {
@@ -962,12 +1056,143 @@
         color: #64748b;
         font-size: 12px;
         font-weight: 600;
+        line-height: 1.2;
         transition: background 0.16s ease;
     }
 
     .microseed-mobile-link:hover {
         color: #1c607a;
         background: #f0fdfa;
+    }
+
+    /* =========================================================
+       MODAL CENTRAL COMPACTO PARA CERRAR SESIÓN
+    ========================================================= */
+
+    .microseed-logout-backdrop {
+        position: fixed;
+        inset: 0;
+        z-index: 99999;
+        width: 100vw;
+        height: 100vh;
+        height: 100dvh;
+        display: grid;
+        place-items: center;
+        padding: 16px;
+        background: rgba(15, 23, 42, 0.45);
+        backdrop-filter: blur(7px);
+        -webkit-backdrop-filter: blur(7px);
+    }
+
+    .microseed-logout-modal {
+        width: min(340px, 100%);
+        overflow: hidden;
+        border: 1px solid rgba(59, 180, 156, 0.22);
+        border-radius: 22px;
+        background: #ffffff;
+        box-shadow: 0 22px 60px rgba(15, 23, 42, 0.24);
+        font-family: var(--microseed-system-font) !important;
+    }
+
+    .microseed-logout-modal-header {
+        padding: 22px 22px 14px;
+        text-align: center;
+    }
+
+    .microseed-logout-icon {
+        width: 50px;
+        height: 50px;
+        margin: 0 auto 13px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 17px;
+        color: #1c607a;
+        background:
+            linear-gradient(
+                135deg,
+                rgba(33, 106, 115, 0.1),
+                rgba(59, 180, 156, 0.16)
+            );
+        box-shadow: inset 0 0 0 1px rgba(59, 180, 156, 0.16);
+    }
+
+    .microseed-logout-icon svg {
+        width: 24px;
+        height: 24px;
+    }
+
+    .microseed-logout-title {
+        margin: 0;
+        color: #334155;
+        font-size: 17px;
+        font-weight: 900;
+        line-height: 1.15;
+        letter-spacing: -0.03em;
+    }
+
+    .microseed-logout-description {
+        max-width: 265px;
+        margin: 8px auto 0;
+        color: #64748b;
+        font-size: 12px;
+        font-weight: 500;
+        line-height: 1.45;
+    }
+
+    .microseed-logout-actions {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+        padding: 14px 20px 20px;
+    }
+
+    .microseed-logout-cancel,
+    .microseed-logout-confirm {
+        min-height: 41px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 14px;
+        font-size: 11px;
+        font-weight: 900;
+        line-height: 1;
+        cursor: pointer;
+        transition:
+            transform 0.16s ease,
+            background 0.16s ease,
+            box-shadow 0.16s ease;
+    }
+
+    .microseed-logout-cancel {
+        color: #475569;
+        background: #f1f5f9;
+    }
+
+    .microseed-logout-cancel:hover {
+        background: #e2e8f0;
+        transform: translateY(-1px);
+    }
+
+    .microseed-logout-confirm {
+        color: #ffffff;
+        background:
+            linear-gradient(
+                135deg,
+                #216a73,
+                #3bb49c
+            );
+        box-shadow: 0 12px 24px rgba(33, 106, 115, 0.22);
+    }
+
+    .microseed-logout-confirm:hover {
+        background:
+            linear-gradient(
+                135deg,
+                #1c607a,
+                #2fa58e
+            );
+        transform: translateY(-1px);
     }
 
     @media (max-width: 1100px) {
@@ -1010,10 +1235,6 @@
         .microseed-search-input {
             height: 44px;
             padding-right: 13px;
-        }
-
-        .microseed-search-key {
-            display: none;
         }
 
         .microseed-action-button {
@@ -1061,159 +1282,13 @@
         }
     }
 
-    /*
-        FIX FINAL:
-        Mantiene el perfil superior derecho compacto aunque profile/edit.blade.php
-        tenga clases parecidas como .microseed-profile-avatar.
-    */
-    .microseed-topbar .microseed-profile-wrapper {
-        position: relative !important;
-        margin-left: 7px !important;
-        flex-shrink: 0 !important;
-    }
-
-    .microseed-topbar .microseed-profile-button {
-        min-width: 170px !important;
-        height: 50px !important;
-        display: flex !important;
-        align-items: center !important;
-        gap: 10px !important;
-        padding: 6px 9px !important;
-        border: 0 !important;
-        border-radius: 14px !important;
-        color: #334155 !important;
-        background: transparent !important;
-        box-shadow: none !important;
-        cursor: pointer !important;
-    }
-
-    .microseed-topbar .microseed-profile-button:hover,
-    .microseed-topbar .microseed-profile-active {
-        background: #f5f7fa !important;
-        transform: translateY(-1px) !important;
-        box-shadow: none !important;
-    }
-
-    .microseed-topbar .microseed-profile-avatar {
-        position: relative !important;
-        width: 38px !important;
-        height: 38px !important;
-        min-width: 38px !important;
-        max-width: 38px !important;
-        min-height: 38px !important;
-        max-height: 38px !important;
-        display: flex !important;
-        align-items: center !important;
-        justify-content: center !important;
-        flex-shrink: 0 !important;
-        overflow: visible !important;
-        border: 0 !important;
-        border-radius: 11px !important;
-        color: #ffffff !important;
-        background: linear-gradient(135deg, #144255, #3bb49c) !important;
-        box-shadow: none !important;
-        font-size: 13px !important;
-        font-weight: 700 !important;
-        line-height: 1 !important;
-    }
-
-    .microseed-topbar .microseed-profile-avatar img {
-        width: 38px !important;
-        height: 38px !important;
-        min-width: 38px !important;
-        max-width: 38px !important;
-        min-height: 38px !important;
-        max-height: 38px !important;
-        display: block !important;
-        border-radius: 11px !important;
-        object-fit: cover !important;
-    }
-
-    .microseed-topbar .microseed-profile-online {
-        position: absolute !important;
-        right: -3px !important;
-        bottom: -3px !important;
-        width: 11px !important;
-        height: 11px !important;
-        display: block !important;
-        border: 2px solid #ffffff !important;
-        border-radius: 9999px !important;
-        background: #10b981 !important;
-        box-shadow: none !important;
-    }
-
-    .microseed-topbar .microseed-profile-information {
-        min-width: 0 !important;
-        flex: 1 !important;
-        display: block !important;
-        text-align: left !important;
-    }
-
-    .microseed-topbar .microseed-profile-name {
-        display: block !important;
-        max-width: 122px !important;
-        overflow: hidden !important;
-        color: #334155 !important;
-        font-size: 12px !important;
-        font-weight: 800 !important;
-        line-height: 1.15 !important;
-        letter-spacing: -0.015em !important;
-        text-overflow: ellipsis !important;
-        white-space: nowrap !important;
-    }
-
-    .microseed-topbar .microseed-profile-role {
-        display: block !important;
-        max-width: 122px !important;
-        margin-top: 4px !important;
-        overflow: hidden !important;
-        color: #3bb49c !important;
-        font-size: 9px !important;
-        font-weight: 800 !important;
-        line-height: 1 !important;
-        letter-spacing: 0.12em !important;
-        text-overflow: ellipsis !important;
-        text-transform: uppercase !important;
-        white-space: nowrap !important;
-    }
-
-    .microseed-topbar .microseed-profile-chevron {
-        width: 14px !important;
-        height: 14px !important;
-        flex-shrink: 0 !important;
-        color: #94a3b8 !important;
-        transition: transform 0.18s ease !important;
-    }
-
-    .microseed-topbar .microseed-profile-dropdown .microseed-profile-large-avatar {
-        width: 50px !important;
-        height: 50px !important;
-        min-width: 50px !important;
-        max-width: 50px !important;
-        min-height: 50px !important;
-        max-height: 50px !important;
-        border-radius: 14px !important;
-    }
-
-    .microseed-topbar .microseed-profile-dropdown .microseed-profile-large-avatar img {
-        width: 50px !important;
-        height: 50px !important;
-        border-radius: 14px !important;
-        object-fit: cover !important;
-    }
-
-    @media (max-width: 1100px) {
-        .microseed-topbar .microseed-profile-button {
-            min-width: 48px !important;
-            width: 48px !important;
-            height: 48px !important;
-            padding: 5px !important;
-            justify-content: center !important;
+    @media (max-width: 460px) {
+        .microseed-logout-modal {
+            width: min(315px, 100%);
         }
 
-        .microseed-topbar .microseed-profile-information,
-        .microseed-topbar .microseed-profile-chevron {
-            display: none !important;
+        .microseed-logout-actions {
+            grid-template-columns: 1fr;
         }
     }
 </style>
@@ -1225,6 +1300,7 @@
         searchOpen: false,
         openPanel: null,
         mobileOpen: false,
+        logoutModalOpen: false,
         modules: @js($modulosBusqueda),
 
         get filteredModules() {
@@ -1246,6 +1322,20 @@
                 : panel;
 
             this.searchOpen = false;
+        },
+
+        openLogoutModal() {
+            this.openPanel = null;
+            this.mobileOpen = false;
+            this.logoutModalOpen = true;
+        },
+
+        closeLogoutModal() {
+            this.logoutModalOpen = false;
+        },
+
+        confirmLogout() {
+            this.$refs.logoutForm.submit();
         },
 
         goToModule(url) {
@@ -1274,6 +1364,7 @@
                     this.searchOpen = false;
                     this.openPanel = null;
                     this.mobileOpen = false;
+                    this.logoutModalOpen = false;
                 }
             });
         }
@@ -1702,20 +1793,30 @@
                                 href="{{ route('profile.edit') }}"
                                 class="microseed-profile-action"
                             >
-                                <svg
-                                    fill="none"
-                                    stroke="currentColor"
-                                    viewBox="0 0 24 24"
-                                >
-                                    <path
-                                        stroke-linecap="round"
-                                        stroke-linejoin="round"
-                                        stroke-width="2"
-                                        d="M12 12a4 4 0 100-8 4 4 0 000 8zm0 2c-5 0-8 2.5-8 5v1h16v-1c0-2.5-3-5-8-5z"
-                                    />
-                                </svg>
+                                <span class="microseed-profile-action-icon">
+                                    <svg
+                                        fill="none"
+                                        stroke="currentColor"
+                                        viewBox="0 0 24 24"
+                                    >
+                                        <path
+                                            stroke-linecap="round"
+                                            stroke-linejoin="round"
+                                            stroke-width="2"
+                                            d="M12 12a4 4 0 100-8 4 4 0 000 8zm0 2c-5 0-8 2.5-8 5v1h16v-1c0-2.5-3-5-8-5z"
+                                        />
+                                    </svg>
+                                </span>
 
-                                Mi perfil
+                                <span class="microseed-profile-action-text">
+                                    <span class="microseed-profile-action-label">
+                                        Mi perfil
+                                    </span>
+
+                                    <span class="microseed-profile-action-description">
+                                        Ver y editar cuenta
+                                    </span>
+                                </span>
                             </a>
                         @endif
 
@@ -1733,20 +1834,30 @@
                                     for="topbar_foto_perfil"
                                     class="microseed-profile-action"
                                 >
-                                    <svg
-                                        fill="none"
-                                        stroke="currentColor"
-                                        viewBox="0 0 24 24"
-                                    >
-                                        <path
-                                            stroke-linecap="round"
-                                            stroke-linejoin="round"
-                                            stroke-width="2"
-                                            d="M15.2 5.2 18.8 8.8M9 13l6.6-6.6a2 2 0 112.8 2.8L11.8 15.8a2 2 0 01-.9.5L7 17l.7-4a2 2 0 01.5-.8L9 13z"
-                                        />
-                                    </svg>
+                                    <span class="microseed-profile-action-icon">
+                                        <svg
+                                            fill="none"
+                                            stroke="currentColor"
+                                            viewBox="0 0 24 24"
+                                        >
+                                            <path
+                                                stroke-linecap="round"
+                                                stroke-linejoin="round"
+                                                stroke-width="2"
+                                                d="M15.2 5.2 18.8 8.8M9 13l6.6-6.6a2 2 0 112.8 2.8L11.8 15.8a2 2 0 01-.9.5L7 17l.7-4a2 2 0 01.5-.8L9 13z"
+                                            />
+                                        </svg>
+                                    </span>
 
-                                    Cambiar fotografía
+                                    <span class="microseed-profile-action-text">
+                                        <span class="microseed-profile-action-label">
+                                            Cambiar fotografía
+                                        </span>
+
+                                        <span class="microseed-profile-action-description">
+                                            Actualizar imagen de usuario
+                                        </span>
+                                    </span>
                                 </label>
 
                                 <input
@@ -1760,16 +1871,14 @@
                             </form>
                         @endif
 
-                        <form
-                            method="POST"
-                            action="{{ route('logout') }}"
-                        >
-                            @csrf
+                        <div class="microseed-profile-separator"></div>
 
-                            <button
-                                type="submit"
-                                class="microseed-profile-action microseed-profile-action-danger"
-                            >
+                        <button
+                            type="button"
+                            class="microseed-profile-action microseed-profile-action-danger"
+                            @click="openLogoutModal()"
+                        >
+                            <span class="microseed-profile-action-icon">
                                 <svg
                                     fill="none"
                                     stroke="currentColor"
@@ -1782,10 +1891,18 @@
                                         d="m17 16 4-4m0 0-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
                                     />
                                 </svg>
+                            </span>
 
-                                Cerrar sesión
-                            </button>
-                        </form>
+                            <span class="microseed-profile-action-text">
+                                <span class="microseed-profile-action-label">
+                                    Cerrar sesión
+                                </span>
+
+                                <span class="microseed-profile-action-description">
+                                    Salir del sistema
+                                </span>
+                            </span>
+                        </button>
                     </div>
                 </div>
             </div>
@@ -1909,33 +2026,100 @@
             </a>
         @endif
 
-        <form
-            method="POST"
-            action="{{ route('logout') }}"
+        <button
+            type="button"
+            class="microseed-mobile-link text-red-500"
+            @click="openLogoutModal()"
         >
-            @csrf
-
-            <button
-                type="submit"
-                class="microseed-mobile-link text-red-500"
+            <svg
+                width="18"
+                height="18"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
             >
-                <svg
-                    width="18"
-                    height="18"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                >
-                    <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="m17 16 4-4m0 0-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 013-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
-                    />
-                </svg>
+                <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="m17 16 4-4m0 0-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+                />
+            </svg>
 
-                Cerrar sesión
-            </button>
-        </form>
+            Cerrar sesión
+        </button>
+    </div>
+
+    <form
+        x-ref="logoutForm"
+        method="POST"
+        action="{{ route('logout') }}"
+        class="hidden"
+        style="display: none;"
+    >
+        @csrf
+    </form>
+
+    <div
+        x-show="logoutModalOpen"
+        x-cloak
+        x-transition.opacity.duration.180ms
+        class="microseed-logout-backdrop"
+        @click.self="closeLogoutModal()"
+        @keydown.escape.window="closeLogoutModal()"
+    >
+        <div
+            class="microseed-logout-modal"
+            x-show="logoutModalOpen"
+            x-transition:enter="transition ease-out duration-180"
+            x-transition:enter-start="opacity-0 scale-95 translate-y-2"
+            x-transition:enter-end="opacity-100 scale-100 translate-y-0"
+            x-transition:leave="transition ease-in duration-130"
+            x-transition:leave-start="opacity-100 scale-100 translate-y-0"
+            x-transition:leave-end="opacity-0 scale-95 translate-y-2"
+        >
+            <div class="microseed-logout-modal-header">
+                <div class="microseed-logout-icon">
+                    <svg
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                    >
+                        <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="m17 16 4-4m0 0-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+                        />
+                    </svg>
+                </div>
+
+                <h3 class="microseed-logout-title">
+                    ¿Deseas cerrar sesión?
+                </h3>
+
+                <p class="microseed-logout-description">
+                    Se cerrará tu sesión actual y tendrás que iniciar sesión nuevamente para acceder al sistema.
+                </p>
+            </div>
+
+            <div class="microseed-logout-actions">
+                <button
+                    type="button"
+                    class="microseed-logout-cancel"
+                    @click="closeLogoutModal()"
+                >
+                    No, cancelar
+                </button>
+
+                <button
+                    type="button"
+                    class="microseed-logout-confirm"
+                    @click="confirmLogout()"
+                >
+                    Sí, cerrar sesión
+                </button>
+            </div>
+        </div>
     </div>
 </nav>
