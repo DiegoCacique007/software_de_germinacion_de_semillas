@@ -7,66 +7,67 @@
     @endphp
 
     <style>
-        [x-cloak] { display: none !important; }
-
-        @keyframes float {
-            0% { transform: translateY(0px); }
-            50% { transform: translateY(-12px); }
-            100% { transform: translateY(0px); }
+        [x-cloak] {
+            display: none !important;
         }
 
-        @keyframes pulseGlow {
-            0%, 100% { box-shadow: 0 0 20px rgba(59, 180, 156, 0.2); }
-            50% { box-shadow: 0 0 40px rgba(59, 180, 156, 0.45); }
+        .bg-animated-mesh {
+            background:
+                radial-gradient(
+                    circle at 90% 10%,
+                    rgba(59, 180, 156, 0.14),
+                    transparent 32%
+                ),
+                linear-gradient(
+                    180deg,
+                    #f8fafc 0%,
+                    #eef7f5 55%,
+                    #e4f4ef 100%
+                );
+            background-size: cover;
+            animation: none !important;
         }
 
-        @keyframes gradientPan {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
+        .microseed-dashboard-top-accent {
+            height: 30px;
+            width: 100%;
+            background:
+                radial-gradient(
+                    circle at 72% -80%,
+                    rgba(59, 180, 156, 0.55),
+                    transparent 36%
+                ),
+                linear-gradient(
+                    90deg,
+                    #0f5568 0%,
+                    #1f7b86 52%,
+                    #39b39f 100%
+                );
+            box-shadow: inset 0 -1px 0 rgba(255, 255, 255, 0.16);
         }
 
-        @keyframes epicEnter {
-            0% {
-                opacity: 0;
-                transform: scale(0.95) translateY(30px);
-                filter: blur(8px);
-            }
-            100% {
-                opacity: 1;
-                transform: scale(1) translateY(0);
-                filter: blur(0);
-            }
-        }
-
-        @keyframes statusPulse {
-            0%, 100% { box-shadow: 0 0 0 0 rgba(59,180,156,.5); }
-            50% { box-shadow: 0 0 0 6px rgba(59,180,156,0); }
-        }
-
-        @keyframes dataFlash {
-            0% { transform: scale(1); filter: brightness(1); }
-            50% { transform: scale(1.08); filter: brightness(1.2); }
-            100% { transform: scale(1); filter: brightness(1); }
-        }
-
-        .animate-epic {
-            animation: epicEnter 1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        .animate-epic,
+        .animate-float,
+        .status-pulse,
+        .dato-real-actualizado,
+        .animate-pulse {
+            animation: none !important;
         }
 
         .animate-float {
-            animation: float 6s ease-in-out infinite;
+            display: none !important;
         }
 
         .glass-card {
-            background: rgba(255, 255, 255, 0.72);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.8);
-            box-shadow: 0 25px 50px -12px rgba(28, 96, 122, 0.15);
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid rgba(255, 255, 255, 0.9);
+            box-shadow: 0 18px 42px -28px rgba(20, 66, 85, 0.42);
+            backdrop-filter: none !important;
+            -webkit-backdrop-filter: none !important;
         }
 
         .text-gradient {
+            color: #144255;
             background: linear-gradient(135deg, #144255 0%, #3bb49c 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
@@ -74,14 +75,9 @@
         }
 
         .hover-glow:hover {
-            animation: pulseGlow 2s infinite;
-            transform: translateY(-4px) scale(1.01);
-        }
-
-        .bg-animated-mesh {
-            background: linear-gradient(-45deg, #f0f6f6, #e0efec, #d1e8e4, #f0f6f6);
-            background-size: 400% 400%;
-            animation: gradientPan 15s ease infinite;
+            animation: none !important;
+            transform: none !important;
+            box-shadow: inherit !important;
         }
 
         .badge-soft {
@@ -107,8 +103,8 @@
             background: #d1d5db;
             border-radius: 9999px;
             cursor: pointer;
-            transition: background .3s, opacity .3s, filter .3s;
             flex-shrink: 0;
+            transition: none !important;
         }
 
         .toggle-switch.active {
@@ -123,9 +119,9 @@
             width: 22px;
             height: 22px;
             border-radius: 50%;
-            background: #fff;
-            box-shadow: 0 1px 4px rgba(0,0,0,.2);
-            transition: transform .3s;
+            background: #ffffff;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, .18);
+            transition: none !important;
         }
 
         .toggle-switch.active::after {
@@ -146,28 +142,20 @@
             transform: translateX(28px);
         }
 
-        .status-pulse {
-            animation: statusPulse 2s infinite;
-        }
-
-        .dato-real-actualizado {
-            animation: dataFlash .45s ease-in-out;
-        }
-
         .kpi-card {
             position: relative;
             overflow: hidden;
-            background: rgba(255,255,255,.82);
-            border: 1px solid rgba(255,255,255,.95);
+            background: rgba(255, 255, 255, .9);
+            border: 1px solid rgba(255, 255, 255, .95);
             border-radius: 1.5rem;
             padding: 1.5rem;
-            box-shadow: 0 18px 40px -22px rgba(20,66,85,.45);
-            transition: all .3s ease;
+            box-shadow: 0 16px 34px -24px rgba(20, 66, 85, .38);
+            transition: none !important;
         }
 
         .kpi-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 24px 50px -22px rgba(20,66,85,.55);
+            transform: none !important;
+            box-shadow: 0 16px 34px -24px rgba(20, 66, 85, .38);
         }
 
         .kpi-card::after {
@@ -178,11 +166,11 @@
             width: 7rem;
             height: 7rem;
             border-radius: 9999px;
-            transition: all .3s ease;
+            transition: none !important;
         }
 
         .kpi-card:hover::after {
-            transform: scale(1.08);
+            transform: none !important;
         }
 
         .kpi-blue::after {
@@ -208,14 +196,14 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            color: white;
+            color: #ffffff;
             flex-shrink: 0;
         }
 
         .control-hub {
-            background: linear-gradient(135deg, rgba(255,255,255,.88), rgba(240,246,246,.78));
-            border: 1px solid rgba(255,255,255,.9);
-            box-shadow: 0 24px 55px -18px rgba(20, 66, 85, .28);
+            background: rgba(255, 255, 255, .9);
+            border: 1px solid rgba(255, 255, 255, .9);
+            box-shadow: 0 18px 42px -24px rgba(20, 66, 85, .28);
         }
 
         .control-header {
@@ -230,21 +218,22 @@
             width: 220px;
             height: 220px;
             border-radius: 9999px;
-            background: rgba(255,255,255,.12);
+            background: rgba(255, 255, 255, .12);
             top: -90px;
             right: -70px;
+            pointer-events: none;
         }
 
         .control-card {
-            background: rgba(255,255,255,.86);
-            border: 1px solid rgba(255,255,255,.9);
-            box-shadow: 0 18px 35px -20px rgba(20, 66, 85, .35);
-            transition: all .25s ease;
+            background: rgba(255, 255, 255, .92);
+            border: 1px solid rgba(255, 255, 255, .9);
+            box-shadow: 0 16px 32px -22px rgba(20, 66, 85, .34);
+            transition: none !important;
         }
 
         .control-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 24px 45px -22px rgba(20, 66, 85, .42);
+            transform: none !important;
+            box-shadow: 0 16px 32px -22px rgba(20, 66, 85, .34);
         }
 
         .sensor-box {
@@ -259,7 +248,7 @@
             content: '';
             position: absolute;
             inset: 0;
-            background: linear-gradient(135deg, rgba(255,255,255,.55), rgba(255,255,255,0));
+            background: linear-gradient(135deg, rgba(255, 255, 255, .48), rgba(255, 255, 255, 0));
             pointer-events: none;
         }
 
@@ -270,20 +259,19 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: inset 0 1px 0 rgba(255,255,255,.5);
         }
 
         .actuator-row {
-            background: rgba(255,255,255,.72);
-            border: 1px solid rgba(229,231,235,.9);
+            background: rgba(255, 255, 255, .86);
+            border: 1px solid rgba(229, 231, 235, .95);
             border-radius: 1.25rem;
             padding: 1rem;
-            transition: all .25s ease;
+            transition: none !important;
         }
 
         .actuator-row:hover {
-            border-color: rgba(59,180,156,.45);
-            background: rgba(255,255,255,.95);
+            border-color: rgba(229, 231, 235, .95);
+            background: rgba(255, 255, 255, .86);
         }
 
         .actuator-icon {
@@ -325,14 +313,28 @@
             height: .55rem;
             border-radius: 999px;
         }
+
+        .backdrop-blur-sm,
+        .backdrop-blur-md,
+        .backdrop-blur-xl {
+            backdrop-filter: none !important;
+            -webkit-backdrop-filter: none !important;
+        }
+
+        .transition-all,
+        .duration-300 {
+            transition: none !important;
+        }
     </style>
 
-    <div class="w-full min-h-screen bg-animated-mesh relative overflow-hidden"
-         x-data="{
+    <div
+        class="w-full min-h-screen bg-animated-mesh relative overflow-hidden"
+        x-data="{
             time: '',
             greeting: '',
             init() {
                 this.updateClock();
+
                 setInterval(() => this.updateClock(), 1000);
             },
             updateClock() {
@@ -353,24 +355,35 @@
                 }).formatToParts(d);
 
                 let h = Number(parts.find(part => part.type === 'hour')?.value || 0);
-                if (h === 24) h = 0;
 
-                this.greeting = h < 12 ? 'Buenos días' : (h < 19 ? 'Buenas tardes' : 'Buenas noches');
+                if (h === 24) {
+                    h = 0;
+                }
+
+                this.greeting = h < 12
+                    ? 'Buenos días'
+                    : (h < 19 ? 'Buenas tardes' : 'Buenas noches');
             }
-         }">
-
+        }"
+    >
         <div class="absolute top-[-10%] left-[20%] w-96 h-96 bg-[#3bb49c] rounded-full mix-blend-multiply blur-[100px] opacity-25 animate-float pointer-events-none"></div>
-        <div class="absolute bottom-[-10%] right-[10%] w-[30rem] h-[30rem] bg-[#1c607a] rounded-full mix-blend-multiply blur-[120px] opacity-20 animate-float pointer-events-none" style="animation-delay: 2s;"></div>
+
+        <div
+            class="absolute bottom-[-10%] right-[10%] w-[30rem] h-[30rem] bg-[#1c607a] rounded-full mix-blend-multiply blur-[120px] opacity-20 animate-float pointer-events-none"
+            style="animation-delay: 2s;"
+        ></div>
 
         <div class="py-12 px-6 relative z-10">
             <div class="max-w-7xl mx-auto">
-                <div class="glass-card overflow-hidden shadow-sm sm:rounded-[2rem] border-t-4 border-[#3bb49c] animate-epic relative">
+                <div class="glass-card overflow-hidden shadow-sm sm:rounded-[2rem] relative">
+
+                    <div class="microseed-dashboard-top-accent"></div>
 
                     <div class="relative px-8 py-10 border-b border-white/50">
                         <div class="relative z-10 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
                             <div>
                                 <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#3bb49c]/10 border border-[#3bb49c]/20 text-[#1c607a] text-xs font-black uppercase tracking-[0.2em] mb-4">
-                                    <span class="w-2 h-2 rounded-full bg-[#3bb49c] animate-pulse"></span>
+                                    <span class="w-2 h-2 rounded-full bg-[#3bb49c]"></span>
                                     Control global del sistema
                                 </div>
 
@@ -384,13 +397,15 @@
                                 </p>
                             </div>
 
-                            <div class="bg-white/40 backdrop-blur-md border border-white/60 p-4 rounded-2xl shadow-xl flex items-center gap-4 hover-glow transition-all">
+                            <div class="bg-white/40 border border-white/60 p-4 rounded-2xl shadow-xl flex items-center gap-4 hover-glow transition-all">
                                 <div class="p-3 bg-gradient-to-br from-[#1c607a] to-[#3bb49c] rounded-xl text-white shadow-inner">
                                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round"
-                                              stroke-linejoin="round"
-                                              stroke-width="2"
-                                              d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0"></path>
+                                        <path
+                                            stroke-linecap="round"
+                                            stroke-linejoin="round"
+                                            stroke-width="2"
+                                            d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0"
+                                        />
                                     </svg>
                                 </div>
 
@@ -398,6 +413,7 @@
                                     <p class="text-[10px] font-black uppercase tracking-widest text-gray-400">
                                         Tiempo local
                                     </p>
+
                                     <p class="text-2xl font-black text-[#144255] font-mono tracking-tight" x-text="time">
                                         --:--:--
                                     </p>
@@ -406,7 +422,7 @@
                         </div>
                     </div>
 
-                    <div class="p-8 bg-white/30 backdrop-blur-sm">
+                    <div class="p-8 bg-white/30">
 
                         @if (session('success'))
                             <div class="mb-6 rounded-2xl border border-emerald-200 bg-emerald-50 px-5 py-4 text-emerald-700 font-semibold">
@@ -454,10 +470,12 @@
 
                                     <div class="kpi-icon bg-gradient-to-br from-[#144255] to-[#1c607a] shadow-lg shadow-[#144255]/20">
                                         <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round"
-                                                  stroke-linejoin="round"
-                                                  stroke-width="2"
-                                                  d="M17 20h5v-2a4 4 0 00-3-3.87M9 20H4v-2a4 4 0 013-3.87m10-4.13a4 4 0 11-8 0 4 4 0 018 0zm-8 0a4 4 0 11-8 0 4 4 0 018 0z"/>
+                                            <path
+                                                stroke-linecap="round"
+                                                stroke-linejoin="round"
+                                                stroke-width="2"
+                                                d="M17 20h5v-2a4 4 0 00-3-3.87M9 20H4v-2a4 4 0 013-3.87m10-4.13a4 4 0 11-8 0 4 4 0 018 0zm-8 0a4 4 0 11-8 0 4 4 0 018 0z"
+                                            />
                                         </svg>
                                     </div>
                                 </div>
@@ -488,16 +506,18 @@
 
                                     <div class="kpi-icon bg-gradient-to-br from-[#1c607a] to-[#3bb49c] shadow-lg shadow-[#3bb49c]/20">
                                         <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round"
-                                                  stroke-linejoin="round"
-                                                  stroke-width="2"
-                                                  d="M3 7h18M5 7v10a2 2 0 002 2h10a2 2 0 002-2V7M8 7V5a2 2 0 012-2h4a2 2 0 012 2v2M9 13h6"/>
+                                            <path
+                                                stroke-linecap="round"
+                                                stroke-linejoin="round"
+                                                stroke-width="2"
+                                                d="M3 7h18M5 7v10a2 2 0 002 2h10a2 2 0 002-2V7M8 7V5a2 2 0 012-2h4a2 2 0 012 2v2M9 13h6"
+                                            />
                                         </svg>
                                     </div>
                                 </div>
 
                                 <div class="relative z-10 mt-5 flex items-center gap-2">
-                                    <span class="w-2 h-2 rounded-full bg-[#3bb49c] status-pulse"></span>
+                                    <span class="w-2 h-2 rounded-full bg-[#3bb49c]"></span>
                                     <span class="text-xs font-bold text-gray-500 uppercase tracking-wide">
                                         En operación
                                     </span>
@@ -522,10 +542,12 @@
 
                                     <div class="kpi-icon bg-gradient-to-br from-amber-400 to-orange-500 shadow-lg shadow-amber-500/20">
                                         <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round"
-                                                  stroke-linejoin="round"
-                                                  stroke-width="2"
-                                                  d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                                            <path
+                                                stroke-linecap="round"
+                                                stroke-linejoin="round"
+                                                stroke-width="2"
+                                                d="M13 10V3L4 14h7v7l9-11h-7z"
+                                            />
                                         </svg>
                                     </div>
                                 </div>
@@ -556,17 +578,19 @@
 
                                     <div class="kpi-icon bg-gradient-to-br from-red-500 to-rose-600 shadow-lg shadow-red-500/20">
                                         <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round"
-                                                  stroke-linejoin="round"
-                                                  stroke-width="2"
-                                                  d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+                                            <path
+                                                stroke-linecap="round"
+                                                stroke-linejoin="round"
+                                                stroke-width="2"
+                                                d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"
+                                            />
                                         </svg>
                                     </div>
                                 </div>
 
                                 <div id="metricAlertasEstado" class="relative z-10 mt-5 flex items-center gap-2">
                                     @if($alertasActivas > 0)
-                                        <span class="w-2 h-2 rounded-full bg-red-500 status-pulse"></span>
+                                        <span class="w-2 h-2 rounded-full bg-red-500"></span>
                                         <span class="text-xs font-bold text-red-500 uppercase tracking-wide">
                                             Requiere atención
                                         </span>
@@ -596,7 +620,7 @@
                                             Temperatura (°C)
                                         </h4>
 
-                                        <span class="badge-soft bg-green-100 text-green-700 animate-pulse">
+                                        <span class="badge-soft bg-green-100 text-green-700">
                                             <span class="w-2 h-2 rounded-full bg-green-500"></span>
                                             En vivo
                                         </span>
@@ -613,7 +637,7 @@
                                             Humedad Relativa (%)
                                         </h4>
 
-                                        <span class="badge-soft bg-green-100 text-green-700 animate-pulse">
+                                        <span class="badge-soft bg-green-100 text-green-700">
                                             <span class="w-2 h-2 rounded-full bg-green-500"></span>
                                             En vivo
                                         </span>
@@ -631,7 +655,7 @@
                                 <div class="relative z-10 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-5">
                                     <div>
                                         <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/15 border border-white/20 text-white text-xs font-black uppercase tracking-[0.18em] mb-3">
-                                            <span class="w-2 h-2 rounded-full bg-[#3bb49c] status-pulse"></span>
+                                            <span class="w-2 h-2 rounded-full bg-[#3bb49c]"></span>
                                             Sistema operativo
                                         </div>
 
@@ -644,13 +668,13 @@
                                         </p>
                                     </div>
 
-                                    <div class="bg-white/15 border border-white/20 rounded-2xl px-5 py-4 backdrop-blur-md">
+                                    <div class="bg-white/15 border border-white/20 rounded-2xl px-5 py-4">
                                         <p class="text-[10px] font-black uppercase tracking-widest text-white/65">
                                             Estado de conexión
                                         </p>
 
                                         <div class="flex items-center gap-2 mt-1">
-                                            <span class="w-3 h-3 rounded-full bg-[#3bb49c] status-pulse"></span>
+                                            <span class="w-3 h-3 rounded-full bg-[#3bb49c]"></span>
                                             <span class="text-lg font-black">
                                                 En línea
                                             </span>
@@ -667,10 +691,12 @@
                                             <div class="flex items-center gap-3">
                                                 <div class="sensor-icon bg-[#144255] text-white">
                                                     <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round"
-                                                              stroke-linejoin="round"
-                                                              stroke-width="2"
-                                                              d="M12 3v10m0 0a4 4 0 11-4 4h8a4 4 0 01-4-4z"/>
+                                                        <path
+                                                            stroke-linecap="round"
+                                                            stroke-linejoin="round"
+                                                            stroke-width="2"
+                                                            d="M12 3v10m0 0a4 4 0 11-4 4h8a4 4 0 01-4-4z"
+                                                        />
                                                     </svg>
                                                 </div>
 
@@ -766,14 +792,19 @@
                                                 <div class="flex items-center gap-4">
                                                     <div class="w-14 h-14 rounded-2xl bg-white/15 border border-white/20 flex items-center justify-center">
                                                         <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                            <path stroke-linecap="round"
-                                                                  stroke-linejoin="round"
-                                                                  stroke-width="2"
-                                                                  d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
-                                                            <path stroke-linecap="round"
-                                                                  stroke-linejoin="round"
-                                                                  stroke-width="2"
-                                                                  d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                                            <path
+                                                                stroke-linecap="round"
+                                                                stroke-linejoin="round"
+                                                                stroke-width="2"
+                                                                d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
+                                                            />
+
+                                                            <path
+                                                                stroke-linecap="round"
+                                                                stroke-linejoin="round"
+                                                                stroke-width="2"
+                                                                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                                                            />
                                                         </svg>
                                                     </div>
 
@@ -793,10 +824,11 @@
                                                         Auto
                                                     </span>
 
-                                                    <div class="toggle-switch-lg toggle-switch border border-white/20"
-                                                         id="modoSwitch"
-                                                         onclick="toggleModo()">
-                                                    </div>
+                                                    <div
+                                                        class="toggle-switch-lg toggle-switch border border-white/20"
+                                                        id="modoSwitch"
+                                                        onclick="toggleModo()"
+                                                    ></div>
 
                                                     <span class="text-xs font-black text-white/60 uppercase tracking-widest">
                                                         Manual
@@ -840,11 +872,12 @@
                                                         </p>
                                                     </div>
 
-                                                    <div class="toggle-switch-lg toggle-switch actuador-toggle locked-control"
-                                                         id="nieblaSwitch"
-                                                         onclick="toggleNiebla()"
-                                                         style="pointer-events: none; opacity: .55;">
-                                                    </div>
+                                                    <div
+                                                        class="toggle-switch-lg toggle-switch actuador-toggle locked-control"
+                                                        id="nieblaSwitch"
+                                                        onclick="toggleNiebla()"
+                                                        style="pointer-events: none; opacity: .55;"
+                                                    ></div>
                                                 </div>
                                             </div>
 
@@ -882,11 +915,12 @@
                                                         </p>
                                                     </div>
 
-                                                    <div class="toggle-switch-lg toggle-switch actuador-toggle locked-control"
-                                                         id="ledSwitch"
-                                                         onclick="toggleLed()"
-                                                         style="pointer-events: none; opacity: .55;">
-                                                    </div>
+                                                    <div
+                                                        class="toggle-switch-lg toggle-switch actuador-toggle locked-control"
+                                                        id="ledSwitch"
+                                                        onclick="toggleLed()"
+                                                        style="pointer-events: none; opacity: .55;"
+                                                    ></div>
                                                 </div>
                                             </div>
                                         </div>
@@ -1083,17 +1117,19 @@
             let ledActivo = false;
 
             function normalizarArray(valor) {
-                if (!valor) return [];
-                if (Array.isArray(valor)) return valor;
+                if (!valor) {
+                    return [];
+                }
+
+                if (Array.isArray(valor)) {
+                    return valor;
+                }
+
                 return Object.values(valor);
             }
 
             function marcarActualizacion(elemento) {
-                if (!elemento) return;
-
-                elemento.classList.remove('dato-real-actualizado');
-                void elemento.offsetWidth;
-                elemento.classList.add('dato-real-actualizado');
+                return;
             }
 
             function setText(id, value) {
@@ -1107,13 +1143,15 @@
             function actualizarEstadoAlertas(activas) {
                 const contenedor = document.getElementById('metricAlertasEstado');
 
-                if (!contenedor) return;
+                if (!contenedor) {
+                    return;
+                }
 
                 const total = Number(activas || 0);
 
                 if (total > 0) {
                     contenedor.innerHTML = `
-                        <span class="w-2 h-2 rounded-full bg-red-500 status-pulse"></span>
+                        <span class="w-2 h-2 rounded-full bg-red-500"></span>
                         <span class="text-xs font-bold text-red-500 uppercase tracking-wide">
                             Requiere atención
                         </span>
@@ -1137,9 +1175,7 @@
                 const commonOptions = {
                     responsive: true,
                     maintainAspectRatio: false,
-                    animation: {
-                        duration: 250
-                    },
+                    animation: false,
                     scales: {
                         x: {
                             grid: {
@@ -1198,20 +1234,22 @@
                         type: 'line',
                         data: {
                             labels: [],
-                            datasets: [{
-                                label: 'Temperatura (°C)',
-                                data: [],
-                                borderColor: '#eab308',
-                                backgroundColor: gradientTemp,
-                                borderWidth: 3,
-                                pointBackgroundColor: '#ffffff',
-                                pointBorderColor: '#eab308',
-                                pointBorderWidth: 2,
-                                pointRadius: 4,
-                                pointHoverRadius: 6,
-                                tension: 0.4,
-                                fill: true
-                            }]
+                            datasets: [
+                                {
+                                    label: 'Temperatura (°C)',
+                                    data: [],
+                                    borderColor: '#eab308',
+                                    backgroundColor: gradientTemp,
+                                    borderWidth: 3,
+                                    pointBackgroundColor: '#ffffff',
+                                    pointBorderColor: '#eab308',
+                                    pointBorderWidth: 2,
+                                    pointRadius: 4,
+                                    pointHoverRadius: 6,
+                                    tension: 0.4,
+                                    fill: true
+                                }
+                            ]
                         },
                         options: commonOptions
                     });
@@ -1230,20 +1268,22 @@
                         type: 'line',
                         data: {
                             labels: [],
-                            datasets: [{
-                                label: 'Humedad (%)',
-                                data: [],
-                                borderColor: '#3bb49c',
-                                backgroundColor: gradientHum,
-                                borderWidth: 3,
-                                pointBackgroundColor: '#ffffff',
-                                pointBorderColor: '#3bb49c',
-                                pointBorderWidth: 2,
-                                pointRadius: 4,
-                                pointHoverRadius: 6,
-                                tension: 0.4,
-                                fill: true
-                            }]
+                            datasets: [
+                                {
+                                    label: 'Humedad (%)',
+                                    data: [],
+                                    borderColor: '#3bb49c',
+                                    backgroundColor: gradientHum,
+                                    borderWidth: 3,
+                                    pointBackgroundColor: '#ffffff',
+                                    pointBorderColor: '#3bb49c',
+                                    pointBorderWidth: 2,
+                                    pointRadius: 4,
+                                    pointHoverRadius: 6,
+                                    tension: 0.4,
+                                    fill: true
+                                }
+                            ]
                         },
                         options: commonOptions
                     });
@@ -1271,7 +1311,9 @@
             function renderResumenIncubadoras(items) {
                 const contenedor = document.getElementById('resumenIncubadorasLive');
 
-                if (!contenedor) return;
+                if (!contenedor) {
+                    return;
+                }
 
                 if (!items || items.length === 0) {
                     contenedor.innerHTML = `
@@ -1282,7 +1324,7 @@
                     return;
                 }
 
-                contenedor.innerHTML = items.map(item => {
+                contenedor.innerHTML = items.map(function (item) {
                     const alertaHtml = item.alertas_abiertas > 0
                         ? `<span class="badge-soft bg-red-100 text-red-700">Alerta activa</span>`
                         : `<span class="badge-soft bg-emerald-100 text-emerald-700">Estable</span>`;
@@ -1335,7 +1377,9 @@
             }
 
             async function actualizarDashboardTiempoReal() {
-                if (peticionActiva) return;
+                if (peticionActiva) {
+                    return;
+                }
 
                 peticionActiva = true;
 
@@ -1387,7 +1431,6 @@
 
                     actualizarGraficas(data.grafica);
                     renderResumenIncubadoras(data.resumen_incubadoras);
-
                 } catch (error) {
                     console.error('Error al actualizar dashboard en tiempo real:', error);
                 } finally {
@@ -1437,7 +1480,9 @@
 
             function habilitarActuadores(habilitar) {
                 [nieblaSwitch, ledSwitch].forEach(function (sw) {
-                    if (!sw) return;
+                    if (!sw) {
+                        return;
+                    }
 
                     sw.style.pointerEvents = habilitar ? 'auto' : 'none';
                     sw.style.opacity = habilitar ? '1' : '.55';
@@ -1451,7 +1496,9 @@
                 }
 
                 if (modoLabel) {
-                    modoLabel.textContent = modoManual ? 'Modo Manual activo' : 'Modo Automático activo';
+                    modoLabel.textContent = modoManual
+                        ? 'Modo Manual activo'
+                        : 'Modo Automático activo';
                 }
 
                 if (modoBadge) {
@@ -1496,7 +1543,6 @@
 
                     console.log('Orden enviada:', data);
                     return true;
-
                 } catch (error) {
                     console.error('Error de conexión al enviar orden:', error);
                     alert('Error de conexión al enviar la orden.');
@@ -1525,7 +1571,6 @@
 
                 const nuevoEstado = !nieblaActiva;
                 const accion = nuevoEstado ? 'encender' : 'apagar';
-
                 const ok = await enviarOrdenActuador('niebla', accion);
 
                 if (ok) {
@@ -1541,7 +1586,6 @@
 
                 const nuevoEstado = !ledActivo;
                 const accion = nuevoEstado ? 'encender' : 'apagar';
-
                 const ok = await enviarOrdenActuador('luz', accion);
 
                 if (ok) {

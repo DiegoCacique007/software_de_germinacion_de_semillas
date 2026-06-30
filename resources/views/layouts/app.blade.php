@@ -10,7 +10,7 @@
     <link rel="preconnect" href="https://fonts.bunny.net">
 
     <link
-        href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600,700,800"
+        href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600,700,800&display=swap"
         rel="stylesheet"
     >
 
@@ -36,10 +36,21 @@
             margin: 0;
             padding: 0;
             overflow: hidden;
-            font-family: 'Instrument Sans', sans-serif;
+            color: #334155;
+            background: #eef7f5;
+            font-family:
+                'Instrument Sans',
+                ui-sans-serif,
+                system-ui,
+                -apple-system,
+                BlinkMacSystemFont,
+                'Segoe UI',
+                sans-serif;
         }
 
-        * {
+        *,
+        *::before,
+        *::after {
             box-sizing: border-box;
         }
 
@@ -54,9 +65,98 @@
             display: none !important;
         }
 
+        .microseed-layout {
+            position: relative;
+            width: 100%;
+            height: 100vh;
+            overflow: hidden;
+            background: #eef7f5;
+        }
+
+        .microseed-layout::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
+            background:
+                radial-gradient(
+                    circle at 90% 15%,
+                    rgba(59, 180, 156, 0.16),
+                    transparent 34%
+                ),
+                linear-gradient(
+                    180deg,
+                    #f8fafc 0%,
+                    #eef7f5 55%,
+                    #e4f4ef 100%
+                );
+        }
+
+        .microseed-auth-shell {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            width: 100%;
+            height: 100vh;
+            overflow: hidden;
+            background: transparent;
+        }
+
+        .microseed-content-shell {
+            min-width: 0;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            background: transparent;
+        }
+
+        .system-main-content {
+            min-width: 0;
+            min-height: 0;
+            flex: 1;
+            overflow-y: auto;
+            overflow-x: hidden;
+            background: transparent;
+            will-change: scroll-position;
+        }
+
+        .system-page-header {
+            position: sticky;
+            top: 0;
+            z-index: 30;
+            border-bottom: 1px solid rgba(203, 213, 225, 0.75);
+            background: rgba(255, 255, 255, 0.96);
+            box-shadow: 0 4px 14px rgba(15, 23, 42, 0.04);
+        }
+
+        .system-page-main {
+            width: 100%;
+            min-height: 100%;
+            margin: 0;
+            padding: 0;
+            background: transparent;
+        }
+
+        .microseed-guest-shell {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            height: 100vh;
+            overflow-y: auto;
+            overflow-x: hidden;
+            background: transparent;
+        }
+
+        .microseed-reportes-layer {
+            position: relative;
+            z-index: 2;
+        }
+
         .system-scrollbar {
             scrollbar-width: thin;
-            scrollbar-color: rgba(100, 116, 139, 0.34) transparent;
+            scrollbar-color: rgba(100, 116, 139, 0.28) transparent;
         }
 
         .system-scrollbar::-webkit-scrollbar {
@@ -70,28 +170,18 @@
 
         .system-scrollbar::-webkit-scrollbar-thumb {
             border-radius: 9999px;
-            background: rgba(100, 116, 139, 0.3);
+            background: rgba(100, 116, 139, 0.26);
         }
 
         .system-scrollbar::-webkit-scrollbar-thumb:hover {
-            background: rgba(100, 116, 139, 0.5);
-        }
-
-        .system-main-content {
-            min-width: 0;
-            min-height: 0;
-            flex: 1;
-            overflow-y: auto;
-            overflow-x: hidden;
-            background: #f1f5f9;
+            background: rgba(100, 116, 139, 0.42);
         }
     </style>
 </head>
 
-<body class="bg-slate-100 antialiased">
-
+<body class="antialiased">
 <div
-    class="h-screen w-full overflow-hidden bg-slate-100"
+    class="microseed-layout"
     x-data="{
             showMicroclimaModal: false,
             showBiologicoModal: false
@@ -100,41 +190,48 @@
     @open-biologico-modal.window="showBiologicoModal = true"
 >
     @auth
-        <div class="flex h-screen w-full overflow-hidden bg-slate-100">
-
+        <div class="microseed-auth-shell">
             @include('layouts.sidebar')
 
-            <div class="flex min-w-0 flex-1 flex-col overflow-hidden">
-
+            <div class="microseed-content-shell">
                 @include('layouts.navigation')
 
                 <div class="system-main-content system-scrollbar">
-
                     @isset($header)
-                        <header class="sticky top-0 z-30 border-b border-slate-200 bg-white/95 shadow-sm backdrop-blur-xl">
+                        <header class="system-page-header">
                             <div class="w-full px-6 py-5 lg:px-8">
                                 {{ $header }}
                             </div>
                         </header>
                     @endisset
 
-                    <main class="m-0 min-h-full w-full p-0">
+                    <main class="system-page-main">
                         {{ $slot }}
                     </main>
-
                 </div>
             </div>
         </div>
     @else
-        <main class="system-scrollbar h-screen w-full overflow-y-auto overflow-x-hidden bg-slate-100">
+        <main class="microseed-guest-shell system-scrollbar">
             {{ $slot }}
         </main>
     @endauth
 
-    @includeIf('layouts.reportes-modales')
+    <div class="microseed-reportes-layer">
+        @includeIf('layouts.reportes-modales')
+    </div>
 </div>
 
 <script>
+    function escapeHtml(value) {
+        return String(value)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#039;');
+    }
+
     @if(session('success'))
     Swal.fire({
         icon: 'success',
@@ -166,24 +263,27 @@
     @endif
 
     @if($errors->any())
+    const validationErrors = @json($errors->all());
+
     Swal.fire({
         icon: 'error',
         title: 'Revisa la información',
         html: `
                     <div style="text-align:left;">
                         <ul style="margin:0;padding-left:20px;">
-                            @foreach($errors->all() as $error)
-        <li>{{ addslashes($error) }}</li>
-                            @endforeach
-        </ul>
-    </div>
-`,
+                            ${validationErrors
+            .map(function(error) {
+                return '<li>' + escapeHtml(error) + '</li>';
+            })
+            .join('')}
+                        </ul>
+                    </div>
+                `,
         confirmButtonColor: '#1f6f86',
         width: '24em',
         confirmButtonText: 'Aceptar'
     });
     @endif
 </script>
-
 </body>
 </html>
