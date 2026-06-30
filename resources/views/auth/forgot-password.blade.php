@@ -1,6 +1,4 @@
-Este es el código completo para tu vista de "Olvidó su contraseña", utilizando exactamente el mismo diseño, estilos y animaciones que tu página de inicio de sesión, y adaptando el formulario para la recuperación.
 
-```blade
 @extends('layouts.guest')
 
 @section('content')
@@ -585,4 +583,3 @@ Este es el código completo para tu vista de "Olvidó su contraseña", utilizand
     </script>
 @endsection
 
-```

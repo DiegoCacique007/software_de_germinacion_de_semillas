@@ -220,6 +220,8 @@
         })
         ->values()
         ->all();
+
+    $microseedFont = "'Instrument Sans', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
 @endphp
 
 <style>
@@ -228,15 +230,6 @@
     }
 
     .microseed-topbar {
-        --microseed-system-font:
-            'Instrument Sans',
-            ui-sans-serif,
-            system-ui,
-            -apple-system,
-            BlinkMacSystemFont,
-            'Segoe UI',
-            sans-serif;
-
         position: relative;
         z-index: 90;
         width: 100%;
@@ -247,13 +240,10 @@
         border-bottom: 1px solid #e5eaf0;
         background: rgba(255, 255, 255, 0.97);
         box-shadow: 0 5px 20px rgba(15, 23, 42, 0.05);
-        backdrop-filter: blur(18px);
-        -webkit-backdrop-filter: blur(18px);
-        font-family: var(--microseed-system-font) !important;
+        font-family: {!! $microseedFont !!};
         font-size: 14px;
         font-style: normal;
         font-weight: 400;
-        font-synthesis: none;
         line-height: 1.5;
         text-rendering: optimizeLegibility;
         -webkit-font-smoothing: antialiased;
@@ -265,16 +255,7 @@
     .microseed-topbar *::before,
     .microseed-topbar *::after {
         box-sizing: border-box;
-        font-family: var(--microseed-system-font) !important;
-    }
-
-    .microseed-topbar button,
-    .microseed-topbar input,
-    .microseed-topbar label,
-    .microseed-topbar a,
-    .microseed-topbar p,
-    .microseed-topbar span {
-        font-family: var(--microseed-system-font) !important;
+        font-family: {!! $microseedFont !!} !important;
     }
 
     .microseed-topbar button {
@@ -302,8 +283,8 @@
         display: flex;
         align-items: center;
         justify-content: space-between;
-        gap: 20px;
-        padding: 0 24px;
+        gap: 18px;
+        padding: 0 16px 0 24px;
     }
 
     .microseed-topbar-left {
@@ -346,7 +327,6 @@
         outline: none;
         color: #334155;
         background: #f3f5f9;
-        font-family: var(--microseed-system-font) !important;
         font-size: 13px;
         font-weight: 500;
         line-height: 1.2;
@@ -407,7 +387,6 @@
         font-weight: 700;
         letter-spacing: 0.13em;
         text-transform: uppercase;
-        backdrop-filter: blur(12px);
     }
 
     .microseed-search-result {
@@ -489,18 +468,16 @@
         align-items: center;
         justify-content: center;
         border-radius: 13px;
-        color: #64748b;
+        color: #334155;
         transition:
             color 0.17s ease,
-            background 0.17s ease,
-            transform 0.17s ease;
+            background 0.17s ease;
     }
 
     .microseed-action-button:hover,
     .microseed-action-active {
         color: #1c607a;
-        background: #f0fdfa;
-        transform: translateY(-1px);
+        background: #eef8f8;
     }
 
     .microseed-action-button:focus-visible {
@@ -669,33 +646,33 @@
 
     .microseed-profile-wrapper {
         position: relative;
-        margin-left: 7px;
+        margin-left: 0;
+        margin-right: 10px;
         flex-shrink: 0;
     }
 
     .microseed-profile-button {
-        min-width: 170px;
-        height: 50px;
+        width: 242px;
+        min-width: 242px;
+        max-width: 242px;
+        height: 52px;
         display: flex;
         align-items: center;
-        gap: 10px;
-        padding: 6px 9px;
-        border: 0;
-        border-radius: 14px;
+        justify-content: flex-start;
+        gap: 11px;
+        padding: 6px 10px 6px 7px;
+        border-radius: 16px;
         color: #334155;
         background: transparent;
-        box-shadow: none;
         transition:
             background 0.17s ease,
-            transform 0.17s ease,
             box-shadow 0.17s ease;
     }
 
     .microseed-profile-button:hover,
     .microseed-profile-active {
         background: #f5f7fa;
-        transform: translateY(-1px);
-        box-shadow: none;
+        box-shadow: inset 0 0 0 1px rgba(28, 96, 122, 0.06);
     }
 
     .microseed-profile-button:focus-visible {
@@ -705,36 +682,42 @@
 
     .microseed-profile-avatar {
         position: relative;
-        width: 38px;
-        height: 38px;
-        min-width: 38px;
-        max-width: 38px;
-        min-height: 38px;
-        max-height: 38px;
+        width: 46px;
+        height: 46px;
+        min-width: 46px;
+        max-width: 46px;
+        min-height: 46px;
+        max-height: 46px;
         display: flex;
         align-items: center;
         justify-content: center;
         flex-shrink: 0;
         overflow: visible;
-        border: 0;
-        border-radius: 11px;
+        border: 1px solid rgba(28, 96, 122, 0.18);
+        border-radius: 14px;
         color: #ffffff;
-        background: linear-gradient(135deg, #144255, #3bb49c);
-        box-shadow: none;
+        background:
+            linear-gradient(
+                135deg,
+                #184e64 0%,
+                #1c6f7c 58%,
+                #3b9a96 100%
+            );
+        box-shadow: 0 8px 18px rgba(20, 66, 85, 0.12);
         font-size: 13px;
-        font-weight: 700;
+        font-weight: 800;
         line-height: 1;
     }
 
     .microseed-profile-avatar img {
-        width: 38px;
-        height: 38px;
-        min-width: 38px;
-        max-width: 38px;
-        min-height: 38px;
-        max-height: 38px;
+        width: 46px;
+        height: 46px;
+        min-width: 46px;
+        max-width: 46px;
+        min-height: 46px;
+        max-height: 46px;
         display: block;
-        border-radius: 11px;
+        border-radius: 14px;
         object-fit: cover;
     }
 
@@ -742,45 +725,45 @@
         position: absolute;
         right: -3px;
         bottom: -3px;
-        width: 11px;
-        height: 11px;
+        width: 12px;
+        height: 12px;
         display: block;
         border: 2px solid #ffffff;
         border-radius: 9999px;
-        background: #10b981;
-        box-shadow: none;
+        background: #22cfa8;
+        box-shadow: 0 0 0 2px rgba(34, 207, 168, 0.12);
     }
 
     .microseed-profile-information {
         min-width: 0;
-        flex: 1;
+        flex: 1 1 auto;
         display: block;
         text-align: left;
     }
 
     .microseed-profile-name {
         display: block;
-        max-width: 122px;
+        max-width: 174px;
         overflow: hidden;
         color: #334155;
-        font-size: 12px;
-        font-weight: 800;
-        line-height: 1.15;
-        letter-spacing: -0.015em;
+        font-size: 13px;
+        font-weight: 900;
+        line-height: 1.1;
+        letter-spacing: -0.03em;
         text-overflow: ellipsis;
         white-space: nowrap;
     }
 
     .microseed-profile-role {
         display: block;
-        max-width: 122px;
-        margin-top: 4px;
+        max-width: 174px;
+        margin-top: 5px;
         overflow: hidden;
-        color: #3bb49c;
+        color: #3b9a96;
         font-size: 9px;
-        font-weight: 800;
+        font-weight: 900;
         line-height: 1;
-        letter-spacing: 0.12em;
+        letter-spacing: 0.13em;
         text-overflow: ellipsis;
         text-transform: uppercase;
         white-space: nowrap;
@@ -795,96 +778,131 @@
     }
 
     .microseed-profile-dropdown {
-        width: 292px;
+        width: 347px;
+        border: 0;
+        border-radius: 22px;
+        background: #ffffff;
+        box-shadow: 0 26px 70px rgba(15, 23, 42, 0.22);
     }
 
     .microseed-profile-header {
-        padding: 19px;
+        position: relative;
+        overflow: hidden;
+        min-height: 111px;
+        padding: 18px 18px 18px 17px;
         color: #ffffff;
         background:
             radial-gradient(
-                circle at top right,
-                rgba(255, 255, 255, 0.18),
+                circle at 80% -42%,
+                rgba(59, 180, 156, 0.48),
                 transparent 38%
+            ),
+            radial-gradient(
+                circle at 105% 35%,
+                rgba(255, 255, 255, 0.12),
+                transparent 34%
             ),
             linear-gradient(
                 135deg,
-                #144255 0%,
-                #1c607a 58%,
-                #3bb49c 120%
+                #184e64 0%,
+                #1c6f7c 48%,
+                #3b9a96 100%
             );
     }
 
+    .microseed-profile-header::before {
+        content: '';
+        position: absolute;
+        right: -36px;
+        top: -72px;
+        width: 170px;
+        height: 170px;
+        border-radius: 9999px;
+        background: rgba(101, 224, 195, 0.16);
+        pointer-events: none;
+    }
+
     .microseed-profile-header-row {
+        position: relative;
+        z-index: 2;
         display: flex;
         align-items: center;
-        gap: 12px;
+        gap: 15px;
     }
 
     .microseed-profile-large-avatar {
-        width: 50px;
-        height: 50px;
-        min-width: 50px;
-        max-width: 50px;
-        min-height: 50px;
-        max-height: 50px;
+        width: 64px;
+        height: 64px;
+        min-width: 64px;
+        max-width: 64px;
+        min-height: 64px;
+        max-height: 64px;
         display: flex;
         align-items: center;
         justify-content: center;
         flex-shrink: 0;
         overflow: hidden;
-        border: 1px solid rgba(255, 255, 255, 0.22);
-        border-radius: 14px;
+        border: 1px solid rgba(255, 255, 255, 0.34);
+        border-radius: 17px;
         color: #ffffff;
-        background: rgba(255, 255, 255, 0.13);
-        font-size: 17px;
-        font-weight: 700;
+        background: rgba(255, 255, 255, 0.12);
+        box-shadow: 0 14px 30px rgba(7, 37, 49, 0.22);
+        font-size: 19px;
+        font-weight: 800;
         line-height: 1;
     }
 
     .microseed-profile-large-avatar img {
-        width: 50px;
-        height: 50px;
-        border-radius: 14px;
+        width: 64px;
+        height: 64px;
+        border-radius: 17px;
         object-fit: cover;
     }
 
     .microseed-profile-dropdown-name {
         display: block;
+        max-width: 218px;
         overflow: hidden;
         color: #ffffff;
-        font-size: 13px;
-        font-weight: 700;
-        line-height: 1.2;
+        font-size: 16px;
+        font-weight: 900;
+        line-height: 1.18;
+        letter-spacing: -0.035em;
         text-overflow: ellipsis;
         white-space: nowrap;
+        text-shadow: 0 2px 8px rgba(7, 37, 49, 0.2);
     }
 
     .microseed-profile-dropdown-email {
         display: block;
-        margin-top: 4px;
+        max-width: 218px;
+        margin-top: 6px;
         overflow: hidden;
-        color: rgba(255, 255, 255, 0.68);
-        font-size: 10px;
-        font-weight: 500;
+        color: rgba(255, 255, 255, 0.82);
+        font-size: 12px;
+        font-weight: 600;
         line-height: 1.2;
         text-overflow: ellipsis;
         white-space: nowrap;
     }
 
     .microseed-profile-dropdown-role {
-        display: block;
+        display: inline-flex;
+        align-items: center;
         width: fit-content;
-        margin-top: 8px;
-        padding: 4px 8px;
-        border: 1px solid rgba(255, 255, 255, 0.14);
+        max-width: 218px;
+        margin-top: 9px;
+        padding: 5px 12px;
+        border: 1px solid rgba(255, 255, 255, 0.22);
         border-radius: 9999px;
         color: #ffffff;
-        background: rgba(255, 255, 255, 0.1);
-        font-size: 8px;
-        font-weight: 700;
+        background: rgba(255, 255, 255, 0.18);
+        font-size: 10px;
+        font-weight: 900;
         line-height: 1;
-        letter-spacing: 0.09em;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12);
     }
 
     .microseed-profile-body {
@@ -911,9 +929,7 @@
         outline: none;
         color: #475569;
         background: transparent;
-        font-family: var(--microseed-system-font) !important;
         font-size: 12px !important;
-        font-style: normal !important;
         font-weight: 800 !important;
         line-height: 1.2 !important;
         letter-spacing: 0 !important;
@@ -925,14 +941,12 @@
         -webkit-appearance: none;
         transition:
             color 0.16s ease,
-            background 0.16s ease,
-            transform 0.16s ease;
+            background 0.16s ease;
     }
 
     .microseed-profile-body .microseed-profile-action:hover {
         color: #216a73;
         background: #ecfeff;
-        transform: translateX(2px);
     }
 
     .microseed-profile-action-icon {
@@ -966,14 +980,9 @@
     .microseed-profile-action-label {
         display: block;
         color: inherit;
-        font-family: var(--microseed-system-font) !important;
         font-size: 12px !important;
-        font-style: normal !important;
         font-weight: 800 !important;
         line-height: 1.2 !important;
-        letter-spacing: 0 !important;
-        text-align: left !important;
-        text-transform: none !important;
         white-space: nowrap !important;
     }
 
@@ -981,14 +990,9 @@
         display: block;
         margin-top: 3px;
         color: #94a3b8;
-        font-family: var(--microseed-system-font) !important;
         font-size: 10px !important;
-        font-style: normal !important;
         font-weight: 600 !important;
         line-height: 1.2 !important;
-        letter-spacing: 0 !important;
-        text-align: left !important;
-        text-transform: none !important;
         white-space: nowrap !important;
     }
 
@@ -1065,23 +1069,16 @@
         background: #f0fdfa;
     }
 
-    /* =========================================================
-       MODAL CENTRAL COMPACTO PARA CERRAR SESIÓN
-    ========================================================= */
-
     .microseed-logout-backdrop {
         position: fixed;
         inset: 0;
         z-index: 99999;
         width: 100vw;
         height: 100vh;
-        height: 100dvh;
         display: grid;
         place-items: center;
         padding: 16px;
         background: rgba(15, 23, 42, 0.45);
-        backdrop-filter: blur(7px);
-        -webkit-backdrop-filter: blur(7px);
     }
 
     .microseed-logout-modal {
@@ -1091,7 +1088,6 @@
         border-radius: 22px;
         background: #ffffff;
         box-shadow: 0 22px 60px rgba(15, 23, 42, 0.24);
-        font-family: var(--microseed-system-font) !important;
     }
 
     .microseed-logout-modal-header {
@@ -1159,7 +1155,6 @@
         line-height: 1;
         cursor: pointer;
         transition:
-            transform 0.16s ease,
             background 0.16s ease,
             box-shadow 0.16s ease;
     }
@@ -1171,7 +1166,6 @@
 
     .microseed-logout-cancel:hover {
         background: #e2e8f0;
-        transform: translateY(-1px);
     }
 
     .microseed-logout-confirm {
@@ -1192,7 +1186,6 @@
                 #1c607a,
                 #2fa58e
             );
-        transform: translateY(-1px);
     }
 
     @media (max-width: 1100px) {
@@ -1201,8 +1194,22 @@
         }
 
         .microseed-profile-button {
+            width: 215px;
+            min-width: 215px;
+            max-width: 215px;
+        }
+
+        .microseed-profile-name,
+        .microseed-profile-role {
+            max-width: 148px;
+        }
+    }
+
+    @media (max-width: 900px) {
+        .microseed-profile-button {
             min-width: 48px;
             width: 48px;
+            max-width: 48px;
             height: 48px;
             padding: 5px;
             justify-content: center;
