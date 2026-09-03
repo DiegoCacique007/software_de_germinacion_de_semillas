@@ -1,8 +1,6 @@
-
 @extends('layouts.guest')
 
 @section('content')
-    <!-- Fuentes para el diseño integrado -->
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=instrument-sans:500,700|playfair-display:400,400i,700,800" rel="stylesheet" />
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -15,7 +13,6 @@
             --brand-soft: #eef8f7;
         }
 
-        /* Fondo integrado y bloqueo de scroll en escritorio */
         body {
             margin: 0;
             height: 100vh;
@@ -39,7 +36,6 @@
             box-sizing: border-box;
         }
 
-        /* AJUSTE DE CONTENEDOR PRINCIPAL */
         .login-card {
             width: 100%;
             max-width: 1000px;
@@ -74,10 +70,9 @@
             height: 100%;
         }
 
-        /* Panel Izquierdo */
         .login-left {
             position: relative;
-            background: linear-gradient(135deg, #236f87) 0%, #2f8f97 50%, #39b39f 100%);
+            background: linear-gradient(135deg, #236f87 0%, #2f8f97 50%, #39b39f 100%);
             color: white;
             padding: 20px 30px 30px 30px;
             display: flex;
@@ -111,7 +106,6 @@
             animation: floatOrb 8s ease-in-out infinite;
         }
 
-        /* Integración del Logo y Texto Curvo */
         .logo-wrapper {
             position: relative;
             width: 100%;
@@ -158,7 +152,6 @@
             animation: floatLogo 4.5s ease-in-out infinite;
         }
 
-        /* TEXTO DESCRIPTIVO */
         .left-text {
             position: relative;
             z-index: 2;
@@ -175,7 +168,6 @@
             animation: fadeLeft 1.15s ease;
         }
 
-        /* Panel Derecho (Formulario) */
         .login-right {
             background: #ffffff;
             padding: 30px 40px;
@@ -233,6 +225,36 @@
             border-color: var(--brand-green);
             box-shadow: 0 0 0 0.22rem rgba(57, 179, 159, 0.18);
             transform: translateY(-1px);
+        }
+
+        .password-group .form-control {
+            border-top-right-radius: 0;
+            border-bottom-right-radius: 0;
+        }
+
+        .btn-toggle-password {
+            width: 55px;
+            min-height: 48px;
+            border-radius: 0 12px 12px 0;
+            border: 1px solid #d9e4e8;
+            border-left: none;
+            color: var(--brand-dark-blue);
+            background: #f7fbfb;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.25s ease;
+        }
+
+        .btn-toggle-password:hover {
+            background: var(--brand-soft);
+            color: var(--brand-green);
+        }
+
+        .btn-toggle-password svg {
+            width: 20px;
+            height: 20px;
+            stroke-width: 2.2;
         }
 
         .btn-recover {
@@ -297,7 +319,6 @@
             color: var(--brand-green);
         }
 
-        /* Semillas Animadas */
         .seed-particle {
             position: absolute;
             width: 8px;
@@ -338,7 +359,6 @@
             to { transform: translateX(260%) skewX(-20deg); }
         }
 
-        /* Responsive - Pantallas tipo Tablet */
         @media (max-width: 991.98px) {
             body {
                 overflow-y: auto;
@@ -369,7 +389,6 @@
             }
         }
 
-        /* Responsive - Pantallas de Celular */
         @media (max-width: 767.98px) {
             .logo-wrapper {
                 height: 220px;
@@ -395,7 +414,6 @@
             }
         }
 
-        /* Responsive - Celulares muy pequeños */
         @media (max-width: 480px) {
             .logo-wrapper {
                 height: 180px;
@@ -415,10 +433,8 @@
         <div class="card login-card">
             <div class="row g-0">
 
-                <!-- Panel Izquierdo Integrado (Idéntico al Login) -->
                 <div class="col-lg-6">
                     <div class="login-left">
-
                         <div class="logo-wrapper" id="logoWrapper">
                             <svg class="curved-text-svg" viewBox="0 0 1000 350" id="curvedText">
                                 <defs>
@@ -432,35 +448,28 @@
                             </svg>
                             <img src="{{ asset('img/logo.png') }}" alt="Logo Microseed Control" class="logo-main" id="logoMain">
                         </div>
-
                         <p class="left-text">
                             Sistema web de control de microclima en prototipo de incubadora de semillas
                         </p>
-
                     </div>
                 </div>
 
-                <!-- Panel Derecho (Formulario Adaptado) -->
                 <div class="col-lg-6">
                     <div class="login-right">
                         <div class="form-area">
 
                             <div class="form-header">
-                                <h2 class="form-title">Recuperar contraseña</h2>
+                                <h2 class="form-title">Nueva contraseña</h2>
                                 <p class="form-subtitle">
-                                    {{ __('Forgot your password? No problem. Just let us know your email address and we will email you a password reset link that will allow you to choose a new one.') }}
+                                    Ingresa tu correo electrónico registrado y tu nueva contraseña para actualizar tu acceso de inmediato.
                                 </p>
                             </div>
-
-                            <!-- Session Status (No se usa alerta de Blade, se prefiere SweetAlert abajo) -->
-                            {{-- <x-auth-session-status class="mb-4" :status="session('status')" /> --}}
 
                             <form method="POST" action="{{ route('password.email') }}">
                                 @csrf
 
-                                <!-- Email Address -->
                                 <div class="mb-3">
-                                    <label for="email" class="form-label">{{ __('Email') }}</label>
+                                    <label for="email" class="form-label">Correo electrónico</label>
                                     <input
                                         id="email"
                                         type="email"
@@ -477,8 +486,61 @@
                                     @enderror
                                 </div>
 
+                                <div class="mb-3">
+                                    <label for="password" class="form-label">Nueva contraseña</label>
+                                    <div class="input-group password-group">
+                                        <input
+                                            id="password"
+                                            type="password"
+                                            name="password"
+                                            class="form-control @error('password') is-invalid @enderror"
+                                            required
+                                            placeholder="Mínimo 8 caracteres"
+                                        >
+                                        <button
+                                            type="button"
+                                            class="btn btn-toggle-password"
+                                            onclick="togglePassword('password', this)"
+                                            aria-label="Mostrar contraseña"
+                                        >
+                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12s3.75-6.75 9.75-6.75S21.75 12 21.75 12 18 18.75 12 18.75 2.25 12 2.25 12z" />
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 15.25A3.25 3.25 0 1 0 12 8.75a3.25 3.25 0 0 0 0 6.5z" />
+                                            </svg>
+                                        </button>
+                                    </div>
+                                    @error('password')
+                                    <div class="error-text">{{ $message }}</div>
+                                    @enderror
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="password_confirmation" class="form-label">Confirmar contraseña nueva</label>
+                                    <div class="input-group password-group">
+                                        <input
+                                            id="password_confirmation"
+                                            type="password"
+                                            name="password_confirmation"
+                                            class="form-control"
+                                            required
+                                            placeholder="Repite tu contraseña"
+                                        >
+                                        <button
+                                            type="button"
+                                            class="btn btn-toggle-password"
+                                            onclick="togglePassword('password_confirmation', this)"
+                                            aria-label="Mostrar contraseña"
+                                        >
+                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12s3.75-6.75 9.75-6.75S21.75 12 21.75 12 18 18.75 12 18.75 2.25 12 2.25 12z" />
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 15.25A3.25 3.25 0 1 0 12 8.75a3.25 3.25 0 0 0 0 6.5z" />
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </div>
+
                                 <button type="submit" class="btn btn-recover">
-                                    {{ __('Email Password Reset Link') }}
+                                    Cambiar contraseña ahora
                                 </button>
                             </form>
 
@@ -497,7 +559,33 @@
     </div>
 
     <script>
-        // Animación del logo y texto curvo
+        const eyeIcon = `
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12s3.75-6.75 9.75-6.75S21.75 12 21.75 12 18 18.75 12 18.75 2.25 12 2.25 12z" />
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 15.25A3.25 3.25 0 1 0 12 8.75a3.25 3.25 0 0 0 0 6.5z" />
+        </svg>`;
+
+        const eyeOffIcon = `
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3 3l18 18" />
+            <path stroke-linecap="round" stroke-linejoin="round" d="M10.58 10.58A2 2 0 0 0 12 14a2 2 0 0 0 1.42-.58" />
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9.88 5.5A9.7 9.7 0 0 1 12 5.25c6 0 9.75 6.75 9.75 6.75a17.9 17.9 0 0 1-3.1 3.85" />
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6.5 6.9C3.85 8.55 2.25 12 2.25 12s3.75 6.75 9.75 6.75c1.25 0 2.42-.3 3.47-.78" />
+        </svg>`;
+
+        window.togglePassword = function(inputId, button) {
+            const input = document.getElementById(inputId);
+            if (input.type === 'password') {
+                input.type = 'text';
+                button.innerHTML = eyeOffIcon;
+                button.setAttribute('aria-label', 'Ocultar contraseña');
+            } else {
+                input.type = 'password';
+                button.innerHTML = eyeIcon;
+                button.setAttribute('aria-label', 'Mostrar contraseña');
+            }
+        };
+
         document.addEventListener('DOMContentLoaded', () => {
             const logoWrapper = document.getElementById('logoWrapper');
             const curvedText = document.getElementById('curvedText');
@@ -512,7 +600,6 @@
                 curvedText.style.transform = `translateX(-50%) translate(${x * 0.15}px, ${y * 0.15}px)`;
             });
 
-            // Animación de partículas de semillas
             function createSeedParticle() {
                 const particle = document.createElement('span');
                 particle.classList.add('seed-particle');
@@ -554,11 +641,10 @@
             setInterval(createSeedParticle, 650);
         });
 
-        // Alertas con SweetAlert2 para el estado de la sesión y errores
         @if (session('status'))
         Swal.fire({
             icon: 'success',
-            title: '¡Enlace enviado!',
+            title: '¡Operación exitosa!',
             text: '{{ session('status') }}',
             confirmButtonColor: '#39b39f',
             timer: 5000,
@@ -573,7 +659,7 @@
         Swal.fire({
             icon: 'error',
             title: 'Error',
-            text: 'Hubo un problema al procesar tu solicitud. Por favor, verifica el correo electrónico ingresado.',
+            text: 'Hubo un problema al procesar tu solicitud. Por favor, revisa los datos ingresados.',
             confirmButtonColor: '#1f6f86',
             width: '22em',
             customClass: { popup: 'text-sm' },
@@ -582,4 +668,3 @@
         @endif
     </script>
 @endsection
-
