@@ -18,194 +18,128 @@
     {{-- MODAL PDF MICROCLIMA --}}
     <div x-show="showMicroclimaModal"
          x-cloak
-         class="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm"
-         style="display: none;">
+         class="modal fade show d-block"
+         tabindex="-1"
+         role="dialog"
+         aria-modal="true"
+         style="background: rgba(15, 23, 42, 0.55); backdrop-filter: blur(4px);">
 
-        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4 text-gray-800"
-             @click.away="showMicroclimaModal = false">
+        <div class="modal-dialog modal-dialog-centered" @click.outside="showMicroclimaModal = false">
+            <div class="modal-content rounded-4 border-0 shadow-lg overflow-hidden">
+                <div class="modal-header border-0 text-white p-4" style="background: linear-gradient(135deg, #1c607a 0%, #3bb49c 100%);">
+                    <h5 class="modal-title fw-bold d-flex align-items-center gap-2 mb-0">
+                        <i class="bi bi-file-earmark-pdf fs-4"></i>
+                        Filtros: PDF Microclima
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" @click="showMicroclimaModal = false" aria-label="Cerrar"></button>
+                </div>
 
-            <div class="bg-[#1c607a] text-white p-5 rounded-t-2xl flex justify-between items-center">
-                <h3 class="font-bold text-lg flex items-center gap-2">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round"
-                              stroke-linejoin="round"
-                              stroke-width="2"
-                              d="M7 8h10M7 12h10M7 16h6M7 3h7l5 5v13a1 1 0 01-1 1H7a1 1 0 01-1-1V4a1 1 0 011-1z"/>
-                    </svg>
-                    Filtros: PDF Microclima
-                </h3>
+                <form action="{{ route('super_admin.reportes.microclima.pdf') }}" method="GET">
+                    <div class="modal-body p-4">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold small text-secondary">
+                                Fecha de inicio
+                            </label>
+                            <input type="date" name="fecha_inicio" class="form-control rounded-3 py-2">
+                        </div>
 
-                <button type="button"
-                        @click="showMicroclimaModal = false"
-                        class="text-white hover:text-gray-300">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round"
-                              stroke-linejoin="round"
-                              stroke-width="2"
-                              d="M6 18L18 6M6 6l12 12"/>
-                    </svg>
-                </button>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold small text-secondary">
+                                Fecha de fin
+                            </label>
+                            <input type="date" name="fecha_fin" class="form-control rounded-3 py-2">
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold small text-secondary">
+                                Incubadora
+                            </label>
+                            <select name="incubadora_id" class="form-select rounded-3 py-2">
+                                <option value="">Todas las incubadoras</option>
+                                @foreach($incubadorasList as $incubadora)
+                                    <option value="{{ $incubadora->id }}">
+                                        {{ $incubadora->nombre ?? 'Incubadora #' . $incubadora->id }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="modal-footer border-0 p-4 pt-0 d-flex justify-content-end gap-2">
+                        <button type="button" @click="showMicroclimaModal = false" class="btn btn-light rounded-3 px-4 py-2 fw-semibold text-secondary">
+                            Cancelar
+                        </button>
+                        <button type="submit" @click="showMicroclimaModal = false" class="btn rounded-3 px-4 py-2 fw-bold text-white shadow-sm d-flex align-items-center gap-2" style="background: linear-gradient(135deg, #1c607a, #3bb49c); border: none;">
+                            <i class="bi bi-download"></i>
+                            Descargar
+                        </button>
+                    </div>
+                </form>
             </div>
-
-            <form action="{{ route('super_admin.reportes.microclima.pdf') }}" method="GET" class="p-6">
-                <div class="space-y-4">
-
-                    <div>
-                        <label class="block text-sm font-bold text-[#1c607a] mb-1">
-                            Fecha de inicio
-                        </label>
-
-                        <input type="date"
-                               name="fecha_inicio"
-                               class="w-full rounded-xl border border-gray-300 py-2 px-3 focus:border-[#3bb49c] focus:ring-1 focus:ring-[#3bb49c]">
-                    </div>
-
-                    <div>
-                        <label class="block text-sm font-bold text-[#1c607a] mb-1">
-                            Fecha de fin
-                        </label>
-
-                        <input type="date"
-                               name="fecha_fin"
-                               class="w-full rounded-xl border border-gray-300 py-2 px-3 focus:border-[#3bb49c] focus:ring-1 focus:ring-[#3bb49c]">
-                    </div>
-
-                    <div>
-                        <label class="block text-sm font-bold text-[#1c607a] mb-1">
-                            Incubadora
-                        </label>
-
-                        <select name="incubadora_id"
-                                class="w-full rounded-xl border border-gray-300 py-2 px-3 focus:border-[#3bb49c] focus:ring-1 focus:ring-[#3bb49c] bg-white">
-                            <option value="">Todas las incubadoras</option>
-
-                            @foreach($incubadorasList as $incubadora)
-                                <option value="{{ $incubadora->id }}">
-                                    {{ $incubadora->nombre ?? 'Incubadora #' . $incubadora->id }}
-                                </option>
-                            @endforeach
-                        </select>
-                    </div>
-
-                </div>
-
-                <div class="mt-8 flex gap-3 justify-end">
-                    <button type="button"
-                            @click="showMicroclimaModal = false"
-                            class="px-5 py-2.5 text-gray-500 font-bold hover:bg-gray-100 rounded-xl transition-colors">
-                        Cancelar
-                    </button>
-
-                    <button type="submit"
-                            @click="showMicroclimaModal = false"
-                            class="bg-gradient-to-r from-[#1c607a] to-[#3bb49c] text-white px-5 py-2.5 rounded-xl font-bold shadow-md hover:shadow-lg transition-all transform hover:-translate-y-0.5 flex items-center gap-2">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round"
-                                  stroke-linejoin="round"
-                                  stroke-width="2"
-                                  d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
-                        </svg>
-                        Descargar
-                    </button>
-                </div>
-            </form>
         </div>
     </div>
 
     {{-- MODAL PDF BIOLÓGICO --}}
     <div x-show="showBiologicoModal"
          x-cloak
-         class="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm"
-         style="display: none;">
+         class="modal fade show d-block"
+         tabindex="-1"
+         role="dialog"
+         aria-modal="true"
+         style="background: rgba(15, 23, 42, 0.55); backdrop-filter: blur(4px);">
 
-        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4 text-gray-800"
-             @click.away="showBiologicoModal = false">
+        <div class="modal-dialog modal-dialog-centered" @click.outside="showBiologicoModal = false">
+            <div class="modal-content rounded-4 border-0 shadow-lg overflow-hidden">
+                <div class="modal-header border-0 text-white p-4" style="background: linear-gradient(135deg, #1c607a 0%, #3bb49c 100%);">
+                    <h5 class="modal-title fw-bold d-flex align-items-center gap-2 mb-0">
+                        <i class="bi bi-file-earmark-pdf fs-4"></i>
+                        Filtros: PDF Biológico
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" @click="showBiologicoModal = false" aria-label="Cerrar"></button>
+                </div>
 
-            <div class="bg-[#1c607a] text-white p-5 rounded-t-2xl flex justify-between items-center">
-                <h3 class="font-bold text-lg flex items-center gap-2">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round"
-                              stroke-linejoin="round"
-                              stroke-width="2"
-                              d="M7 8h10M7 12h10M7 16h6M7 3h7l5 5v13a1 1 0 01-1 1H7a1 1 0 01-1-1V4a1 1 0 011-1z"/>
-                    </svg>
-                    Filtros: PDF Biológico
-                </h3>
+                <form action="{{ route('super_admin.reportes.biologico.pdf') }}" method="GET">
+                    <div class="modal-body p-4">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold small text-secondary">
+                                Fecha de inicio
+                            </label>
+                            <input type="date" name="fecha_inicio" class="form-control rounded-3 py-2">
+                        </div>
 
-                <button type="button"
-                        @click="showBiologicoModal = false"
-                        class="text-white hover:text-gray-300">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round"
-                              stroke-linejoin="round"
-                              stroke-width="2"
-                              d="M6 18L18 6M6 6l12 12"/>
-                    </svg>
-                </button>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold small text-secondary">
+                                Fecha de fin
+                            </label>
+                            <input type="date" name="fecha_fin" class="form-control rounded-3 py-2">
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold small text-secondary">
+                                Lote
+                            </label>
+                            <select name="lote_id" class="form-select rounded-3 py-2">
+                                <option value="">Todos los lotes</option>
+                                @foreach($lotesList as $lote)
+                                    <option value="{{ $lote->id }}">
+                                        {{ $lote->codigo_lote ?? 'Lote #' . $lote->id }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="modal-footer border-0 p-4 pt-0 d-flex justify-content-end gap-2">
+                        <button type="button" @click="showBiologicoModal = false" class="btn btn-light rounded-3 px-4 py-2 fw-semibold text-secondary">
+                            Cancelar
+                        </button>
+                        <button type="submit" @click="showBiologicoModal = false" class="btn rounded-3 px-4 py-2 fw-bold text-white shadow-sm d-flex align-items-center gap-2" style="background: linear-gradient(135deg, #1c607a, #3bb49c); border: none;">
+                            <i class="bi bi-download"></i>
+                            Descargar
+                        </button>
+                    </div>
+                </form>
             </div>
-
-            <form action="{{ route('super_admin.reportes.biologico.pdf') }}" method="GET" class="p-6">
-                <div class="space-y-4">
-
-                    <div>
-                        <label class="block text-sm font-bold text-[#1c607a] mb-1">
-                            Fecha de inicio
-                        </label>
-
-                        <input type="date"
-                               name="fecha_inicio"
-                               class="w-full rounded-xl border border-gray-300 py-2 px-3 focus:border-[#3bb49c] focus:ring-1 focus:ring-[#3bb49c]">
-                    </div>
-
-                    <div>
-                        <label class="block text-sm font-bold text-[#1c607a] mb-1">
-                            Fecha de fin
-                        </label>
-
-                        <input type="date"
-                               name="fecha_fin"
-                               class="w-full rounded-xl border border-gray-300 py-2 px-3 focus:border-[#3bb49c] focus:ring-1 focus:ring-[#3bb49c]">
-                    </div>
-
-                    <div>
-                        <label class="block text-sm font-bold text-[#1c607a] mb-1">
-                            Lote
-                        </label>
-
-                        <select name="lote_id"
-                                class="w-full rounded-xl border border-gray-300 py-2 px-3 focus:border-[#3bb49c] focus:ring-1 focus:ring-[#3bb49c] bg-white">
-                            <option value="">Todos los lotes</option>
-
-                            @foreach($lotesList as $lote)
-                                <option value="{{ $lote->id }}">
-                                    {{ $lote->codigo_lote ?? 'Lote #' . $lote->id }}
-                                </option>
-                            @endforeach
-                        </select>
-                    </div>
-
-                </div>
-
-                <div class="mt-8 flex gap-3 justify-end">
-                    <button type="button"
-                            @click="showBiologicoModal = false"
-                            class="px-5 py-2.5 text-gray-500 font-bold hover:bg-gray-100 rounded-xl transition-colors">
-                        Cancelar
-                    </button>
-
-                    <button type="submit"
-                            @click="showBiologicoModal = false"
-                            class="bg-gradient-to-r from-[#1c607a] to-[#3bb49c] text-white px-5 py-2.5 rounded-xl font-bold shadow-md hover:shadow-lg transition-all transform hover:-translate-y-0.5 flex items-center gap-2">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round"
-                                  stroke-linejoin="round"
-                                  stroke-width="2"
-                                  d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
-                        </svg>
-                        Descargar
-                    </button>
-                </div>
-            </form>
         </div>
     </div>
 

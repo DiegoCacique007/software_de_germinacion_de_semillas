@@ -3,7 +3,6 @@
 @section('content')
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=instrument-sans:500,700|playfair-display:400,400i,700,800" rel="stylesheet" />
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <style>
         :root {
@@ -639,32 +638,36 @@
             }
 
             setInterval(createSeedParticle, 650);
-        });
 
-        @if (session('status'))
-        Swal.fire({
-            icon: 'success',
-            title: '¡Operación exitosa!',
-            text: '{{ session('status') }}',
-            confirmButtonColor: '#39b39f',
-            timer: 5000,
-            timerProgressBar: true,
-            width: '22em',
-            customClass: { popup: 'text-sm' },
-            confirmButtonText: 'Aceptar'
-        });
-        @endif
+            @if (session('status'))
+            if (window.Swal) {
+                window.Swal.fire({
+                    icon: 'success',
+                    title: '¡Operación exitosa!',
+                    text: '{{ session('status') }}',
+                    confirmButtonColor: '#39b39f',
+                    timer: 5000,
+                    timerProgressBar: true,
+                    width: '22em',
+                    customClass: { popup: 'text-sm' },
+                    confirmButtonText: 'Aceptar'
+                });
+            }
+            @endif
 
-        @if ($errors->any())
-        Swal.fire({
-            icon: 'error',
-            title: 'Error',
-            text: 'Hubo un problema al procesar tu solicitud. Por favor, revisa los datos ingresados.',
-            confirmButtonColor: '#1f6f86',
-            width: '22em',
-            customClass: { popup: 'text-sm' },
-            confirmButtonText: 'Aceptar'
+            @if ($errors->any())
+            if (window.Swal) {
+                window.Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Hubo un problema al procesar tu solicitud. Por favor, revisa los datos ingresados.',
+                    confirmButtonColor: '#1f6f86',
+                    width: '22em',
+                    customClass: { popup: 'text-sm' },
+                    confirmButtonText: 'Aceptar'
+                });
+            }
+            @endif
         });
-        @endif
     </script>
 @endsection

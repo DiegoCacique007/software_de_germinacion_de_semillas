@@ -198,7 +198,6 @@
 
         /* =========================================================
            IMAGEN PRINCIPAL DEL PERFIL
-           Estas clases son únicas para evitar conflicto con navigation
         ========================================================= */
 
         .microseed-main-profile-avatar-wrap {
@@ -490,8 +489,7 @@
 
         .microseed-profile-card input[type="text"],
         .microseed-profile-card input[type="email"],
-        .microseed-profile-card input[type="password"],
-        .microseed-profile-card .text-input {
+        .microseed-profile-card input[type="password"] {
             width: 100% !important;
             height: 46px !important;
             border: 1px solid #e2e8f0 !important;
@@ -511,104 +509,16 @@
 
         .microseed-profile-card input[type="text"]:focus,
         .microseed-profile-card input[type="email"]:focus,
-        .microseed-profile-card input[type="password"]:focus,
-        .microseed-profile-card .text-input:focus {
+        .microseed-profile-card input[type="password"]:focus {
             border-color: rgba(59, 180, 156, 0.55) !important;
             background: #ffffff !important;
             box-shadow: 0 0 0 4px rgba(59, 180, 156, 0.1) !important;
-        }
-
-        .microseed-profile-card .mt-6,
-        .microseed-profile-card .space-y-6 > :not([hidden]) ~ :not([hidden]) {
-            margin-top: 18px !important;
         }
 
         .microseed-profile-card p {
             color: #64748b;
             font-size: 13px;
             line-height: 1.55;
-        }
-
-        .microseed-profile-card .text-sm {
-            font-size: 12px !important;
-        }
-
-        .microseed-profile-card .text-gray-600,
-        .microseed-profile-card .text-gray-500 {
-            color: #64748b !important;
-        }
-
-        .microseed-profile-card .text-gray-900 {
-            color: #334155 !important;
-        }
-
-        .microseed-profile-card .text-red-600,
-        .microseed-profile-card .text-red-500 {
-            color: #e11d48 !important;
-            font-size: 11px !important;
-            font-weight: 700 !important;
-        }
-
-        .microseed-profile-card button,
-        .microseed-profile-card .inline-flex {
-            min-height: 44px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 9px;
-            border: 0 !important;
-            border-radius: 14px !important;
-            padding: 0 18px !important;
-            font-size: 12px !important;
-            font-weight: 800 !important;
-            cursor: pointer;
-            text-decoration: none;
-            transition:
-                transform 0.16s ease,
-                background 0.16s ease,
-                box-shadow 0.16s ease !important;
-        }
-
-        .microseed-profile-card button:hover,
-        .microseed-profile-card .inline-flex:hover {
-            transform: translateY(-1px);
-        }
-
-        .microseed-profile-card button[type="submit"],
-        .microseed-profile-card .bg-gray-800 {
-            color: #ffffff !important;
-            background:
-                linear-gradient(
-                    135deg,
-                    #216a73,
-                    #3bb49c
-                ) !important;
-            box-shadow: 0 14px 28px rgba(33, 106, 115, 0.22) !important;
-        }
-
-        .microseed-profile-card-danger button,
-        .microseed-profile-card-danger .bg-red-600 {
-            color: #ffffff !important;
-            background: #ef4444 !important;
-            box-shadow: 0 14px 28px rgba(239, 68, 68, 0.22) !important;
-        }
-
-        .microseed-profile-card-danger button:hover,
-        .microseed-profile-card-danger .bg-red-600:hover {
-            background: #dc2626 !important;
-        }
-
-        .microseed-profile-card .bg-white,
-        .microseed-profile-card .shadow,
-        .microseed-profile-card .sm\:rounded-lg {
-            background: transparent !important;
-            box-shadow: none !important;
-        }
-
-        .microseed-profile-card .text-green-600,
-        .microseed-profile-card .text-emerald-600 {
-            color: #047857 !important;
-            font-weight: 800 !important;
         }
 
         @media (max-width: 920px) {
@@ -728,7 +638,8 @@
                                         type="file"
                                         name="foto_perfil"
                                         accept="image/png,image/jpeg,image/jpg,image/webp"
-                                        class="hidden"
+                                        class="d-none"
+                                        style="display:none;"
                                         onchange="document.getElementById('profile-photo-form').submit()"
                                     >
                                 </form>
