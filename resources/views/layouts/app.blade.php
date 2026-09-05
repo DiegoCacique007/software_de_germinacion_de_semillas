@@ -11,9 +11,6 @@
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600,700,800&display=swap" rel="stylesheet">
 
-    {{-- Tailwind CDN conservado TEMPORALMENTE para compatibilidad con vistas en proceso de migración --}}
-    <script src="https://cdn.tailwindcss.com"></script>
-
     {{-- Assets compilados mediante Vite (Bootstrap 5, Bootstrap Icons, Alpine.js, SweetAlert2, Chart.js) --}}
     @vite(['resources/scss/app.scss', 'resources/js/app.js'])
 
@@ -420,7 +417,7 @@
 
                     @isset($header)
                         <header class="system-page-header">
-                            <div class="w-full px-6 py-5 lg:px-8">
+                            <div class="w-100 px-4 py-3 px-lg-4">
                                 {{ $header }}
                             </div>
                         </header>
