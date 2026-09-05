@@ -11,10 +11,11 @@
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600,700,800&display=swap" rel="stylesheet">
 
+    {{-- Tailwind CDN conservado TEMPORALMENTE para compatibilidad con vistas en proceso de migración --}}
     <script src="https://cdn.tailwindcss.com"></script>
-    <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/collapse@3.x.x/dist/cdn.min.js"></script>
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    {{-- Assets compilados mediante Vite (Bootstrap 5, Bootstrap Icons, Alpine.js, SweetAlert2, Chart.js) --}}
+    @vite(['resources/scss/app.scss', 'resources/js/app.js'])
 
     <style>
         html,
@@ -547,6 +548,11 @@
     ============================================================== */
 
     window.microseedAlert = function(type, title, message) {
+        if (typeof Swal === 'undefined') {
+            console.warn('SweetAlert2 aún no está disponible.');
+            return;
+        }
+
         return Swal.fire({
 
             html: `
@@ -600,6 +606,10 @@
     ============================================================== */
 
     window.microseedConfirm = function(options = {}) {
+        if (typeof Swal === 'undefined') {
+            console.warn('SweetAlert2 aún no está disponible.');
+            return;
+        }
 
         const type = options.type ?? 'question';
 
@@ -718,147 +728,113 @@
 
 
     /* =============================================================
-       SUCCESS DE LARAVEL
+       EVENTOS DE SESIÓN Y VALIDACIONES DE LARAVEL
     ============================================================== */
 
-    @if(session('success'))
+    document.addEventListener('DOMContentLoaded', function() {
 
-    microseedAlert(
-        'success',
-        '¡Operación completada!',
-        @json(session('success'))
-    );
+        @if(session('success'))
+        microseedAlert(
+            'success',
+            '¡Operación completada!',
+            @json(session('success'))
+        );
+        @endif
 
-    @endif
+        @if(session('error'))
+        microseedAlert(
+            'error',
+            'Ocurrió un problema',
+            @json(session('error'))
+        );
+        @endif
 
+        @if(session('warning'))
+        microseedAlert(
+            'warning',
+            'Atención',
+            @json(session('warning'))
+        );
+        @endif
 
-    /* =============================================================
-       ERROR DE LARAVEL
-    ============================================================== */
+        @if(session('info'))
+        microseedAlert(
+            'info',
+            'Información',
+            @json(session('info'))
+        );
+        @endif
 
-    @if(session('error'))
+        @if(session('status'))
+        microseedAlert(
+            'info',
+            'Información',
+            @json(session('status'))
+        );
+        @endif
 
-    microseedAlert(
-        'error',
-        'Ocurrió un problema',
-        @json(session('error'))
-    );
+        @if($errors->any())
+        const validationErrors = @json($errors->all());
 
-    @endif
+        const validationItems = validationErrors
+            .map(function(error) {
+                return `<li>${escapeHtml(error)}</li>`;
+            })
+            .join('');
 
+        if (typeof Swal !== 'undefined') {
+            Swal.fire({
+                html: `
+                    <div>
+                        <div class="msc-alert-custom-icon warning">
+                            ${microseedIcon('warning')}
+                        </div>
 
-    /* =============================================================
-       WARNING DE LARAVEL
-    ============================================================== */
+                        <h3 class="msc-alert-custom-title">
+                            Revisa la información
+                        </h3>
 
-    @if(session('warning'))
+                        <p class="msc-alert-custom-text">
+                            Corrige los siguientes campos para continuar.
+                        </p>
 
-    microseedAlert(
-        'warning',
-        'Atención',
-        @json(session('warning'))
-    );
-
-    @endif
-
-
-    /* =============================================================
-       INFO DE LARAVEL
-    ============================================================== */
-
-    @if(session('info'))
-
-    microseedAlert(
-        'info',
-        'Información',
-        @json(session('info'))
-    );
-
-    @endif
-
-
-    /* =============================================================
-       STATUS DE LARAVEL
-       ÚTIL PARA LOGIN, PASSWORD RESET, ETC.
-    ============================================================== */
-
-    @if(session('status'))
-
-    microseedAlert(
-        'info',
-        'Información',
-        @json(session('status'))
-    );
-
-    @endif
-
-
-    /* =============================================================
-       ERRORES DE VALIDACIÓN
-    ============================================================== */
-
-    @if($errors->any())
-
-    const validationErrors = @json($errors->all());
-
-    const validationItems = validationErrors
-        .map(function(error) {
-            return `<li>${escapeHtml(error)}</li>`;
-        })
-        .join('');
-
-
-    Swal.fire({
-
-        html: `
-                <div>
-                    <div class="msc-alert-custom-icon warning">
-                        ${microseedIcon('warning')}
+                        <ul class="msc-validation-list">
+                            ${validationItems}
+                        </ul>
                     </div>
+                `,
 
-                    <h3 class="msc-alert-custom-title">
-                        Revisa la información
-                    </h3>
+                showConfirmButton: true,
+                showCancelButton: false,
 
-                    <p class="msc-alert-custom-text">
-                        Corrige los siguientes campos para continuar.
-                    </p>
+                confirmButtonText: 'Aceptar',
 
-                    <ul class="msc-validation-list">
-                        ${validationItems}
-                    </ul>
-                </div>
-            `,
+                buttonsStyling: false,
 
-        showConfirmButton: true,
-        showCancelButton: false,
+                backdrop: 'rgba(39, 52, 65, .46)',
 
-        confirmButtonText: 'Aceptar',
+                allowOutsideClick: true,
+                allowEscapeKey: true,
 
-        buttonsStyling: false,
+                customClass: {
+                    popup: 'msc-alert-popup',
+                    htmlContainer: 'msc-alert-content',
+                    actions: 'msc-alert-actions',
+                    confirmButton: 'msc-alert-confirm'
+                },
 
-        backdrop: 'rgba(39, 52, 65, .46)',
+                showClass: {
+                    popup: 'msc-alert-show'
+                },
 
-        allowOutsideClick: true,
-        allowEscapeKey: true,
-
-        customClass: {
-            popup: 'msc-alert-popup',
-            htmlContainer: 'msc-alert-content',
-            actions: 'msc-alert-actions',
-            confirmButton: 'msc-alert-confirm'
-        },
-
-        showClass: {
-            popup: 'msc-alert-show'
-        },
-
-        hideClass: {
-            popup: 'msc-alert-hide'
+                hideClass: {
+                    popup: 'msc-alert-hide'
+                }
+            });
         }
-    });
+        @endif
 
-    @endif
+    });
 </script>
 
 </body>

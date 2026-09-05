@@ -459,7 +459,7 @@
                                             Usuarios
                                         </p>
 
-                                        <h3 id="metricUsuariosTotal" class="text-4xl font-black text-[#144255] leading-none">
+                                        <h3 id=\"metricUsuariosTotal\" class="text-4xl font-black text-[#144255] leading-none">
                                             {{ $usuariosTotal }}
                                         </h3>
 
@@ -1078,8 +1078,6 @@
             </div>
         </div>
     </div>
-
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {
