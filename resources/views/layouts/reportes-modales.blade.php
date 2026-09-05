@@ -16,13 +16,15 @@
     @endphp
 
     {{-- MODAL PDF MICROCLIMA --}}
-    <div x-show="showMicroclimaModal"
+    <div x-show.important="showMicroclimaModal"
          x-cloak
          class="modal fade show d-block"
          tabindex="-1"
          role="dialog"
          aria-modal="true"
-         style="background: rgba(15, 23, 42, 0.55); backdrop-filter: blur(4px);">
+         style="background: rgba(15, 23, 42, 0.55); backdrop-filter: blur(4px);"
+         @click.self="showMicroclimaModal = false"
+         @keydown.escape.window="showMicroclimaModal = false">
 
         <div class="modal-dialog modal-dialog-centered" @click.outside="showMicroclimaModal = false">
             <div class="modal-content rounded-4 border-0 shadow-lg overflow-hidden">
@@ -80,13 +82,15 @@
     </div>
 
     {{-- MODAL PDF BIOLÓGICO --}}
-    <div x-show="showBiologicoModal"
+    <div x-show.important="showBiologicoModal"
          x-cloak
          class="modal fade show d-block"
          tabindex="-1"
          role="dialog"
          aria-modal="true"
-         style="background: rgba(15, 23, 42, 0.55); backdrop-filter: blur(4px);">
+         style="background: rgba(15, 23, 42, 0.55); backdrop-filter: blur(4px);"
+         @click.self="showBiologicoModal = false"
+         @keydown.escape.window="showBiologicoModal = false">
 
         <div class="modal-dialog modal-dialog-centered" @click.outside="showBiologicoModal = false">
             <div class="modal-content rounded-4 border-0 shadow-lg overflow-hidden">

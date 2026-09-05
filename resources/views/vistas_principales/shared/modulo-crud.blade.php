@@ -295,7 +295,7 @@
         {{-- MODAL VER --}}
         {{-- ========================================================= --}}
 
-        <div x-show="showModalOpen"
+        <div x-show.important="showModalOpen"
              x-cloak
              class="modal fade show d-block crud-modal-backdrop"
              tabindex="-1"
@@ -304,8 +304,10 @@
              @keydown.escape.window="closeShowModal()"
              @click.self="closeShowModal()">
 
-            <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
-                <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+            <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable" @click.outside="closeShowModal()">
+                <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden position-relative">
+
+                    <button type="button" class="btn-close position-absolute top-0 end-0 m-3" @click="closeShowModal()" aria-label="Cerrar"></button>
 
                     {{-- CABECERA --}}
                     <div class="modal-header border-bottom-0 pb-0 pt-4 px-4 text-center d-flex flex-column align-items-center">
@@ -357,7 +359,7 @@
         {{-- MODAL CREAR / EDITAR --}}
         {{-- ========================================================= --}}
 
-        <div x-show="formModalOpen"
+        <div x-show.important="formModalOpen"
              x-cloak
              class="modal fade show d-block crud-modal-backdrop"
              tabindex="-1"
@@ -366,8 +368,10 @@
              @keydown.escape.window="closeFormModal()"
              @click.self="closeFormModal()">
 
-            <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
-                <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+            <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable" @click.outside="closeFormModal()">
+                <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden position-relative">
+
+                    <button type="button" class="btn-close position-absolute top-0 end-0 m-3" @click="closeFormModal()" aria-label="Cerrar"></button>
 
                     {{-- CABECERA --}}
                     <div class="modal-header border-bottom-0 pb-0 pt-4 px-4 text-center d-flex flex-column align-items-center">

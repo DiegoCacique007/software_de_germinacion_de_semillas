@@ -14,13 +14,15 @@
 
     {{-- MODAL ELIMINAR USUARIO --}}
     <div
-        x-show="openDeleteModal"
+        x-show.important="openDeleteModal"
         x-cloak
         class="modal fade show d-block"
         tabindex="-1"
         role="dialog"
         aria-modal="true"
         style="background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px);"
+        @click.self="openDeleteModal = false"
+        @keydown.escape.window="openDeleteModal = false"
     >
         <div class="modal-dialog modal-dialog-centered" @click.outside="openDeleteModal = false">
             <div class="modal-content rounded-4 border-0 shadow-lg overflow-hidden">
@@ -42,7 +44,7 @@
                         </p>
 
                         <div class="mb-3">
-                            <label for="delete_password" class="form-label fw-bold small text-secondary">
+                            <label for=\"delete_password\" class="form-label fw-bold small text-secondary">
                                 {{ __('Contraseña') }}
                             </label>
                             <input
