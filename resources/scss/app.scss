@@ -147,3 +147,123 @@ $bootstrap-icons-font-dir: "bootstrap-icons/font/fonts";
     border-radius: 0.75rem;
     padding: 0.65rem 0.9rem;
 }
+
+// 7. Dashboard & Telemetry Utilities
+.dashboard-mesh-bg {
+    background:
+        radial-gradient(circle at 90% 10%, rgba($microseed-success, 0.12), transparent 32%),
+        linear-gradient(180deg, #f8fafc 0%, #eef7f5 55%, #e4f4ef 100%);
+    background-size: cover;
+}
+
+.dashboard-top-accent {
+    height: 6px;
+    width: 100%;
+    background: linear-gradient(90deg, #0f5568 0%, #1f7b86 52%, #39b39f 100%);
+}
+
+.dashboard-card {
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(220, 235, 235, 0.8);
+    box-shadow: 0 10px 30px -10px rgba(20, 66, 85, 0.15);
+}
+
+.dashboard-chart-container {
+    position: relative;
+    height: 260px;
+    width: 100%;
+}
+
+.kpi-icon-box {
+    width: 3.5rem;
+    height: 3.5rem;
+    border-radius: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #ffffff;
+    flex-shrink: 0;
+}
+
+.control-header-gradient {
+    background: linear-gradient(135deg, #144255 0%, #1c607a 45%, #3bb49c 100%);
+}
+
+.sensor-metric-box {
+    border-radius: 1rem;
+    padding: 1.25rem 1rem;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.actuator-card {
+    background: #ffffff;
+    border: 1px solid rgba(229, 231, 235, 0.9);
+    border-radius: 1rem;
+    padding: 1.25rem;
+}
+
+.actuator-icon-box {
+    width: 48px;
+    height: 48px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.35rem;
+    flex-shrink: 0;
+}
+
+// Custom Hardware Switches for Telemetry
+.toggle-switch {
+    position: relative;
+    width: 52px;
+    height: 28px;
+    background: #d1d5db;
+    border-radius: 9999px;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: background-color 0.2s ease;
+
+    &.active {
+        background: $microseed-success;
+    }
+
+    &::after {
+        content: '';
+        position: absolute;
+        top: 3px;
+        left: 3px;
+        width: 22px;
+        height: 22px;
+        border-radius: 50%;
+        background: #ffffff;
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.18);
+        transition: transform 0.2s ease;
+    }
+
+    &.active::after {
+        transform: translateX(24px);
+    }
+}
+
+.toggle-switch-lg {
+    width: 60px;
+    height: 32px;
+
+    &::after {
+        width: 26px;
+        height: 26px;
+    }
+
+    &.active::after {
+        transform: translateX(28px);
+    }
+}
+
+.locked-control {
+    filter: grayscale(0.2);
+    opacity: 0.55;
+    pointer-events: none;
+}
