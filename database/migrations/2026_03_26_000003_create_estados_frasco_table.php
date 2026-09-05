@@ -11,9 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('users', function (Blueprint $table) {
-            // Por defecto será UB
-            $table->string('role')->default('UB')->after('email');
+        Schema::create('estados_frasco', function (Blueprint $table) {
+            $table->id();
+            $table->string('clave', 50)->unique();
+            $table->string('nombre', 100);
+            $table->string('descripcion', 255)->nullable();
+            $table->timestamps();
         });
     }
 
@@ -22,8 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('users', function (Blueprint $table) {
-            $table->dropColumn('role');
-        });
+        Schema::dropIfExists('estados_frasco');
     }
 };
