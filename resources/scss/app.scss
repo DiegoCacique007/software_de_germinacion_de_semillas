@@ -22,3 +22,128 @@ $bootstrap-icons-font-dir: "bootstrap-icons/font/fonts";
 
 // 5. Import Bootstrap 5 Core
 @import "bootstrap/scss/bootstrap";
+
+// 6. Brand Custom Utilities & CRUD Theme
+.text-brand-primary {
+    color: $microseed-primary !important;
+}
+
+.text-brand-accent {
+    color: $microseed-success !important;
+}
+
+.text-brand-dark {
+    color: $microseed-dark !important;
+}
+
+.bg-brand-primary {
+    background-color: $microseed-primary !important;
+    color: #ffffff;
+}
+
+.bg-brand-accent {
+    background-color: $microseed-success !important;
+    color: #ffffff;
+}
+
+.bg-brand-dark {
+    background-color: $microseed-dark !important;
+    color: #ffffff;
+}
+
+.bg-brand-soft {
+    background-color: rgba($microseed-success, 0.12) !important;
+    color: $microseed-primary !important;
+}
+
+.border-brand-subtle {
+    border-color: rgba($microseed-success, 0.25) !important;
+}
+
+.badge-dot {
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+.min-w-250 {
+    min-width: 250px;
+}
+
+.btn-brand {
+    background: linear-gradient(135deg, $microseed-primary 0%, $microseed-success 100%);
+    border: none;
+    color: #ffffff;
+    font-weight: 600;
+    box-shadow: 0 4px 14px rgba($microseed-primary, 0.2);
+    transition: all 0.2s ease-in-out;
+
+    &:hover, &:focus {
+        background: linear-gradient(135deg, darken($microseed-primary, 4%) 0%, darken($microseed-success, 4%) 100%);
+        color: #ffffff;
+        box-shadow: 0 6px 18px rgba($microseed-primary, 0.28);
+        transform: translateY(-1px);
+    }
+}
+
+.btn-brand-outline {
+    background: #ffffff;
+    border: 1px solid rgba($microseed-primary, 0.2);
+    color: $microseed-primary;
+    font-weight: 600;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    transition: all 0.2s ease-in-out;
+
+    &:hover, &:focus {
+        background: rgba($microseed-primary, 0.05);
+        border-color: $microseed-primary;
+        color: $microseed-primary;
+        transform: translateY(-1px);
+    }
+}
+
+.crud-table-header {
+    background: linear-gradient(135deg, $microseed-primary 0%, $microseed-success 100%);
+    color: #ffffff;
+
+    th {
+        font-weight: 700;
+        letter-spacing: 0.02em;
+        border: none;
+        padding-top: 0.9rem;
+        padding-bottom: 0.9rem;
+    }
+}
+
+.crud-table-row {
+    transition: background-color 0.15s ease;
+
+    &:hover {
+        background-color: #f2faf8 !important;
+    }
+}
+
+.crud-modal-backdrop {
+    background: rgba(20, 66, 85, 0.48);
+    backdrop-filter: blur(2px);
+}
+
+.crud-modal-icon {
+    width: 58px;
+    height: 58px;
+    border-radius: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(145deg, #f0fafa, #e5f5f2);
+    border: 1px solid rgba($microseed-success, 0.25);
+    color: $microseed-primary;
+}
+
+.crud-field-box {
+    background: #f8fbfa;
+    border: 1px solid #dce8e9;
+    border-radius: 0.75rem;
+    padding: 0.65rem 0.9rem;
+}
