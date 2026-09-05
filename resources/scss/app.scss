@@ -1,0 +1,24 @@
+// ==========================================================================
+// MicroSeed Control - Main SCSS (Bootstrap 5 & Brand Identity)
+// ==========================================================================
+
+// 1. Brand Variables
+$microseed-primary: #1c607a;
+$microseed-success: #3bb49c;
+$microseed-dark: #144255;
+$microseed-light: #eef7f5;
+
+// 2. Bootstrap Variable Overrides (Defined before importing Bootstrap)
+$primary: $microseed-primary;
+$success: $microseed-success;
+$dark: $microseed-dark;
+$light: $microseed-light;
+
+// 3. Bootstrap Icons Font Directory
+$bootstrap-icons-font-dir: "bootstrap-icons/font/fonts";
+
+// 4. Import Bootstrap Icons
+@import "bootstrap-icons/font/bootstrap-icons.scss";
+
+// 5. Import Bootstrap 5 Core
+@import "bootstrap/scss/bootstrap";
