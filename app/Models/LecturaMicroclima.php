@@ -16,11 +16,14 @@ class LecturaMicroclima extends Model
         'observaciones',
     ];
 
-    protected $casts = [
-        'fecha_hora' => 'datetime',
-        'temperatura' => 'float',
-        'humedad' => 'float',
-    ];
+    protected function casts(): array
+    {
+        return [
+            'fecha_hora' => 'datetime',
+            'temperatura' => 'decimal:2',
+            'humedad' => 'decimal:2',
+        ];
+    }
 
     public function incubadora()
     {

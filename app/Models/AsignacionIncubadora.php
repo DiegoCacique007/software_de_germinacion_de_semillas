@@ -19,6 +19,14 @@ class AsignacionIncubadora extends Model
         'observaciones',
     ];
 
+    protected function casts(): array
+    {
+        return [
+            'fecha_inicio' => 'date',
+            'fecha_fin' => 'date',
+        ];
+    }
+
     public function incubadora()
     {
         return $this->belongsTo(Incubadora::class);

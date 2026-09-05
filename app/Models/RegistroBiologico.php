@@ -23,10 +23,17 @@ class RegistroBiologico extends Model
         'observaciones',
     ];
 
-    protected $casts = [
-        'fecha_registro' => 'date',
-        'tasa_germinacion' => 'float',
-    ];
+    protected function casts(): array
+    {
+        return [
+            'fecha_registro' => 'date',
+            'dias_estratificacion' => 'integer',
+            'porcentaje_carbono' => 'decimal:2',
+            'porcentaje_nitrogeno' => 'decimal:2',
+            'porcentaje_fosforo' => 'decimal:2',
+            'tasa_germinacion' => 'decimal:2',
+        ];
+    }
 
     public function lote()
     {

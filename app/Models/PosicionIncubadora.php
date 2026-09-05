@@ -17,6 +17,13 @@ class PosicionIncubadora extends Model
         'descripcion',
     ];
 
+    protected function casts(): array
+    {
+        return [
+            'numero_posicion' => 'integer',
+        ];
+    }
+
     public function incubadora()
     {
         return $this->belongsTo(Incubadora::class);

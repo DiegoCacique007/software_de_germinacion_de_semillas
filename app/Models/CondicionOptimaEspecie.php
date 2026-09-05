@@ -20,6 +20,16 @@ class CondicionOptimaEspecie extends Model
         'observaciones',
     ];
 
+    protected function casts(): array
+    {
+        return [
+            'temperatura_min' => 'decimal:2',
+            'temperatura_max' => 'decimal:2',
+            'humedad_min' => 'decimal:2',
+            'humedad_max' => 'decimal:2',
+        ];
+    }
+
     public function especie()
     {
         return $this->belongsTo(Especie::class);

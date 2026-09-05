@@ -22,6 +22,15 @@ class Lote extends Model
         'observaciones',
     ];
 
+    protected function casts(): array
+    {
+        return [
+            'fecha_siembra' => 'date',
+            'fecha_inicio' => 'date',
+            'fecha_fin' => 'date',
+        ];
+    }
+
     public function posicion()
     {
         return $this->belongsTo(PosicionIncubadora::class, 'posicion_incubadora_id');

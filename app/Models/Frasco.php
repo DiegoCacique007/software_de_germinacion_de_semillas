@@ -19,6 +19,14 @@ class Frasco extends Model
         'observaciones',
     ];
 
+    protected function casts(): array
+    {
+        return [
+            'numero_frasco' => 'integer',
+            'cantidad_semillas' => 'integer',
+        ];
+    }
+
     public function lote()
     {
         return $this->belongsTo(Lote::class);

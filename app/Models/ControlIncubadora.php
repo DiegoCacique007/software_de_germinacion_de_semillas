@@ -21,9 +21,13 @@ class ControlIncubadora extends Model
         'observaciones',
     ];
 
-    protected $casts = [
-        'fecha_hora' => 'datetime',
-    ];
+    protected function casts(): array
+    {
+        return [
+            'fecha_hora' => 'datetime',
+            'valor_aplicado' => 'decimal:2',
+        ];
+    }
 
     public function incubadora()
     {

@@ -22,9 +22,12 @@ class Alerta extends Model
         'observaciones',
     ];
 
-    protected $casts = [
-        'fecha_hora' => 'datetime',
-    ];
+    protected function casts(): array
+    {
+        return [
+            'fecha_hora' => 'datetime',
+        ];
+    }
 
     public function incubadora()
     {

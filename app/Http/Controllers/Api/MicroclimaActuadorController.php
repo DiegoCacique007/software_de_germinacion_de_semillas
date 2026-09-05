@@ -112,7 +112,8 @@ class MicroclimaActuadorController extends Controller
     private function tokenValido(Request $request): bool
     {
         $token = $request->header('X-SENSOR-TOKEN');
+        $sensorToken = config('services.sensor.token');
 
-        return $token && $token === env('SENSOR_API_TOKEN');
+        return !empty($token) && !empty($sensorToken) && $token === $sensorToken;
     }
 }

@@ -23,6 +23,17 @@ class SeguimientoLote extends Model
         'user_id',
     ];
 
+    protected function casts(): array
+    {
+        return [
+            'fecha_revision' => 'date',
+            'frascos_activos' => 'integer',
+            'semillas_germinadas' => 'integer',
+            'porcentaje_germinacion' => 'decimal:2',
+            'altura_promedio_cm' => 'decimal:2',
+        ];
+    }
+
     public function lote()
     {
         return $this->belongsTo(Lote::class);

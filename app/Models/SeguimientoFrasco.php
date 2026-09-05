@@ -21,6 +21,15 @@ class SeguimientoFrasco extends Model
         'user_id',
     ];
 
+    protected function casts(): array
+    {
+        return [
+            'fecha_revision' => 'date',
+            'semillas_germinadas' => 'integer',
+            'altura_promedio_cm' => 'decimal:2',
+        ];
+    }
+
     public function frasco()
     {
         return $this->belongsTo(Frasco::class);

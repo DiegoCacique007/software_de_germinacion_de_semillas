@@ -13,6 +13,7 @@ class User extends Authenticatable
     protected $fillable = [
         'name',
         'email',
+        'foto_perfil',
         'role',
         'password',
     ];
@@ -59,6 +60,4 @@ class User extends Authenticatable
     {
         return $this->hasMany(RegistroBiologico::class);
     }
-
-
 }

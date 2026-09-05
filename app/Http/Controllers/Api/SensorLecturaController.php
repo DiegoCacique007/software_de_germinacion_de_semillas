@@ -13,8 +13,9 @@ class SensorLecturaController extends Controller
     public function store(Request $request)
     {
         $token = $request->header('X-SENSOR-TOKEN');
+        $sensorToken = config('services.sensor.token');
 
-        if (!$token || $token !== env('SENSOR_API_TOKEN')) {
+        if (!$token || empty($sensorToken) || $token !== $sensorToken) {
             return response()->json([
                 'ok' => false,
                 'message' => 'Token inválido.',
