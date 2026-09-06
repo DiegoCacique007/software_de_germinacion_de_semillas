@@ -19,7 +19,7 @@
         str_replace(['_', '-'], ' ', $rolUsuario)
     );
 
-    $fotoUsuario = $usuario && isset($usuario->foto_perfil) && $usuario->foto_perfil
+    $fotoUsuario = $usuario && !empty($usuario->foto_perfil)
         ? asset('storage/' . $usuario->foto_perfil)
         : null;
 
@@ -45,15 +45,15 @@
             'superadmin',
             'admin',
         ], true)
-        && \Illuminate\Support\Facades\Route::has('super_admin.dashboard')
+        && Route::has('super_admin.dashboard')
     ) {
         $rutaInicio = route('super_admin.dashboard');
     } elseif (
         $rolNormalizado === 'administrador'
-        && \Illuminate\Support\Facades\Route::has('semillas.gestion')
+        && Route::has('semillas.gestion')
     ) {
         $rutaInicio = route('semillas.gestion');
-    } elseif (\Illuminate\Support\Facades\Route::has('dashboard')) {
+    } elseif (Route::has('dashboard')) {
         $rutaInicio = route('dashboard');
     }
 
@@ -208,64 +208,83 @@
     }
 
     $modulosBusqueda = collect($modulosDisponibles)
-        ->filter(function ($modulo) {
-            return \Illuminate\Support\Facades\Route::has($modulo['route']);
-        })
-        ->map(function ($modulo) {
-            return [
-                'label' => $modulo['label'],
-                'description' => $modulo['description'],
-                'url' => route($modulo['route']),
-            ];
-        })
+        ->filter(fn ($modulo) => Route::has($modulo['route']))
+        ->map(fn ($modulo) => [
+            'label' => $modulo['label'],
+            'description' => $modulo['description'],
+            'url' => route($modulo['route']),
+        ])
         ->values()
         ->all();
-
-    $microseedFont = "'Instrument Sans', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
 @endphp
+
 
 <style>
     [x-cloak] {
         display: none !important;
     }
 
+    /* ================================================================
+       TIPOGRAFÍA
+       Misma familia visual utilizada por el sidebar
+       ================================================================ */
+
     .microseed-topbar {
+        --microseed-navigation-font:
+            'Instrument Sans',
+            ui-sans-serif,
+            system-ui,
+            -apple-system,
+            BlinkMacSystemFont,
+            'Segoe UI',
+            sans-serif;
+
         position: relative;
         z-index: 90;
+
         width: 100%;
-        height: 82px;
+        height: 78px;
+
         display: flex;
         align-items: center;
         flex-shrink: 0;
-        border-bottom: 1px solid #e5eaf0;
-        background: rgba(255, 255, 255, 0.97);
-        box-shadow: 0 5px 20px rgba(15, 23, 42, 0.05);
-        font-family: {!! $microseedFont !!};
+
+        border-bottom: 1px solid #e5eaed;
+
+        background: rgba(255, 255, 255, 0.98);
+
+        box-shadow:
+            0 5px 20px rgba(20, 66, 85, 0.045);
+
+        font-family: var(--microseed-navigation-font);
         font-size: 14px;
-        font-style: normal;
-        font-weight: 400;
         line-height: 1.5;
-        text-rendering: optimizeLegibility;
+
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
     }
 
-    .microseed-topbar,
     .microseed-topbar *,
     .microseed-topbar *::before,
     .microseed-topbar *::after {
         box-sizing: border-box;
-        font-family: {!! $microseedFont !!} !important;
+        font-family: var(--microseed-navigation-font);
     }
 
     .microseed-topbar button {
         margin: 0;
+        padding: 0;
+
         border: 0;
-        outline: none;
+        outline: 0;
+
         background: transparent;
         color: inherit;
+
         font: inherit;
+
         cursor: pointer;
+
         appearance: none;
         -webkit-appearance: none;
     }
@@ -275,186 +294,262 @@
         text-decoration: none;
     }
 
+
+    /* ================================================================
+       ESTRUCTURA TOPBAR
+       ================================================================ */
+
     .microseed-topbar-content {
-        min-width: 0;
         width: 100%;
         height: 100%;
-        flex: 1;
+        min-width: 0;
+
         display: flex;
         align-items: center;
         justify-content: space-between;
+
         gap: 18px;
+
         padding: 0 16px 0 24px;
     }
 
     .microseed-topbar-left {
         min-width: 0;
         flex: 1;
+
         display: flex;
         align-items: center;
+
         gap: 12px;
     }
 
+    .microseed-topbar-actions {
+        display: flex;
+        align-items: center;
+
+        flex-shrink: 0;
+
+        gap: 5px;
+    }
+
+
+    /* ================================================================
+       BUSCADOR
+       ================================================================ */
+
     .microseed-search-wrapper {
         position: relative;
+
         width: min(550px, 100%);
     }
 
     .microseed-search {
         position: relative;
+
         width: 100%;
-        height: 48px;
+        height: 46px;
+
         display: flex;
         align-items: center;
     }
 
     .microseed-search-icon {
         position: absolute;
-        left: 17px;
+
+        left: 16px;
         z-index: 2;
-        width: 19px;
-        height: 19px;
-        color: #94a3b8;
+
+        width: 18px;
+        height: 18px;
+
+        color: #8294a3;
+
         pointer-events: none;
     }
 
     .microseed-search-input {
         width: 100%;
-        height: 48px;
-        padding: 0 52px 0 49px;
-        border: 1px solid transparent;
-        border-radius: 16px;
-        outline: none;
+        height: 46px;
+
+        padding:
+            0
+            48px
+            0
+            47px;
+
         color: #334155;
-        background: #f3f5f9;
+
+        background: #f4f7f7;
+
+        border: 1px solid transparent;
+        border-radius: 15px;
+
+        outline: 0;
+
         font-size: 13px;
         font-weight: 500;
-        line-height: 1.2;
+
         transition:
-            border-color 0.17s ease,
             background 0.17s ease,
+            border-color 0.17s ease,
             box-shadow 0.17s ease;
     }
 
     .microseed-search-input::placeholder {
-        color: #9da7b6;
-        font-size: 13px;
-        font-weight: 500;
+        color: #99a5ae;
     }
 
     .microseed-search-input:focus {
-        border-color: rgba(59, 180, 156, 0.38);
         background: #ffffff;
-        box-shadow: 0 0 0 4px rgba(59, 180, 156, 0.09);
+
+        border-color:
+            rgba(59, 180, 156, 0.38);
+
+        box-shadow:
+            0 0 0 4px
+            rgba(59, 180, 156, 0.09);
     }
 
     .microseed-search-results {
         position: absolute;
+
         top: calc(100% + 10px);
         left: 0;
-        z-index: 150;
+
+        z-index: 160;
+
         width: 100%;
         max-height: 390px;
+
         overflow-y: auto;
-        border: 1px solid #e2e8f0;
-        border-radius: 17px;
+
         background: #ffffff;
-        box-shadow: 0 24px 60px rgba(15, 23, 42, 0.18);
-    }
 
-    .microseed-search-results::-webkit-scrollbar {
-        width: 5px;
-    }
+        border: 1px solid #e2e8ea;
+        border-radius: 17px;
 
-    .microseed-search-results::-webkit-scrollbar-track {
-        background: transparent;
-    }
-
-    .microseed-search-results::-webkit-scrollbar-thumb {
-        border-radius: 9999px;
-        background: rgba(100, 116, 139, 0.28);
+        box-shadow:
+            0 24px 60px
+            rgba(15, 23, 42, 0.18);
     }
 
     .microseed-search-results-header {
         position: sticky;
+
         top: 0;
         z-index: 2;
-        padding: 12px 14px;
-        border-bottom: 1px solid #eef2f6;
+
+        padding: 11px 14px;
+
         color: #94a3b8;
-        background: rgba(255, 255, 255, 0.97);
+
+        background: rgba(255, 255, 255, 0.98);
+
+        border-bottom: 1px solid #edf2f2;
+
         font-size: 9px;
         font-weight: 700;
+
         letter-spacing: 0.13em;
+
         text-transform: uppercase;
     }
 
     .microseed-search-result {
         width: 100%;
+
         display: flex;
         align-items: center;
+
         gap: 11px;
+
         padding: 11px 13px;
-        color: inherit;
+
         text-align: left;
-        transition: background 0.16s ease;
+
+        transition:
+            background 0.16s ease;
     }
 
     .microseed-search-result:hover,
     .microseed-search-result:focus-visible {
+        background: #effaf8;
         outline: none;
-        background: #f0fdfa;
     }
 
     .microseed-search-result-icon {
-        width: 36px;
-        height: 36px;
+        width: 37px;
+        height: 37px;
+
         display: flex;
         align-items: center;
         justify-content: center;
+
         flex-shrink: 0;
-        border-radius: 11px;
-        color: #1c607a;
-        background: rgba(59, 180, 156, 0.11);
+
+        color: #216a73;
+
+        background:
+            linear-gradient(
+                135deg,
+                rgba(33, 106, 115, 0.10),
+                rgba(59, 180, 156, 0.14)
+            );
+
+        border-radius: 12px;
+    }
+
+    .microseed-search-result-text {
+        min-width: 0;
     }
 
     .microseed-search-result-title {
         display: block;
+
         overflow: hidden;
+
         color: #334155;
+
         font-size: 12px;
         font-weight: 700;
-        line-height: 1.15;
+
+        line-height: 1.2;
+
         text-overflow: ellipsis;
         white-space: nowrap;
     }
 
     .microseed-search-result-description {
         display: block;
+
         margin-top: 3px;
+
         overflow: hidden;
+
         color: #94a3b8;
+
         font-size: 10px;
         font-weight: 500;
-        line-height: 1.2;
+
         text-overflow: ellipsis;
         white-space: nowrap;
     }
 
     .microseed-search-empty {
         padding: 28px 16px;
+
         color: #94a3b8;
+
         font-size: 12px;
         font-weight: 500;
+
         text-align: center;
     }
 
-    .microseed-topbar-actions {
-        display: flex;
-        align-items: center;
-        flex-shrink: 0;
-        gap: 6px;
-    }
+
+    /* ================================================================
+       BOTONES SUPERIORES
+       ================================================================ */
 
     .microseed-action-wrapper {
         position: relative;
@@ -462,27 +557,41 @@
 
     .microseed-action-button {
         position: relative;
-        width: 44px;
-        height: 44px;
+
+        width: 43px;
+        height: 43px;
+
         display: flex;
         align-items: center;
         justify-content: center;
+
+        color: #64748b;
+
         border-radius: 13px;
-        color: #334155;
+
         transition:
             color 0.17s ease,
-            background 0.17s ease;
+            background 0.17s ease,
+            transform 0.17s ease;
     }
 
     .microseed-action-button:hover,
     .microseed-action-active {
-        color: #1c607a;
-        background: #eef8f8;
+        color: #216a73;
+
+        background: #eef8f7;
+    }
+
+    .microseed-action-button:hover {
+        transform: translateY(-1px);
     }
 
     .microseed-action-button:focus-visible {
         outline: none;
-        box-shadow: 0 0 0 4px rgba(59, 180, 156, 0.1);
+
+        box-shadow:
+            0 0 0 4px
+            rgba(59, 180, 156, 0.10);
     }
 
     .microseed-action-button svg {
@@ -492,84 +601,121 @@
 
     .microseed-counter {
         position: absolute;
-        top: 1px;
-        right: 0;
+
+        top: 0;
+        right: -1px;
+
         min-width: 18px;
         height: 18px;
+
         display: flex;
         align-items: center;
         justify-content: center;
+
         padding: 0 4px;
+
+        color: #ffffff;
+
+        background: #dc3545;
+
         border: 2px solid #ffffff;
         border-radius: 9999px;
-        color: #ffffff;
-        background: #ef4444;
+
         font-size: 8px;
         font-weight: 800;
+
         line-height: 1;
     }
 
     .microseed-counter-green {
-        background: #10b981;
+        background: #3bb49c;
     }
+
+
+    /* ================================================================
+       DROPDOWN GENERAL
+       ================================================================ */
 
     .microseed-dropdown {
         position: absolute;
+
         top: calc(100% + 12px);
         right: 0;
-        z-index: 150;
+
+        z-index: 170;
+
         width: 310px;
+
         overflow: hidden;
-        border: 1px solid #e2e8f0;
-        border-radius: 18px;
+
         background: #ffffff;
-        box-shadow: 0 24px 60px rgba(15, 23, 42, 0.2);
+
+        border: 1px solid #e2e8ea;
+        border-radius: 18px;
+
+        box-shadow:
+            0 24px 60px
+            rgba(15, 23, 42, 0.20);
     }
 
     .microseed-dropdown-header {
         display: flex;
         align-items: center;
         justify-content: space-between;
+
         gap: 12px;
+
         padding: 15px 16px;
-        border-bottom: 1px solid #eef2f6;
+
+        border-bottom: 1px solid #eef2f2;
     }
 
     .microseed-dropdown-title {
         margin: 0;
+
         color: #334155;
+
         font-size: 13px;
         font-weight: 700;
-        line-height: 1.2;
     }
 
     .microseed-dropdown-count {
         padding: 4px 8px;
-        border-radius: 9999px;
-        color: #047857;
-        background: #ecfdf5;
+
+        color: #1f756a;
+
+        background: #e9f8f4;
+
+        border-radius: 999px;
+
         font-size: 9px;
         font-weight: 700;
-        line-height: 1;
     }
 
     .microseed-notification {
         display: flex;
         align-items: flex-start;
+
         gap: 11px;
+
         padding: 14px 16px;
     }
 
     .microseed-notification-icon {
         width: 39px;
         height: 39px;
+
         display: flex;
         align-items: center;
         justify-content: center;
+
         flex-shrink: 0;
+
+        color: #dc3545;
+
+        background: #fff1f2;
+
         border-radius: 12px;
-        color: #dc2626;
-        background: #fef2f2;
     }
 
     .microseed-notification-icon svg {
@@ -579,309 +725,505 @@
 
     .microseed-notification-title {
         display: block;
+
         color: #334155;
+
         font-size: 12px;
         font-weight: 700;
-        line-height: 1.2;
     }
 
     .microseed-notification-description {
         display: block;
+
         margin-top: 3px;
+
         color: #94a3b8;
+
         font-size: 10px;
         font-weight: 500;
+
         line-height: 1.45;
     }
 
     .microseed-dropdown-empty {
-        padding: 28px 18px;
+        padding: 27px 18px;
+
         text-align: center;
     }
 
     .microseed-empty-icon {
         width: 46px;
         height: 46px;
+
         margin: 0 auto;
+
         display: flex;
         align-items: center;
         justify-content: center;
+
+        color: #216a73;
+
+        background: #eaf8f5;
+
         border-radius: 14px;
-        color: #3bb49c;
-        background: #ecfdf5;
     }
 
     .microseed-empty-title {
-        margin: 11px 0 0;
+        margin: 10px 0 0;
+
         color: #475569;
+
         font-size: 12px;
         font-weight: 700;
-        line-height: 1.2;
     }
 
     .microseed-empty-description {
         margin: 4px 0 0;
+
         color: #94a3b8;
+
         font-size: 10px;
         font-weight: 500;
-        line-height: 1.3;
     }
 
     .microseed-dropdown-footer {
         display: block;
+
         padding: 11px 15px;
-        border-top: 1px solid #eef2f6;
+
         color: #1c607a;
-        background: #f8fafc;
+
+        background: #f8faf9;
+
+        border-top: 1px solid #eef2f2;
+
         font-size: 11px;
         font-weight: 700;
-        line-height: 1.2;
+
         text-align: center;
-        transition: background 0.16s ease;
+
+        transition:
+            background 0.16s ease;
     }
 
     .microseed-dropdown-footer:hover {
-        background: #f0fdfa;
+        background: #effaf8;
     }
+
+
+    /* ================================================================
+       PERFIL - ZONA HOVER
+       ================================================================ */
 
     .microseed-profile-wrapper {
         position: relative;
-        margin-left: 0;
-        margin-right: 10px;
+
+        margin-left: 3px;
+        margin-right: 5px;
+
         flex-shrink: 0;
+
+        /*
+         * El dropdown vive dentro de este contenedor.
+         * Al mover el mouse del botón hacia el dropdown,
+         * seguimos dentro de la misma zona hover.
+         */
+        padding-bottom: 12px;
+        margin-bottom: -12px;
     }
 
     .microseed-profile-button {
-        width: 242px;
-        min-width: 242px;
-        max-width: 242px;
+        width: 238px;
         height: 52px;
+
         display: flex;
         align-items: center;
-        justify-content: flex-start;
+
         gap: 11px;
-        padding: 6px 10px 6px 7px;
-        border-radius: 16px;
+
+        padding:
+            5px
+            9px
+            5px
+            6px;
+
         color: #334155;
+
         background: transparent;
+
+        border-radius: 16px;
+
         transition:
             background 0.17s ease,
-            box-shadow 0.17s ease;
+            box-shadow 0.17s ease,
+            transform 0.17s ease;
     }
 
     .microseed-profile-button:hover,
     .microseed-profile-active {
-        background: #f5f7fa;
-        box-shadow: inset 0 0 0 1px rgba(28, 96, 122, 0.06);
+        background:
+            linear-gradient(
+                135deg,
+                rgba(33, 106, 115, 0.055),
+                rgba(59, 180, 156, 0.08)
+            );
+
+        box-shadow:
+            inset 0 0 0 1px
+            rgba(59, 180, 156, 0.13);
+    }
+
+    .microseed-profile-button:hover {
+        transform: translateY(-1px);
     }
 
     .microseed-profile-button:focus-visible {
         outline: none;
-        box-shadow: 0 0 0 4px rgba(59, 180, 156, 0.1);
+
+        box-shadow:
+            0 0 0 4px
+            rgba(59, 180, 156, 0.10);
     }
+
+
+    /* ================================================================
+       AVATAR PEQUEÑO
+       ================================================================ */
 
     .microseed-profile-avatar {
         position: relative;
-        width: 46px;
-        height: 46px;
-        min-width: 46px;
-        max-width: 46px;
-        min-height: 46px;
-        max-height: 46px;
+
+        width: 44px;
+        height: 44px;
+
+        flex: 0 0 44px;
+
         display: flex;
         align-items: center;
         justify-content: center;
-        flex-shrink: 0;
+
         overflow: visible;
-        border: 1px solid rgba(28, 96, 122, 0.18);
-        border-radius: 14px;
+
         color: #ffffff;
+
         background:
             linear-gradient(
                 135deg,
-                #184e64 0%,
-                #1c6f7c 58%,
-                #3b9a96 100%
+                #216a73 0%,
+                #3bb49c 100%
             );
-        box-shadow: 0 8px 18px rgba(20, 66, 85, 0.12);
+
+        border:
+            1px solid
+            rgba(59, 180, 156, 0.35);
+
+        border-radius: 14px;
+
+        box-shadow:
+            0 8px 18px
+            rgba(33, 106, 115, 0.13);
+
         font-size: 13px;
         font-weight: 800;
-        line-height: 1;
     }
 
     .microseed-profile-avatar img {
-        width: 46px;
-        height: 46px;
-        min-width: 46px;
-        max-width: 46px;
-        min-height: 46px;
-        max-height: 46px;
+        width: 44px;
+        height: 44px;
+
         display: block;
-        border-radius: 14px;
+
         object-fit: cover;
+
+        border-radius: 14px;
     }
 
     .microseed-profile-online {
         position: absolute;
+
         right: -3px;
         bottom: -3px;
-        width: 12px;
-        height: 12px;
+
+        width: 11px;
+        height: 11px;
+
         display: block;
+
+        background: #3bb49c;
+
         border: 2px solid #ffffff;
-        border-radius: 9999px;
-        background: #22cfa8;
-        box-shadow: 0 0 0 2px rgba(34, 207, 168, 0.12);
+        border-radius: 999px;
+
+        box-shadow:
+            0 0 0 2px
+            rgba(59, 180, 156, 0.12);
     }
 
     .microseed-profile-information {
         min-width: 0;
-        flex: 1 1 auto;
+
+        flex: 1;
+
         display: block;
+
         text-align: left;
     }
 
     .microseed-profile-name {
         display: block;
-        max-width: 174px;
+
+        max-width: 155px;
+
         overflow: hidden;
+
         color: #334155;
+
         font-size: 13px;
-        font-weight: 900;
-        line-height: 1.1;
-        letter-spacing: -0.03em;
+        font-weight: 700;
+
+        line-height: 1.15;
+
+        letter-spacing: -0.015em;
+
         text-overflow: ellipsis;
         white-space: nowrap;
     }
 
     .microseed-profile-role {
         display: block;
-        max-width: 174px;
-        margin-top: 5px;
+
+        max-width: 155px;
+
+        margin-top: 4px;
+
         overflow: hidden;
+
         color: #3b9a96;
+
         font-size: 9px;
-        font-weight: 900;
+        font-weight: 700;
+
         line-height: 1;
-        letter-spacing: 0.13em;
+
+        letter-spacing: 0.10em;
+
         text-overflow: ellipsis;
         text-transform: uppercase;
         white-space: nowrap;
     }
 
     .microseed-profile-chevron {
-        width: 14px;
-        height: 14px;
+        width: 15px;
+        height: 15px;
+
         flex-shrink: 0;
+
         color: #94a3b8;
-        transition: transform 0.18s ease;
+
+        transition:
+            transform 0.18s ease;
     }
 
-    .microseed-profile-dropdown {
-        width: 347px;
-        border: 0;
-        border-radius: 22px;
-        background: #ffffff;
-        box-shadow: 0 26px 70px rgba(15, 23, 42, 0.22);
+    .microseed-profile-chevron-open {
+        transform: rotate(180deg);
     }
+
+
+    /* ================================================================
+       DROPDOWN PERFIL
+       Inspirado directamente en sidebar
+       ================================================================ */
+
+    .microseed-profile-dropdown {
+        top: calc(100% + 2px);
+
+        width: 320px;
+
+        border: 0;
+
+        border-radius: 20px;
+
+        box-shadow:
+            0 26px 65px
+            rgba(15, 23, 42, 0.20);
+    }
+
+
+    /* ================================================================
+       CABECERA PERFIL
+       MISMO LENGUAJE DEL SIDEBAR
+       ================================================================ */
 
     .microseed-profile-header {
         position: relative;
+
+        min-height: 108px;
+
         overflow: hidden;
-        min-height: 111px;
-        padding: 18px 18px 18px 17px;
+
+        padding:
+            17px
+            17px
+            16px;
+
         color: #ffffff;
+
         background:
             radial-gradient(
-                circle at 80% -42%,
-                rgba(59, 180, 156, 0.48),
-                transparent 38%
+                circle at 88% 6%,
+                rgba(94, 224, 194, 0.26),
+                transparent 43%
             ),
             radial-gradient(
-                circle at 105% 35%,
-                rgba(255, 255, 255, 0.12),
-                transparent 34%
+                circle at 5% 100%,
+                rgba(18, 63, 84, 0.24),
+                transparent 42%
             ),
             linear-gradient(
                 135deg,
-                #184e64 0%,
-                #1c6f7c 48%,
-                #3b9a96 100%
+                #123f54 0%,
+                #176475 50%,
+                #2b9691 100%
             );
     }
 
     .microseed-profile-header::before {
         content: '';
+
         position: absolute;
-        right: -36px;
+
         top: -72px;
-        width: 170px;
-        height: 170px;
-        border-radius: 9999px;
-        background: rgba(101, 224, 195, 0.16);
+        right: -55px;
+
+        width: 180px;
+        height: 180px;
+
+        background:
+            rgba(255, 255, 255, 0.065);
+
+        border-radius: 999px;
+
+        pointer-events: none;
+    }
+
+    .microseed-profile-header::after {
+        content: '';
+
+        position: absolute;
+
+        right: 18px;
+        bottom: 0;
+        left: 18px;
+
+        height: 1px;
+
+        background:
+            linear-gradient(
+                90deg,
+                transparent,
+                rgba(113, 231, 205, 0.65),
+                transparent
+            );
+
         pointer-events: none;
     }
 
     .microseed-profile-header-row {
         position: relative;
+
         z-index: 2;
+
         display: flex;
         align-items: center;
-        gap: 15px;
+
+        gap: 14px;
     }
 
     .microseed-profile-large-avatar {
-        width: 64px;
-        height: 64px;
-        min-width: 64px;
-        max-width: 64px;
-        min-height: 64px;
-        max-height: 64px;
+        width: 62px;
+        height: 62px;
+
+        flex: 0 0 62px;
+
         display: flex;
         align-items: center;
         justify-content: center;
-        flex-shrink: 0;
+
         overflow: hidden;
-        border: 1px solid rgba(255, 255, 255, 0.34);
-        border-radius: 17px;
+
         color: #ffffff;
-        background: rgba(255, 255, 255, 0.12);
-        box-shadow: 0 14px 30px rgba(7, 37, 49, 0.22);
+
+        background:
+            rgba(10, 52, 66, 0.72);
+
+        border:
+            1px solid
+            rgba(126, 231, 211, 0.52);
+
+        border-radius: 16px;
+
+        box-shadow:
+            0 12px 26px
+            rgba(7, 37, 49, 0.22);
+
         font-size: 19px;
         font-weight: 800;
-        line-height: 1;
     }
 
     .microseed-profile-large-avatar img {
-        width: 64px;
-        height: 64px;
-        border-radius: 17px;
+        width: 100%;
+        height: 100%;
+
+        display: block;
+
         object-fit: cover;
+    }
+
+    .microseed-profile-header-information {
+        min-width: 0;
     }
 
     .microseed-profile-dropdown-name {
         display: block;
-        max-width: 218px;
+
+        max-width: 210px;
+
         overflow: hidden;
+
         color: #ffffff;
-        font-size: 16px;
-        font-weight: 900;
-        line-height: 1.18;
-        letter-spacing: -0.035em;
+
+        font-size: 15px;
+        font-weight: 800;
+
+        line-height: 1.2;
+
+        letter-spacing: -0.025em;
+
         text-overflow: ellipsis;
         white-space: nowrap;
-        text-shadow: 0 2px 8px rgba(7, 37, 49, 0.2);
+
+        text-shadow:
+            0 2px 8px
+            rgba(7, 37, 49, 0.2);
     }
 
     .microseed-profile-dropdown-email {
         display: block;
-        max-width: 218px;
-        margin-top: 6px;
+
+        max-width: 210px;
+
+        margin-top: 5px;
+
         overflow: hidden;
-        color: rgba(255, 255, 255, 0.82);
-        font-size: 12px;
-        font-weight: 600;
+
+        color:
+            rgba(232, 255, 249, 0.82);
+
+        font-size: 11px;
+        font-weight: 500;
+
         line-height: 1.2;
+
         text-overflow: ellipsis;
         white-space: nowrap;
     }
@@ -889,228 +1231,383 @@
     .microseed-profile-dropdown-role {
         display: inline-flex;
         align-items: center;
+
         width: fit-content;
-        max-width: 218px;
-        margin-top: 9px;
-        padding: 5px 12px;
-        border: 1px solid rgba(255, 255, 255, 0.22);
-        border-radius: 9999px;
+
+        margin-top: 8px;
+
+        padding:
+            4px
+            10px;
+
         color: #ffffff;
-        background: rgba(255, 255, 255, 0.18);
-        font-size: 10px;
-        font-weight: 900;
-        line-height: 1;
-        letter-spacing: 0.08em;
+
+        background:
+            rgba(255, 255, 255, 0.14);
+
+        border:
+            1px solid
+            rgba(255, 255, 255, 0.24);
+
+        border-radius: 999px;
+
+        font-size: 9px;
+        font-weight: 700;
+
+        letter-spacing: 0.07em;
+
         text-transform: uppercase;
-        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12);
     }
 
+
+    /* ================================================================
+       ACCIONES PERFIL
+       ================================================================ */
+
     .microseed-profile-body {
-        padding: 9px;
+        padding: 8px;
     }
 
     .microseed-profile-body form {
         margin: 0;
     }
 
-    .microseed-profile-body .microseed-profile-action,
-    .microseed-profile-body a.microseed-profile-action,
-    .microseed-profile-body label.microseed-profile-action,
-    .microseed-profile-body button.microseed-profile-action {
+    .microseed-profile-action {
         width: 100%;
-        min-height: 56px;
+        min-height: 54px;
+
         display: flex;
         align-items: center;
-        gap: 12px;
-        padding: 10px;
+
+        gap: 11px;
+
         margin: 0;
-        border: 0;
-        border-radius: 16px;
-        outline: none;
+
+        padding: 9px;
+
         color: #475569;
+
         background: transparent;
-        font-size: 12px !important;
-        font-weight: 800 !important;
-        line-height: 1.2 !important;
-        letter-spacing: 0 !important;
-        text-align: left !important;
-        text-decoration: none !important;
-        text-transform: none !important;
+
+        border: 0;
+        border-radius: 15px;
+
+        outline: none;
+
+        text-align: left;
+
         cursor: pointer;
-        appearance: none;
-        -webkit-appearance: none;
+
         transition:
             color 0.16s ease,
-            background 0.16s ease;
+            background 0.16s ease,
+            transform 0.16s ease;
     }
 
-    .microseed-profile-body .microseed-profile-action:hover {
+    .microseed-profile-action:hover {
         color: #216a73;
-        background: #ecfeff;
+
+        background:
+            rgba(236, 254, 255, 0.90);
+
+        transform: translateX(2px);
     }
 
     .microseed-profile-action-icon {
-        width: 37px;
-        height: 37px;
+        width: 39px;
+        height: 39px;
+
+        flex: 0 0 39px;
+
         display: flex;
         align-items: center;
         justify-content: center;
-        flex-shrink: 0;
-        border-radius: 13px;
-        color: #1c607a;
+
+        color: #216a73;
+
         background:
             linear-gradient(
                 135deg,
-                rgba(33, 106, 115, 0.1),
+                rgba(33, 106, 115, 0.10),
                 rgba(59, 180, 156, 0.14)
             );
+
+        border-radius: 13px;
+
+        transition:
+            color 0.16s ease,
+            background 0.16s ease,
+            box-shadow 0.16s ease;
+    }
+
+    .microseed-profile-action:hover
+    .microseed-profile-action-icon {
+        color: #ffffff;
+
+        background:
+            linear-gradient(
+                135deg,
+                #216a73 0%,
+                #3bb49c 100%
+            );
+
+        box-shadow:
+            0 8px 18px
+            rgba(33, 106, 115, 0.18);
     }
 
     .microseed-profile-action-icon svg {
         width: 18px;
         height: 18px;
-        flex-shrink: 0;
     }
 
     .microseed-profile-action-text {
         min-width: 0;
+
         display: block;
     }
 
     .microseed-profile-action-label {
         display: block;
+
         color: inherit;
-        font-size: 12px !important;
-        font-weight: 800 !important;
-        line-height: 1.2 !important;
-        white-space: nowrap !important;
+
+        font-size: 12px;
+        font-weight: 700;
+
+        line-height: 1.2;
+
+        white-space: nowrap;
     }
 
     .microseed-profile-action-description {
         display: block;
+
         margin-top: 3px;
+
         color: #94a3b8;
-        font-size: 10px !important;
-        font-weight: 600 !important;
-        line-height: 1.2 !important;
-        white-space: nowrap !important;
+
+        font-size: 10px;
+        font-weight: 500;
+
+        line-height: 1.2;
+
+        white-space: nowrap;
+    }
+
+    .microseed-profile-photo-input {
+        display: none !important;
     }
 
     .microseed-profile-separator {
         height: 1px;
-        margin: 7px 8px;
-        background: #eef2f6;
+
+        margin: 6px 8px;
+
+        background: #eef2f2;
     }
 
+
+    /* ================================================================
+       CERRAR SESIÓN
+       ================================================================ */
+
     .microseed-profile-action-danger {
-        color: #e11d48 !important;
+        color: #dc3545;
     }
 
     .microseed-profile-action-danger:hover {
-        color: #e11d48 !important;
-        background: #fff1f2 !important;
+        color: #c92f40;
+
+        background: #fff1f2;
     }
 
-    .microseed-profile-action-danger:hover .microseed-profile-action-icon {
-        color: #e11d48 !important;
-        background: #ffe4e6 !important;
+    .microseed-profile-action-danger
+    .microseed-profile-action-icon {
+        color: #dc3545;
+
+        background:
+            rgba(220, 53, 69, 0.08);
     }
+
+    .microseed-profile-action-danger:hover
+    .microseed-profile-action-icon {
+        color: #ffffff;
+
+        background: #dc3545;
+    }
+
+
+    /* ================================================================
+       MÓVIL
+       ================================================================ */
 
     .microseed-mobile-menu-button {
         display: none;
+
         width: 42px;
         height: 42px;
+
         align-items: center;
         justify-content: center;
-        border-radius: 12px;
+
         color: #64748b;
-        background: #f5f7fa;
+
+        background: #f5f7f7;
+
+        border-radius: 12px;
     }
 
     .microseed-mobile-panel {
         position: absolute;
+
         top: 100%;
         right: 0;
         left: 0;
-        z-index: 140;
+
+        z-index: 150;
+
         padding: 12px;
-        border-top: 1px solid #e5eaf0;
+
         background: #ffffff;
-        box-shadow: 0 18px 35px rgba(15, 23, 42, 0.12);
+
+        border-top: 1px solid #e5eaed;
+
+        box-shadow:
+            0 18px 35px
+            rgba(15, 23, 42, 0.12);
     }
 
     .microseed-mobile-user {
         display: flex;
         align-items: center;
+
         gap: 11px;
+
         padding: 12px;
+
+        background: #f7faf9;
+
         border-radius: 14px;
-        background: #f8fafc;
     }
 
     .microseed-mobile-link {
         width: 100%;
         min-height: 43px;
+
         margin-top: 5px;
+
         display: flex;
         align-items: center;
+
         gap: 11px;
+
         padding: 10px 12px;
-        border-radius: 11px;
+
         color: #64748b;
+
+        background: transparent;
+
+        border-radius: 11px;
+
         font-size: 12px;
         font-weight: 600;
-        line-height: 1.2;
-        transition: background 0.16s ease;
+
+        transition:
+            color 0.16s ease,
+            background 0.16s ease;
     }
 
     .microseed-mobile-link:hover {
-        color: #1c607a;
-        background: #f0fdfa;
+        color: #216a73;
+
+        background: #effaf8;
     }
+
+    .microseed-mobile-link-danger {
+        color: #dc3545;
+    }
+
+
+    /* ================================================================
+       MODAL LOGOUT
+       ================================================================ */
 
     .microseed-logout-backdrop {
         position: fixed;
+
         inset: 0;
+
         z-index: 99999;
+
         width: 100vw;
         height: 100vh;
+
         display: grid;
         place-items: center;
+
         padding: 16px;
-        background: rgba(15, 23, 42, 0.45);
+
+        background:
+            rgba(15, 23, 42, 0.45);
+
+        backdrop-filter: blur(2px);
     }
 
     .microseed-logout-modal {
         width: min(340px, 100%);
+
         overflow: hidden;
-        border: 1px solid rgba(59, 180, 156, 0.22);
-        border-radius: 22px;
+
         background: #ffffff;
-        box-shadow: 0 22px 60px rgba(15, 23, 42, 0.24);
+
+        border:
+            1px solid
+            rgba(59, 180, 156, 0.22);
+
+        border-radius: 20px;
+
+        box-shadow:
+            0 22px 60px
+            rgba(15, 23, 42, 0.24);
     }
 
     .microseed-logout-modal-header {
-        padding: 22px 22px 14px;
+        padding:
+            22px
+            22px
+            14px;
+
         text-align: center;
     }
 
     .microseed-logout-icon {
         width: 50px;
         height: 50px;
-        margin: 0 auto 13px;
+
+        margin:
+            0
+            auto
+            13px;
+
         display: flex;
         align-items: center;
         justify-content: center;
-        border-radius: 17px;
-        color: #1c607a;
+
+        color: #216a73;
+
         background:
             linear-gradient(
                 135deg,
-                rgba(33, 106, 115, 0.1),
+                rgba(33, 106, 115, 0.10),
                 rgba(59, 180, 156, 0.16)
             );
-        box-shadow: inset 0 0 0 1px rgba(59, 180, 156, 0.16);
+
+        border-radius: 16px;
+
+        box-shadow:
+            inset 0 0 0 1px
+            rgba(59, 180, 156, 0.16);
     }
 
     .microseed-logout-icon svg {
@@ -1120,73 +1617,93 @@
 
     .microseed-logout-title {
         margin: 0;
+
         color: #334155;
+
         font-size: 17px;
-        font-weight: 900;
-        line-height: 1.15;
-        letter-spacing: -0.03em;
+        font-weight: 800;
+
+        line-height: 1.2;
     }
 
     .microseed-logout-description {
         max-width: 265px;
-        margin: 8px auto 0;
+
+        margin:
+            8px
+            auto
+            0;
+
         color: #64748b;
+
         font-size: 12px;
         font-weight: 500;
+
         line-height: 1.45;
     }
 
     .microseed-logout-actions {
         display: grid;
-        grid-template-columns: 1fr 1fr;
+
+        grid-template-columns:
+            1fr
+            1fr;
+
         gap: 10px;
-        padding: 14px 20px 20px;
+
+        padding:
+            14px
+            20px
+            20px;
     }
 
     .microseed-logout-cancel,
     .microseed-logout-confirm {
         min-height: 41px;
+
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        border-radius: 14px;
+
+        border-radius: 13px;
+
         font-size: 11px;
-        font-weight: 900;
-        line-height: 1;
-        cursor: pointer;
-        transition:
-            background 0.16s ease,
-            box-shadow 0.16s ease;
+        font-weight: 700;
     }
 
     .microseed-logout-cancel {
         color: #475569;
-        background: #f1f5f9;
+
+        background: #f1f5f4;
     }
 
     .microseed-logout-cancel:hover {
-        background: #e2e8f0;
+        background: #e6ecec;
     }
 
     .microseed-logout-confirm {
         color: #ffffff;
+
         background:
             linear-gradient(
                 135deg,
                 #216a73,
                 #3bb49c
             );
-        box-shadow: 0 12px 24px rgba(33, 106, 115, 0.22);
+
+        box-shadow:
+            0 10px 22px
+            rgba(33, 106, 115, 0.20);
     }
 
     .microseed-logout-confirm:hover {
-        background:
-            linear-gradient(
-                135deg,
-                #1c607a,
-                #2fa58e
-            );
+        filter: brightness(0.96);
     }
+
+
+    /* ================================================================
+       RESPONSIVE
+       ================================================================ */
 
     @media (max-width: 1100px) {
         .microseed-search-wrapper {
@@ -1194,24 +1711,22 @@
         }
 
         .microseed-profile-button {
-            width: 215px;
-            min-width: 215px;
-            max-width: 215px;
+            width: 210px;
         }
 
         .microseed-profile-name,
         .microseed-profile-role {
-            max-width: 148px;
+            max-width: 132px;
         }
     }
 
     @media (max-width: 900px) {
         .microseed-profile-button {
-            min-width: 48px;
             width: 48px;
-            max-width: 48px;
             height: 48px;
-            padding: 5px;
+
+            padding: 2px;
+
             justify-content: center;
         }
 
@@ -1223,41 +1738,28 @@
 
     @media (max-width: 760px) {
         .microseed-topbar {
-            height: 72px;
+            height: 70px;
         }
 
         .microseed-topbar-content {
             gap: 8px;
-            padding: 0 12px;
+
+            padding:
+                0
+                12px;
         }
 
         .microseed-search-wrapper {
             max-width: 250px;
         }
 
-        .microseed-search {
-            height: 44px;
-        }
-
-        .microseed-search-input {
-            height: 44px;
-            padding-right: 13px;
-        }
-
-        .microseed-action-button {
-            width: 39px;
-            height: 39px;
-        }
-
-        .microseed-action-wrapper.activity-action {
-            display: none;
-        }
-
         .microseed-dropdown {
             position: fixed;
-            top: 78px;
+
+            top: 76px;
             right: 12px;
             left: 12px;
+
             width: auto;
         }
 
@@ -1300,35 +1802,58 @@
     }
 </style>
 
+
 <nav
     class="microseed-topbar"
+
     x-data="{
         searchValue: '',
         searchOpen: false,
         openPanel: null,
         mobileOpen: false,
         logoutModalOpen: false,
+
         modules: @js($modulosBusqueda),
 
         get filteredModules() {
-            const query = this.searchValue.trim().toLowerCase();
+            const query = this.searchValue
+                .trim()
+                .toLowerCase();
 
             if (!query) {
                 return this.modules.slice(0, 6);
             }
 
-            return this.modules.filter(module => {
-                return module.label.toLowerCase().includes(query)
-                    || module.description.toLowerCase().includes(query);
-            }).slice(0, 8);
+            return this.modules
+                .filter(module => {
+                    return module.label
+                            .toLowerCase()
+                            .includes(query)
+                        || module.description
+                            .toLowerCase()
+                            .includes(query);
+                })
+                .slice(0, 8);
         },
 
         togglePanel(panel) {
-            this.openPanel = this.openPanel === panel
-                ? null
-                : panel;
+            this.openPanel =
+                this.openPanel === panel
+                    ? null
+                    : panel;
 
             this.searchOpen = false;
+        },
+
+        openProfile() {
+            this.searchOpen = false;
+            this.openPanel = 'profile';
+        },
+
+        closeProfile() {
+            if (this.openPanel === 'profile') {
+                this.openPanel = null;
+            }
         },
 
         openLogoutModal() {
@@ -1352,32 +1877,40 @@
         },
 
         init() {
-            window.addEventListener('keydown', event => {
-                if (
-                    (event.ctrlKey || event.metaKey)
-                    && event.key.toLowerCase() === 'k'
-                ) {
-                    event.preventDefault();
+            window.addEventListener(
+                'keydown',
+                event => {
+                    if (
+                        (event.ctrlKey || event.metaKey)
+                        && event.key.toLowerCase() === 'k'
+                    ) {
+                        event.preventDefault();
 
-                    this.openPanel = null;
-                    this.searchOpen = true;
+                        this.openPanel = null;
+                        this.searchOpen = true;
 
-                    this.$nextTick(() => {
-                        this.$refs.globalSearch?.focus();
-                    });
+                        this.$nextTick(() => {
+                            this.$refs.globalSearch?.focus();
+                        });
+                    }
+
+                    if (event.key === 'Escape') {
+                        this.searchOpen = false;
+                        this.openPanel = null;
+                        this.mobileOpen = false;
+                        this.logoutModalOpen = false;
+                    }
                 }
-
-                if (event.key === 'Escape') {
-                    this.searchOpen = false;
-                    this.openPanel = null;
-                    this.mobileOpen = false;
-                    this.logoutModalOpen = false;
-                }
-            });
+            );
         }
     }"
 >
     <div class="microseed-topbar-content">
+
+        {{-- ========================================================= --}}
+        {{-- BUSCADOR --}}
+        {{-- ========================================================= --}}
+
         <div class="microseed-topbar-left">
             <div
                 class="microseed-search-wrapper"
@@ -1389,6 +1922,7 @@
                         fill="none"
                         stroke="currentColor"
                         viewBox="0 0 24 24"
+                        aria-hidden="true"
                     >
                         <path
                             stroke-linecap="round"
@@ -1405,14 +1939,19 @@
                         class="microseed-search-input"
                         placeholder="Buscar módulos..."
                         autocomplete="off"
+
                         @focus="
                             searchOpen = true;
                             openPanel = null;
                         "
+
                         @input="searchOpen = true"
+
                         @keydown.enter.prevent="
                             if (filteredModules.length) {
-                                goToModule(filteredModules[0].url);
+                                goToModule(
+                                    filteredModules[0].url
+                                );
                             }
                         "
                     >
@@ -1421,12 +1960,7 @@
                 <div
                     x-show="searchOpen"
                     x-cloak
-                    x-transition:enter="transition ease-out duration-150"
-                    x-transition:enter-start="opacity-0 -translate-y-1"
-                    x-transition:enter-end="opacity-100 translate-y-0"
-                    x-transition:leave="transition ease-in duration-100"
-                    x-transition:leave-start="opacity-100 translate-y-0"
-                    x-transition:leave-end="opacity-0 -translate-y-1"
+                    x-transition.opacity
                     class="microseed-search-results"
                 >
                     <div class="microseed-search-results-header">
@@ -1461,7 +1995,7 @@
                                         </svg>
                                     </span>
 
-                                    <span class="min-w-0">
+                                    <span class="microseed-search-result-text">
                                         <span
                                             class="microseed-search-result-title"
                                             x-text="module.label"
@@ -1486,9 +2020,18 @@
             </div>
         </div>
 
+
+        {{-- ========================================================= --}}
+        {{-- ACCIONES --}}
+        {{-- ========================================================= --}}
+
         <div class="microseed-topbar-actions">
+
+            {{-- NOTIFICACIONES --}}
+
             <div
                 class="microseed-action-wrapper"
+
                 @click.outside="
                     if (openPanel === 'notifications') {
                         openPanel = null;
@@ -1498,12 +2041,15 @@
                 <button
                     type="button"
                     class="microseed-action-button"
+
                     :class="
                         openPanel === 'notifications'
                             ? 'microseed-action-active'
                             : ''
                     "
+
                     aria-label="Notificaciones"
+
                     @click="togglePanel('notifications')"
                 >
                     <svg
@@ -1521,7 +2067,9 @@
 
                     @if($cantidadAlertas > 0)
                         <span class="microseed-counter">
-                            {{ $cantidadAlertas > 99 ? '99+' : $cantidadAlertas }}
+                            {{ $cantidadAlertas > 99
+                                ? '99+'
+                                : $cantidadAlertas }}
                         </span>
                     @endif
                 </button>
@@ -1529,7 +2077,7 @@
                 <div
                     x-show="openPanel === 'notifications'"
                     x-cloak
-                    x-transition.origin.top.right
+                    x-transition.opacity
                     class="microseed-dropdown"
                 >
                     <div class="microseed-dropdown-header">
@@ -1539,7 +2087,9 @@
 
                         <span class="microseed-dropdown-count">
                             {{ $cantidadAlertas }}
-                            {{ $cantidadAlertas === 1 ? 'activa' : 'activas' }}
+                            {{ $cantidadAlertas === 1
+                                ? 'activa'
+                                : 'activas' }}
                         </span>
                     </div>
 
@@ -1602,7 +2152,7 @@
                         </div>
                     @endif
 
-                    @if(\Illuminate\Support\Facades\Route::has('super_admin.alertas.index'))
+                    @if(Route::has('super_admin.alertas.index'))
                         <a
                             href="{{ route('super_admin.alertas.index') }}"
                             class="microseed-dropdown-footer"
@@ -1613,8 +2163,12 @@
                 </div>
             </div>
 
+
+            {{-- ACTIVIDAD --}}
+
             <div
                 class="microseed-action-wrapper activity-action"
+
                 @click.outside="
                     if (openPanel === 'activity') {
                         openPanel = null;
@@ -1624,12 +2178,15 @@
                 <button
                     type="button"
                     class="microseed-action-button"
+
                     :class="
                         openPanel === 'activity'
                             ? 'microseed-action-active'
                             : ''
                     "
+
                     aria-label="Actividad"
+
                     @click="togglePanel('activity')"
                 >
                     <svg
@@ -1647,7 +2204,9 @@
 
                     @if($cantidadActividad > 0)
                         <span class="microseed-counter microseed-counter-green">
-                            {{ $cantidadActividad > 99 ? '99+' : $cantidadActividad }}
+                            {{ $cantidadActividad > 99
+                                ? '99+'
+                                : $cantidadActividad }}
                         </span>
                     @endif
                 </button>
@@ -1655,7 +2214,7 @@
                 <div
                     x-show="openPanel === 'activity'"
                     x-cloak
-                    x-transition.origin.top.right
+                    x-transition.opacity
                     class="microseed-dropdown"
                 >
                     <div class="microseed-dropdown-header">
@@ -1697,8 +2256,17 @@
                 </div>
             </div>
 
+
+            {{-- ===================================================== --}}
+            {{-- PERFIL - HOVER COMO SIDEBAR --}}
+            {{-- ===================================================== --}}
+
             <div
                 class="microseed-profile-wrapper"
+
+                @mouseenter="openProfile()"
+                @mouseleave="closeProfile()"
+
                 @click.outside="
                     if (openPanel === 'profile') {
                         openPanel = null;
@@ -1708,12 +2276,19 @@
                 <button
                     type="button"
                     class="microseed-profile-button"
+
                     :class="
                         openPanel === 'profile'
                             ? 'microseed-profile-active'
                             : ''
                     "
-                    aria-label="Abrir menú de usuario"
+
+                    aria-label="Menú de usuario"
+
+                    :aria-expanded="
+                        openPanel === 'profile'
+                    "
+
                     @click="togglePanel('profile')"
                 >
                     <span class="microseed-profile-avatar">
@@ -1723,7 +2298,13 @@
                                 alt="Foto de {{ $nombreUsuario }}"
                             >
                         @else
-                            {{ strtoupper(substr($nombreUsuario, 0, 1)) }}
+                            {{ strtoupper(
+                                substr(
+                                    $nombreUsuario,
+                                    0,
+                                    1
+                                )
+                            ) }}
                         @endif
 
                         <span class="microseed-profile-online"></span>
@@ -1741,11 +2322,13 @@
 
                     <svg
                         class="microseed-profile-chevron"
+
                         :class="
                             openPanel === 'profile'
-                                ? 'rotate-180'
+                                ? 'microseed-profile-chevron-open'
                                 : ''
                         "
+
                         fill="none"
                         stroke="currentColor"
                         viewBox="0 0 24 24"
@@ -1759,14 +2342,21 @@
                     </svg>
                 </button>
 
+
+                {{-- DROPDOWN DEL PERFIL --}}
+
                 <div
                     x-show="openPanel === 'profile'"
                     x-cloak
-                    x-transition.origin.top.right
+                    x-transition.opacity
                     class="microseed-dropdown microseed-profile-dropdown"
                 >
+
+                    {{-- HEADER --}}
+
                     <div class="microseed-profile-header">
                         <div class="microseed-profile-header-row">
+
                             <span class="microseed-profile-large-avatar">
                                 @if($fotoUsuario)
                                     <img
@@ -1774,11 +2364,18 @@
                                         alt="Foto de {{ $nombreUsuario }}"
                                     >
                                 @else
-                                    {{ strtoupper(substr($nombreUsuario, 0, 1)) }}
+                                    {{ strtoupper(
+                                        substr(
+                                            $nombreUsuario,
+                                            0,
+                                            1
+                                        )
+                                    ) }}
                                 @endif
                             </span>
 
-                            <span class="min-w-0">
+                            <span class="microseed-profile-header-information">
+
                                 <span class="microseed-profile-dropdown-name">
                                     {{ $nombreUsuario }}
                                 </span>
@@ -1790,12 +2387,19 @@
                                 <span class="microseed-profile-dropdown-role">
                                     {{ $rolVisible }}
                                 </span>
+
                             </span>
                         </div>
                     </div>
 
+
+                    {{-- OPCIONES --}}
+
                     <div class="microseed-profile-body">
-                        @if(\Illuminate\Support\Facades\Route::has('profile.edit'))
+
+                        {{-- MI PERFIL --}}
+
+                        @if(Route::has('profile.edit'))
                             <a
                                 href="{{ route('profile.edit') }}"
                                 class="microseed-profile-action"
@@ -1827,7 +2431,10 @@
                             </a>
                         @endif
 
-                        @if(\Illuminate\Support\Facades\Route::has('perfil.foto.update'))
+
+                        {{-- CAMBIAR FOTO --}}
+
+                        @if(Route::has('perfil.foto.update'))
                             <form
                                 id="topbar-photo-form"
                                 method="POST"
@@ -1872,17 +2479,31 @@
                                     type="file"
                                     name="foto_perfil"
                                     accept="image/png,image/jpeg,image/jpg,image/webp"
-                                    class="hidden"
-                                    onchange="document.getElementById('topbar-photo-form').submit()"
+                                    class="microseed-profile-photo-input"
+
+                                    onchange="
+                                        document
+                                            .getElementById(
+                                                'topbar-photo-form'
+                                            )
+                                            .submit()
+                                    "
                                 >
                             </form>
                         @endif
 
+
                         <div class="microseed-profile-separator"></div>
+
+
+                        {{-- LOGOUT --}}
 
                         <button
                             type="button"
-                            class="microseed-profile-action microseed-profile-action-danger"
+                            class="
+                                microseed-profile-action
+                                microseed-profile-action-danger
+                            "
                             @click="openLogoutModal()"
                         >
                             <span class="microseed-profile-action-icon">
@@ -1910,15 +2531,23 @@
                                 </span>
                             </span>
                         </button>
+
                     </div>
                 </div>
             </div>
+
         </div>
+
+
+        {{-- ========================================================= --}}
+        {{-- BOTÓN MÓVIL --}}
+        {{-- ========================================================= --}}
 
         <button
             type="button"
             class="microseed-mobile-menu-button"
             aria-label="Abrir menú"
+
             @click="mobileOpen = !mobileOpen"
         >
             <svg
@@ -1954,15 +2583,22 @@
                 />
             </svg>
         </button>
+
     </div>
+
+
+    {{-- ============================================================= --}}
+    {{-- MENÚ MÓVIL --}}
+    {{-- ============================================================= --}}
 
     <div
         x-show="mobileOpen"
         x-cloak
-        x-transition
+        x-transition.opacity
         class="microseed-mobile-panel"
     >
         <div class="microseed-mobile-user">
+
             <span class="microseed-profile-avatar">
                 @if($fotoUsuario)
                     <img
@@ -1970,13 +2606,19 @@
                         alt="Foto de {{ $nombreUsuario }}"
                     >
                 @else
-                    {{ strtoupper(substr($nombreUsuario, 0, 1)) }}
+                    {{ strtoupper(
+                        substr(
+                            $nombreUsuario,
+                            0,
+                            1
+                        )
+                    ) }}
                 @endif
 
                 <span class="microseed-profile-online"></span>
             </span>
 
-            <span class="min-w-0">
+            <span class="microseed-profile-information">
                 <span class="microseed-profile-name">
                     {{ $nombreUsuario }}
                 </span>
@@ -1986,6 +2628,7 @@
                 </span>
             </span>
         </div>
+
 
         <a
             href="{{ $rutaInicio }}"
@@ -2009,7 +2652,8 @@
             Dashboard
         </a>
 
-        @if(\Illuminate\Support\Facades\Route::has('profile.edit'))
+
+        @if(Route::has('profile.edit'))
             <a
                 href="{{ route('profile.edit') }}"
                 class="microseed-mobile-link"
@@ -2033,9 +2677,13 @@
             </a>
         @endif
 
+
         <button
             type="button"
-            class="microseed-mobile-link text-red-500"
+            class="
+                microseed-mobile-link
+                microseed-mobile-link-danger
+            "
             @click="openLogoutModal()"
         >
             <svg
@@ -2057,35 +2705,40 @@
         </button>
     </div>
 
+
+    {{-- ============================================================= --}}
+    {{-- FORM LOGOUT --}}
+    {{-- ============================================================= --}}
+
     <form
         x-ref="logoutForm"
         method="POST"
         action="{{ route('logout') }}"
-        class="hidden"
         style="display: none;"
     >
         @csrf
     </form>
 
+
+    {{-- ============================================================= --}}
+    {{-- CONFIRMACIÓN LOGOUT --}}
+    {{-- ============================================================= --}}
+
     <div
         x-show="logoutModalOpen"
         x-cloak
-        x-transition.opacity.duration.180ms
+        x-transition.opacity
         class="microseed-logout-backdrop"
+
         @click.self="closeLogoutModal()"
         @keydown.escape.window="closeLogoutModal()"
     >
         <div
-            class="microseed-logout-modal"
             x-show="logoutModalOpen"
-            x-transition:enter="transition ease-out duration-180"
-            x-transition:enter-start="opacity-0 scale-95 translate-y-2"
-            x-transition:enter-end="opacity-100 scale-100 translate-y-0"
-            x-transition:leave="transition ease-in duration-130"
-            x-transition:leave-start="opacity-100 scale-100 translate-y-0"
-            x-transition:leave-end="opacity-0 scale-95 translate-y-2"
+            class="microseed-logout-modal"
         >
             <div class="microseed-logout-modal-header">
+
                 <div class="microseed-logout-icon">
                     <svg
                         fill="none"
@@ -2106,11 +2759,13 @@
                 </h3>
 
                 <p class="microseed-logout-description">
-                    Se cerrará tu sesión actual y tendrás que iniciar sesión nuevamente para acceder al sistema.
+                    Se cerrará tu sesión actual y tendrás que
+                    iniciar sesión nuevamente para acceder al sistema.
                 </p>
             </div>
 
             <div class="microseed-logout-actions">
+
                 <button
                     type="button"
                     class="microseed-logout-cancel"
@@ -2126,7 +2781,9 @@
                 >
                     Sí, cerrar sesión
                 </button>
+
             </div>
         </div>
     </div>
+
 </nav>

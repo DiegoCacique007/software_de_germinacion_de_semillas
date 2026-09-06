@@ -444,7 +444,7 @@
 
         .sidebar-brand {
             position: relative;
-            height: 104px;
+            height: 77px;
             display: flex;
             align-items: center;
             flex-shrink: 0;

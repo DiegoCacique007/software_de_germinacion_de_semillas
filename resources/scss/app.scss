@@ -1,29 +1,148 @@
+
 // ==========================================================================
-// MicroSeed Control - Main SCSS (Bootstrap 5 & Brand Identity)
+// 1. VARIABLES PRINCIPALES
 // ==========================================================================
 
-// 1. Brand Variables
 $microseed-primary: #1c607a;
 $microseed-success: #3bb49c;
 $microseed-dark: #144255;
 $microseed-light: #eef7f5;
 
-// 2. Bootstrap Variable Overrides (Defined before importing Bootstrap)
+$microseed-background: #f5f9f8;
+$microseed-surface: #ffffff;
+$microseed-border: #dfe8ea;
+$microseed-muted: #6c7a82;
+$microseed-text: #314750;
+
+$microseed-danger: #dc3545;
+$microseed-warning: #e5a50a;
+$microseed-info: #39a7c4;
+
+
+// ==========================================================================
+// 2. DEGRADADO OFICIAL PARA ENCABEZADOS / CRUD
+// Más claro que el anterior.
+// ==========================================================================
+
+
+
+$microseed-header-gradient:
+    radial-gradient(
+        circle at 88% 0%,
+        rgba(91, 209, 190, 0.18),
+        transparent 32%
+    ),
+    linear-gradient(
+        90deg,
+        #16586a 0%,
+        #1a6b79 48%,
+        #3a9997 100%
+    );
+
+
+// ==========================================================================
+// 3. PERSONALIZACIÓN BOOTSTRAP
+// Estas variables deben ir ANTES del import de Bootstrap.
+// ==========================================================================
+
 $primary: $microseed-primary;
 $success: $microseed-success;
 $dark: $microseed-dark;
 $light: $microseed-light;
 
-// 3. Bootstrap Icons Font Directory
+$body-bg: $microseed-background;
+$body-color: $microseed-text;
+
+$border-color: $microseed-border;
+
+$link-color: $microseed-primary;
+$link-hover-color: $microseed-success;
+
+$border-radius: 0.6rem;
+$border-radius-sm: 0.45rem;
+$border-radius-lg: 0.85rem;
+
+$box-shadow-sm:
+    0 0.125rem 0.45rem rgba(20, 66, 85, 0.06);
+
+$box-shadow:
+    0 0.35rem 1rem rgba(20, 66, 85, 0.08);
+
+
+// ==========================================================================
+// 4. BOOTSTRAP ICONS
+// ==========================================================================
+
 $bootstrap-icons-font-dir: "bootstrap-icons/font/fonts";
 
-// 4. Import Bootstrap Icons
 @import "bootstrap-icons/font/bootstrap-icons.scss";
 
-// 5. Import Bootstrap 5 Core
+
+// ==========================================================================
+// 5. BOOTSTRAP 5
+// ==========================================================================
+
 @import "bootstrap/scss/bootstrap";
 
-// 6. Brand Custom Utilities & CRUD Theme
+
+// ==========================================================================
+// 6. BASE GENERAL
+// ==========================================================================
+
+html,
+body {
+    min-height: 100%;
+}
+
+body {
+    background: $microseed-background;
+    color: $microseed-text;
+
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+[x-cloak] {
+    display: none !important;
+}
+
+::selection {
+    background: rgba($microseed-success, 0.22);
+    color: $microseed-dark;
+}
+
+
+// ==========================================================================
+// 7. TIPOGRAFÍA Y TEXTOS
+// ==========================================================================
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    color: $microseed-dark;
+}
+
+a {
+    color: $microseed-primary;
+    transition: color 0.15s ease;
+
+    &:hover {
+        color: $microseed-success;
+    }
+}
+
+.text-secondary {
+    color: $microseed-muted !important;
+}
+
+
+// ==========================================================================
+// 8. UTILIDADES DE MARCA
+// ==========================================================================
+
 .text-brand-primary {
     color: $microseed-primary !important;
 }
@@ -38,232 +157,1371 @@ $bootstrap-icons-font-dir: "bootstrap-icons/font/fonts";
 
 .bg-brand-primary {
     background-color: $microseed-primary !important;
-    color: #ffffff;
+    color: #ffffff !important;
 }
 
 .bg-brand-accent {
     background-color: $microseed-success !important;
-    color: #ffffff;
+    color: #ffffff !important;
 }
 
 .bg-brand-dark {
     background-color: $microseed-dark !important;
-    color: #ffffff;
+    color: #ffffff !important;
 }
 
 .bg-brand-soft {
-    background-color: rgba($microseed-success, 0.12) !important;
+    background-color: rgba($microseed-success, 0.1) !important;
     color: $microseed-primary !important;
 }
 
 .border-brand-subtle {
-    border-color: rgba($microseed-success, 0.25) !important;
+    border-color: rgba($microseed-success, 0.22) !important;
 }
 
 .badge-dot {
-    width: 0.5rem;
-    height: 0.5rem;
-    border-radius: 50%;
     display: inline-block;
+
+    width: 0.45rem;
+    height: 0.45rem;
+
+    flex: 0 0 auto;
+
+    border-radius: 50%;
+    vertical-align: middle;
 }
 
 .min-w-250 {
     min-width: 250px;
 }
 
-.btn-brand {
-    background: linear-gradient(135deg, $microseed-primary 0%, $microseed-success 100%);
-    border: none;
-    color: #ffffff;
-    font-weight: 600;
-    box-shadow: 0 4px 14px rgba($microseed-primary, 0.2);
-    transition: all 0.2s ease-in-out;
 
-    &:hover, &:focus {
-        background: linear-gradient(135deg, darken($microseed-primary, 4%) 0%, darken($microseed-success, 4%) 100%);
-        color: #ffffff;
-        box-shadow: 0 6px 18px rgba($microseed-primary, 0.28);
+// ==========================================================================
+// 9. CARDS GENERALES
+// ==========================================================================
+
+.card {
+    background: $microseed-surface;
+    border-color: $microseed-border;
+}
+
+.card-header {
+    background: $microseed-surface;
+    border-bottom-color: $microseed-border;
+}
+
+.card-footer {
+    background: rgba($microseed-light, 0.5);
+    border-top-color: $microseed-border;
+}
+
+
+// ==========================================================================
+// 10. BOTÓN PRINCIPAL
+// ==========================================================================
+
+.btn-brand {
+    color: #ffffff !important;
+    font-weight: 600;
+
+    border: 0;
+
+    background: linear-gradient(
+        135deg,
+        $microseed-primary 0%,
+        $microseed-success 100%
+    );
+
+    box-shadow:
+        0 0.25rem 0.8rem rgba($microseed-primary, 0.18);
+
+    transition:
+        transform 0.18s ease,
+        box-shadow 0.18s ease,
+        filter 0.18s ease;
+
+    &:hover,
+    &:focus {
+        color: #ffffff !important;
+
+        filter: brightness(0.97);
+
         transform: translateY(-1px);
+
+        box-shadow:
+            0 0.4rem 1rem rgba($microseed-primary, 0.23);
+    }
+
+    &:active {
+        transform: translateY(0);
     }
 }
+
+
+// ==========================================================================
+// 11. BOTÓN OUTLINE
+// ==========================================================================
 
 .btn-brand-outline {
-    background: #ffffff;
-    border: 1px solid rgba($microseed-primary, 0.2);
     color: $microseed-primary;
-    font-weight: 600;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-    transition: all 0.2s ease-in-out;
 
-    &:hover, &:focus {
-        background: rgba($microseed-primary, 0.05);
+    background: #ffffff;
+
+    border:
+        1px solid rgba($microseed-primary, 0.22);
+
+    font-weight: 600;
+
+    transition:
+        background-color 0.18s ease,
+        border-color 0.18s ease,
+        transform 0.18s ease;
+
+    &:hover,
+    &:focus {
+        color: #ffffff;
+
+        background: $microseed-primary;
+
         border-color: $microseed-primary;
-        color: $microseed-primary;
+
         transform: translateY(-1px);
     }
-}
 
-.crud-table-header {
-    background: linear-gradient(135deg, $microseed-primary 0%, $microseed-success 100%);
-    color: #ffffff;
-
-    th {
-        font-weight: 700;
-        letter-spacing: 0.02em;
-        border: none;
-        padding-top: 0.9rem;
-        padding-bottom: 0.9rem;
+    &:active {
+        transform: translateY(0);
     }
 }
 
-.crud-table-row {
-    transition: background-color 0.15s ease;
+
+// ==========================================================================
+// 12. FORMULARIOS
+// ==========================================================================
+
+.form-label {
+    color: $microseed-dark;
+
+    font-size: 0.88rem;
+    font-weight: 600;
+}
+
+.form-control,
+.form-select {
+    min-height: 42px;
+
+    color: $microseed-text;
+
+    background-color: #ffffff;
+
+    border-color: #d9e4e7;
+
+    transition:
+        border-color 0.15s ease,
+        box-shadow 0.15s ease;
 
     &:hover {
-        background-color: #f2faf8 !important;
+        border-color:
+            rgba($microseed-primary, 0.35);
+    }
+
+    &:focus {
+        color: $microseed-dark;
+
+        border-color: $microseed-success;
+
+        box-shadow:
+            0 0 0 0.2rem
+            rgba($microseed-success, 0.13);
     }
 }
 
+.form-control::placeholder {
+    color: #97a4aa;
+}
+
+textarea.form-control {
+    min-height: 110px;
+}
+
+
+// ==========================================================================
+// 13. SWITCHES BOOTSTRAP
+// ==========================================================================
+
+.form-check-input {
+    border-color: #b9c8cc;
+
+    &:focus {
+        border-color: $microseed-success;
+
+        box-shadow:
+            0 0 0 0.2rem
+            rgba($microseed-success, 0.13);
+    }
+
+    &:checked {
+        background-color: $microseed-success;
+        border-color: $microseed-success;
+    }
+}
+
+
+// ==========================================================================
+// 14. CRUD - CONTENEDOR
+// ==========================================================================
+
+.crud-card {
+    overflow: hidden;
+
+    background: #ffffff;
+
+    border:
+        1px solid $microseed-border;
+
+    border-radius: 1rem;
+
+    box-shadow:
+        0 0.3rem 1rem
+        rgba(20, 66, 85, 0.05);
+}
+
+
+// ==========================================================================
+// 15. CRUD - TOOLBAR
+// ==========================================================================
+
+.crud-toolbar {
+    padding: 1rem 1.25rem;
+
+    background:
+        rgba($microseed-light, 0.78);
+
+    border-bottom:
+        1px solid $microseed-border;
+}
+
+
+// ==========================================================================
+// 16. CRUD - TABLA
+// ==========================================================================
+
+.crud-table-wrapper {
+    width: 100%;
+
+    overflow-x: auto;
+}
+
+.crud-table {
+    width: 100%;
+
+    margin-bottom: 0;
+
+    th,
+    td {
+        vertical-align: middle;
+    }
+}
+
+
+// ==========================================================================
+// 17. CRUD - ENCABEZADO
+// DEGRADADO CLARO MICROSEED
+// ==========================================================================
+
+.crud-table-header {
+    background: $microseed-header-gradient !important;
+
+    th {
+        padding: 0.9rem 1rem;
+
+        background: transparent !important;
+        color: #ffffff !important;
+
+        border: 0 !important;
+        border-bottom: 0 !important;
+        box-shadow: none !important;
+
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0.035em;
+        text-transform: uppercase;
+        white-space: nowrap;
+        vertical-align: middle;
+    }
+
+    th:first-child {
+        border-top-left-radius: 0.75rem;
+    }
+
+    th:last-child {
+        border-top-right-radius: 0.75rem;
+    }
+}
+
+
+// ==========================================================================
+// 18. CRUD - FILAS
+// ==========================================================================
+
+.crud-table-row {
+    transition:
+        background-color 0.15s ease;
+
+    td {
+        padding: 0.9rem 1rem;
+
+        color: #5f6b73;
+
+        background-color: #ffffff;
+
+        border-color: #edf1f2;
+
+        font-size: 0.9rem;
+    }
+
+    &:hover td {
+        background-color:
+            #f3faf8 !important;
+    }
+}
+
+
+// ==========================================================================
+// 19. CRUD - ACCIONES
+// ==========================================================================
+
+.crud-actions {
+    text-align: center;
+
+    white-space: nowrap;
+}
+
+.crud-actions .btn {
+    width: 34px;
+    height: 34px;
+
+    padding: 0;
+
+    display: inline-flex;
+
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 0.6rem;
+}
+
+
+// ==========================================================================
+// 20. CRUD - ESTADO VACÍO
+// ==========================================================================
+
+.crud-empty-state {
+    padding: 3rem 1rem;
+
+    color: $microseed-muted;
+
+    text-align: center;
+}
+
+
+// ==========================================================================
+// 21. CRUD - CAMPOS DE DETALLE
+// ==========================================================================
+
+.crud-field-box {
+    padding: 0.75rem 0.95rem;
+
+    background: #f8fbfa;
+
+    border:
+        1px solid #dce8e9;
+
+    border-radius: 0.7rem;
+}
+
+.crud-field-label {
+    display: block;
+
+    margin-bottom: 0.25rem;
+
+    color: $microseed-muted;
+
+    font-size: 0.72rem;
+    font-weight: 700;
+
+    text-transform: uppercase;
+
+    letter-spacing: 0.03em;
+}
+
+.crud-field-value {
+    color: $microseed-dark;
+
+    font-size: 0.9rem;
+
+    word-break: break-word;
+}
+
+
+// ==========================================================================
+// 22. CRUD - MODALES
+// ==========================================================================
+
 .crud-modal-backdrop {
-    background: rgba(20, 66, 85, 0.48);
+    background:
+        rgba($microseed-dark, 0.48);
+
     backdrop-filter: blur(2px);
 }
 
 .crud-modal-icon {
-    width: 58px;
-    height: 58px;
-    border-radius: 18px;
+    width: 56px;
+    height: 56px;
+
+    flex: 0 0 auto;
+
     display: flex;
+
     align-items: center;
     justify-content: center;
-    background: linear-gradient(145deg, #f0fafa, #e5f5f2);
-    border: 1px solid rgba($microseed-success, 0.25);
+
     color: $microseed-primary;
-}
 
-.crud-field-box {
-    background: #f8fbfa;
-    border: 1px solid #dce8e9;
-    border-radius: 0.75rem;
-    padding: 0.65rem 0.9rem;
-}
-
-// 7. Dashboard & Telemetry Utilities
-.dashboard-mesh-bg {
     background:
-        radial-gradient(circle at 90% 10%, rgba($microseed-success, 0.12), transparent 32%),
-        linear-gradient(180deg, #f8fafc 0%, #eef7f5 55%, #e4f4ef 100%);
-    background-size: cover;
+        linear-gradient(
+            145deg,
+            #f0fafa,
+            #e5f5f2
+        );
+
+    border:
+        1px solid
+        rgba($microseed-success, 0.22);
+
+    border-radius: 1rem;
 }
 
-.dashboard-top-accent {
-    height: 6px;
+.modal[x-cloak] {
+    display: none !important;
+}
+
+.modal-content {
+    overflow: hidden;
+
+    background: #ffffff;
+
+    border:
+        1px solid $microseed-border;
+
+    border-radius: 1rem;
+}
+
+.modal-header {
+    background: #ffffff;
+
+    border-bottom-color:
+        $microseed-border;
+}
+
+.modal-footer {
+    background: #ffffff;
+
+    border-top-color:
+        $microseed-border;
+}
+
+
+// ==========================================================================
+// 23. PAGINACIÓN
+// ==========================================================================
+
+.pagination {
+    margin-bottom: 0;
+
+    .page-link {
+        color: $microseed-primary;
+
+        background: #ffffff;
+
+        border-color:
+            $microseed-border;
+
+        &:hover {
+            color: $microseed-dark;
+
+            background:
+                rgba($microseed-success, 0.08);
+
+            border-color:
+                rgba($microseed-success, 0.3);
+        }
+
+        &:focus {
+            box-shadow:
+                0 0 0 0.2rem
+                rgba($microseed-success, 0.12);
+        }
+    }
+
+    .page-item.active .page-link {
+        color: #ffffff;
+
+        background:
+            $microseed-primary;
+
+        border-color:
+            $microseed-primary;
+    }
+
+    .page-item.disabled .page-link {
+        color: #98a3a9;
+
+        background: #f5f7f8;
+    }
+}
+
+
+// ==========================================================================
+// 24. DASHBOARD - BASE
+// ==========================================================================
+
+.dashboard-page {
+    --dashboard-border: #e2eaec;
+    --dashboard-muted: #6c7a82;
+    --dashboard-surface: #ffffff;
+
     width: 100%;
-    background: linear-gradient(90deg, #0f5568 0%, #1f7b86 52%, #39b39f 100%);
 }
 
-.dashboard-card {
-    background: rgba(255, 255, 255, 0.95);
-    border: 1px solid rgba(220, 235, 235, 0.8);
-    box-shadow: 0 10px 30px -10px rgba(20, 66, 85, 0.15);
+
+// ==========================================================================
+// 25. DASHBOARD - HERO
+// ==========================================================================
+
+.dashboard-hero {
+    padding: 1.6rem 1.75rem;
+
+    background:
+        radial-gradient(
+            circle at 95% 15%,
+            rgba($microseed-success, 0.08),
+            transparent 34%
+        ),
+        #ffffff;
+
+    border:
+        1px solid
+        var(--dashboard-border);
+
+    border-radius: 1rem;
+
+    box-shadow:
+        0 0.25rem 1rem
+        rgba(20, 66, 85, 0.045);
+}
+
+.dashboard-title {
+    margin: 0;
+
+    color: $microseed-dark;
+
+    font-size:
+        clamp(1.65rem, 2.6vw, 2.2rem);
+
+    font-weight: 750;
+
+    line-height: 1.15;
+
+    letter-spacing: -0.035em;
+}
+
+.dashboard-description {
+    max-width: 690px;
+
+    color: $microseed-muted;
+
+    line-height: 1.6;
+}
+
+
+// ==========================================================================
+// 26. DASHBOARD - RELOJ
+// ==========================================================================
+
+.dashboard-clock {
+    padding: 0.9rem 1rem;
+
+    background:
+        rgba($microseed-light, 0.75);
+
+    border:
+        1px solid
+        rgba($microseed-primary, 0.09);
+
+    border-radius: 0.85rem;
+}
+
+.dashboard-clock-icon {
+    width: 42px;
+    height: 42px;
+
+    flex: 0 0 auto;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    color: #ffffff;
+
+    background:
+        linear-gradient(
+            135deg,
+            #16586a,
+            #1a6b79
+        );
+
+    border-radius: 0.7rem;
+
+    font-size: 1.05rem;
+}
+
+.dashboard-clock-time {
+    color: $microseed-dark;
+
+    font-family:
+        var(--bs-font-monospace);
+
+    font-size: 1.08rem;
+
+    font-weight: 700;
+}
+
+
+// ==========================================================================
+// 27. INDICADORES
+// ==========================================================================
+
+.status-dot {
+    display: inline-block;
+
+    width: 0.45rem;
+    height: 0.45rem;
+
+    flex: 0 0 auto;
+
+    border-radius: 50%;
+
+    vertical-align: middle;
+}
+
+.status-dot-success {
+    background:
+        $microseed-success;
+
+    box-shadow:
+        0 0 0 3px
+        rgba($microseed-success, 0.12);
+}
+
+.status-dot-danger {
+    background:
+        $microseed-danger;
+
+    box-shadow:
+        0 0 0 3px
+        rgba($microseed-danger, 0.1);
+}
+
+.status-dot-muted {
+    background: #adb5bd;
+}
+
+
+// ==========================================================================
+// 28. DASHBOARD - KPI
+// ==========================================================================
+
+.dashboard-kpi {
+    position: relative;
+
+    height: 100%;
+
+    padding: 1.2rem;
+
+    background: #ffffff;
+
+    border:
+        1px solid
+        var(--dashboard-border);
+
+    border-radius: 0.95rem;
+
+    box-shadow:
+        0 0.2rem 0.7rem
+        rgba(20, 66, 85, 0.035);
+
+    transition:
+        transform 0.18s ease,
+        border-color 0.18s ease,
+        box-shadow 0.18s ease;
+
+    &:hover {
+        transform:
+            translateY(-2px);
+
+        border-color:
+            rgba($microseed-success, 0.32);
+
+        box-shadow:
+            0 0.45rem 1rem
+            rgba(20, 66, 85, 0.07);
+    }
+}
+
+.dashboard-kpi-label {
+    display: block;
+
+    margin-bottom: 0.15rem;
+
+    color:
+        var(--dashboard-muted);
+
+    font-size: 0.7rem;
+
+    font-weight: 700;
+
+    letter-spacing: 0.045em;
+
+    text-transform: uppercase;
+}
+
+.dashboard-kpi-value {
+    color: $microseed-dark;
+
+    font-size: 1.95rem;
+
+    font-weight: 750;
+
+    line-height: 1.15;
+}
+
+.dashboard-kpi-caption {
+    display: block;
+
+    margin-top: 0.3rem;
+
+    color:
+        var(--dashboard-muted);
+
+    font-size: 0.78rem;
+}
+
+.dashboard-kpi-icon {
+    width: 44px;
+    height: 44px;
+
+    flex: 0 0 auto;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 0.75rem;
+
+    font-size: 1.15rem;
+}
+
+
+// ==========================================================================
+// 29. DASHBOARD - PANELES
+// ==========================================================================
+
+.dashboard-panel {
+    overflow: hidden;
+
+    background: #ffffff;
+
+    border:
+        1px solid
+        var(--dashboard-border);
+
+    border-radius: 1rem;
+
+    box-shadow:
+        0 0.25rem 1rem
+        rgba(20, 66, 85, 0.045);
+}
+
+.dashboard-panel-header {
+    min-height: 72px;
+
+    padding: 0.95rem 1.2rem;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 1rem;
+
+    background: #ffffff;
+
+    border-bottom:
+        1px solid
+        var(--dashboard-border);
+}
+
+
+// ==========================================================================
+// 30. DASHBOARD - GRÁFICAS
+// ==========================================================================
+
+.dashboard-chart-card {
+    height: 100%;
+
+    padding: 1rem;
+
+    background: #ffffff;
+
+    border:
+        1px solid
+        var(--dashboard-border);
+
+    border-radius: 0.85rem;
+}
+
+.dashboard-chart-icon {
+    width: 38px;
+    height: 38px;
+
+    flex: 0 0 auto;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 0.65rem;
+
+    font-size: 1.05rem;
 }
 
 .dashboard-chart-container {
     position: relative;
-    height: 260px;
+
     width: 100%;
+    height: 255px;
+
+    canvas {
+        width: 100% !important;
+        height: 100% !important;
+    }
 }
 
-.kpi-icon-box {
-    width: 3.5rem;
-    height: 3.5rem;
-    border-radius: 1rem;
+
+// ==========================================================================
+// 31. DASHBOARD - SENSOR
+// ==========================================================================
+
+.sensor-live-value {
     display: flex;
+
     align-items: center;
-    justify-content: center;
-    color: #ffffff;
-    flex-shrink: 0;
-}
 
-.control-header-gradient {
-    background: linear-gradient(135deg, #144255 0%, #1c607a 45%, #3bb49c 100%);
-}
+    gap: 0.9rem;
 
-.sensor-metric-box {
-    border-radius: 1rem;
-    padding: 1.25rem 1rem;
-    text-align: center;
-    position: relative;
-    overflow: hidden;
-}
+    padding: 0.95rem;
 
-.actuator-card {
     background: #ffffff;
-    border: 1px solid rgba(229, 231, 235, 0.9);
-    border-radius: 1rem;
-    padding: 1.25rem;
+
+    border:
+        1px solid
+        var(--dashboard-border);
+
+    border-radius: 0.8rem;
 }
 
-.actuator-icon-box {
-    width: 48px;
-    height: 48px;
-    border-radius: 14px;
+.sensor-live-icon {
+    width: 44px;
+    height: 44px;
+
+    flex: 0 0 auto;
+
     display: flex;
+
     align-items: center;
     justify-content: center;
-    font-size: 1.35rem;
-    flex-shrink: 0;
+
+    border-radius: 0.7rem;
+
+    font-size: 1.15rem;
 }
 
-// Custom Hardware Switches for Telemetry
-.toggle-switch {
-    position: relative;
-    width: 52px;
-    height: 28px;
-    background: #d1d5db;
-    border-radius: 9999px;
+.sensor-live-number {
+    color: $microseed-dark;
+
+    font-size: 1.85rem;
+
+    font-weight: 750;
+
+    line-height: 1;
+}
+
+
+// ==========================================================================
+// 32. DASHBOARD - INCUBADORAS
+// ==========================================================================
+
+.incubator-summary {
+    height: 100%;
+
+    padding: 1rem;
+
+    background: #ffffff;
+
+    border:
+        1px solid
+        var(--dashboard-border);
+
+    border-radius: 0.85rem;
+
+    transition:
+        border-color 0.18s ease,
+        box-shadow 0.18s ease;
+
+    &:hover {
+        border-color:
+            rgba($microseed-success, 0.3);
+
+        box-shadow:
+            0 0.3rem 0.8rem
+            rgba(20, 66, 85, 0.055);
+    }
+}
+
+.incubator-detail {
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    gap: 1rem;
+
+    padding: 0.42rem 0;
+
+    font-size: 0.8rem;
+
+    & + & {
+        border-top:
+            1px solid #f0f3f4;
+    }
+
+    span {
+        color:
+            var(--dashboard-muted);
+    }
+
+    strong {
+        color: $microseed-dark;
+
+        font-weight: 600;
+
+        text-align: right;
+    }
+}
+
+
+// ==========================================================================
+// 33. DASHBOARD - CONTROL
+// ==========================================================================
+
+.control-row {
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    gap: 1rem;
+
+    padding: 0.95rem;
+
+    background: #ffffff;
+
+    border:
+        1px solid
+        var(--dashboard-border);
+
+    border-radius: 0.8rem;
+}
+
+.control-icon {
+    width: 42px;
+    height: 42px;
+
+    flex: 0 0 auto;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 0.7rem;
+
+    font-size: 1rem;
+}
+
+.dashboard-switch {
+    width: 2.75rem !important;
+    height: 1.4rem;
+
+    margin: 0;
+
     cursor: pointer;
-    flex-shrink: 0;
-    transition: background-color 0.2s ease;
 
-    &.active {
-        background: $microseed-success;
+    &:checked {
+        background-color:
+            $microseed-success;
+
+        border-color:
+            $microseed-success;
     }
 
-    &::after {
-        content: '';
-        position: absolute;
-        top: 3px;
-        left: 3px;
-        width: 22px;
-        height: 22px;
-        border-radius: 50%;
-        background: #ffffff;
-        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.18);
-        transition: transform 0.2s ease;
-    }
+    &:disabled {
+        cursor: not-allowed;
 
-    &.active::after {
-        transform: translateX(24px);
+        opacity: 0.5;
     }
 }
 
-.toggle-switch-lg {
-    width: 60px;
-    height: 32px;
+.dashboard-control-info {
+    padding: 0.85rem 0.95rem;
 
-    &::after {
-        width: 26px;
-        height: 26px;
+    color: $microseed-dark;
+
+    background:
+        rgba($microseed-success, 0.075);
+
+    border:
+        1px solid
+        rgba($microseed-success, 0.17);
+
+    border-radius: 0.7rem;
+
+    font-size: 0.8rem;
+
+    line-height: 1.5;
+}
+
+
+// ==========================================================================
+// 34. ESTADO VACÍO
+// ==========================================================================
+
+.dashboard-empty-state {
+    min-height: 145px;
+
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: center;
+    justify-content: center;
+
+    color: #89969c;
+
+    text-align: center;
+}
+
+
+// ==========================================================================
+// 35. AUTH / PERFIL
+// ==========================================================================
+
+.auth-card,
+.profile-card {
+    background: #ffffff;
+
+    border:
+        1px solid
+        $microseed-border;
+
+    border-radius: 1rem;
+
+    box-shadow:
+        0 0.3rem 1rem
+        rgba(20, 66, 85, 0.05);
+}
+
+.profile-section-title {
+    color: $microseed-dark;
+
+    font-weight: 700;
+}
+
+
+// ==========================================================================
+// 36. ALERTAS
+// ==========================================================================
+
+.alert {
+    border-radius: 0.75rem;
+
+    border-width: 1px;
+}
+
+
+// ==========================================================================
+// 37. SWEETALERT2
+// ==========================================================================
+
+.swal2-popup {
+    border-radius: 1rem !important;
+}
+
+.swal2-title {
+    color:
+        $microseed-dark !important;
+}
+
+.swal2-confirm {
+    background:
+        linear-gradient(
+            135deg,
+            #16586a,
+            #3a9997
+        ) !important;
+
+    border-radius:
+        0.65rem !important;
+}
+
+.swal2-cancel {
+    color:
+        $microseed-dark !important;
+
+    background:
+        #e8edef !important;
+
+    border-radius:
+        0.65rem !important;
+}
+
+
+// ==========================================================================
+// 38. DROPDOWNS
+// ==========================================================================
+
+.dropdown-menu {
+    border-color:
+        $microseed-border;
+
+    box-shadow:
+        0 0.5rem 1.2rem
+        rgba($microseed-dark, 0.08);
+}
+
+.dropdown-item {
+    color: $microseed-text;
+
+    &:hover,
+    &:focus {
+        color:
+            $microseed-primary;
+
+        background:
+            rgba($microseed-success, 0.08);
     }
 
-    &.active::after {
-        transform: translateX(28px);
+    &.active,
+    &:active {
+        color: #ffffff;
+
+        background:
+            $microseed-primary;
     }
 }
 
-.locked-control {
-    filter: grayscale(0.2);
-    opacity: 0.55;
-    pointer-events: none;
+
+// ==========================================================================
+// 39. SCROLLBAR
+// ==========================================================================
+
+* {
+    scrollbar-width: thin;
+
+    scrollbar-color:
+        rgba($microseed-primary, 0.4)
+        rgba($microseed-light, 0.7);
+}
+
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background:
+        $microseed-light;
+}
+
+::-webkit-scrollbar-thumb {
+    background:
+        rgba($microseed-primary, 0.4);
+
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background:
+        rgba($microseed-primary, 0.6);
+}
+
+
+// ==========================================================================
+// 40. RESPONSIVE
+// ==========================================================================
+
+@media (max-width: 1199.98px) {
+
+    .dashboard-clock {
+        max-width: 520px;
+    }
+}
+
+
+@media (max-width: 991.98px) {
+
+    .crud-table-header th,
+    .crud-table-row td {
+        padding-left: 0.8rem;
+        padding-right: 0.8rem;
+    }
+}
+
+
+@media (max-width: 767.98px) {
+
+    .dashboard-page {
+        padding-left:
+            0.85rem !important;
+
+        padding-right:
+            0.85rem !important;
+    }
+
+    .dashboard-hero {
+        padding: 1.2rem;
+    }
+
+    .dashboard-title {
+        font-size: 1.6rem;
+    }
+
+    .dashboard-panel-header {
+        min-height: auto;
+
+        align-items: flex-start;
+
+        flex-direction: column;
+    }
+
+    .dashboard-chart-container {
+        height: 220px;
+    }
+
+    .control-row {
+        align-items: flex-start;
+
+        flex-direction: column;
+    }
+
+    .control-row > .d-flex:last-child {
+        width: 100%;
+
+        justify-content:
+            space-between;
+    }
+
+    .incubator-detail {
+        align-items: flex-start;
+    }
+
+    .crud-toolbar {
+        padding: 0.9rem;
+    }
+
+    .crud-table-header th,
+    .crud-table-row td {
+        padding: 0.75rem;
+
+        font-size: 0.82rem;
+    }
+}
+
+
+@media (max-width: 575.98px) {
+
+    .dashboard-hero {
+        border-radius: 0.85rem;
+    }
+
+    .dashboard-clock {
+        width: 100%;
+    }
+
+    .dashboard-clock > .d-flex {
+        flex-wrap: wrap;
+    }
+
+    .dashboard-kpi {
+        padding: 1rem;
+    }
+
+    .dashboard-kpi-value {
+        font-size: 1.7rem;
+    }
+
+    .dashboard-panel-header {
+        padding: 0.9rem 1rem;
+    }
+
+    .dashboard-chart-container {
+        height: 205px;
+    }
+
+    .sensor-live-number {
+        font-size: 1.65rem;
+    }
+
+    .crud-actions .btn {
+        width: 32px;
+        height: 32px;
+    }
+}
+
+
+// ==========================================================================
+// 41. ACCESIBILIDAD
+// ==========================================================================
+
+@media (prefers-reduced-motion: reduce) {
+
+    *,
+    *::before,
+    *::after {
+        scroll-behavior: auto !important;
+
+        transition-duration:
+            0.01ms !important;
+
+        animation-duration:
+            0.01ms !important;
+
+        animation-iteration-count:
+            1 !important;
+    }
 }
