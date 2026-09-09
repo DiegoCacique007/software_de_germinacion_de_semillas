@@ -10,38 +10,115 @@
     $columns = $columns ?? [];
     $fields = $fields ?? [];
 
-    $canStore = $routeBase !== '' && Route::has($routeBase . '.store');
-    $canUpdate = $routeBase !== '' && Route::has($routeBase . '.update');
-    $canDestroy = $routeBase !== '' && Route::has($routeBase . '.destroy');
+    /*
+    |--------------------------------------------------------------------------
+    | Permisos del módulo
+    |--------------------------------------------------------------------------
+    | Si no se especifican, se permiten por defecto.
+    | Además, Laravel comprueba que la ruta realmente exista.
+    */
+    $allowCreate = $canCreate ?? true;
+    $allowEdit = $canEdit ?? true;
+    $allowDelete = $canDelete ?? true;
+    $allowShow = $canShow ?? true;
+    $showAsPage = $showAsPage ?? false;
 
-    $emptyForm = collect($fields)->mapWithKeys(fn($field) => [$field['name'] => ''])->toArray();
-    $oldForm = collect($fields)->mapWithKeys(fn($field) => [$field['name'] => ($field['type'] ?? 'text') === 'password' ? '' : old($field['name'], '')])->toArray();
-    $longFields = collect($fields)->filter(fn($field) => ($field['type'] ?? 'text') === 'textarea')->pluck('name')->toArray();
+    $hasStoreRoute = $routeBase !== '' && Route::has($routeBase . '.store');
+    $hasUpdateRoute = $routeBase !== '' && Route::has($routeBase . '.update');
+    $hasDestroyRoute = $routeBase !== '' && Route::has($routeBase . '.destroy');
+    $hasShowRoute = $routeBase !== '' && Route::has($routeBase . '.show');
 
+    $canStore = $allowCreate && $hasStoreRoute;
+    $canUpdate = $allowEdit && $hasUpdateRoute;
+    $canDestroy = $allowDelete && $hasDestroyRoute;
+    $canShow = (bool) $allowShow;
+
+    /*
+    |--------------------------------------------------------------------------
+    | Modo del botón Ver
+    |--------------------------------------------------------------------------
+    | false = modal interno del CRUD
+    | true  = routeBase.show
+    */
+    $showWithRoute = $canShow && $showAsPage && $hasShowRoute;
+
+    $hasActions = $canShow || $canUpdate || $canDestroy;
+
+    /*
+    |--------------------------------------------------------------------------
+    | Formularios
+    |--------------------------------------------------------------------------
+    */
+    $emptyForm = collect($fields)
+        ->mapWithKeys(fn($field) => [$field['name'] => ''])
+        ->toArray();
+
+    $oldForm = collect($fields)
+        ->mapWithKeys(fn($field) => [
+            $field['name'] => ($field['type'] ?? 'text') === 'password'
+                ? ''
+                : old($field['name'], '')
+        ])
+        ->toArray();
+
+    $longFields = collect($fields)
+        ->filter(fn($field) => ($field['type'] ?? 'text') === 'textarea')
+        ->pluck('name')
+        ->toArray();
+
+    /*
+    |--------------------------------------------------------------------------
+    | Formateo de valores para tabla / modal Ver
+    |--------------------------------------------------------------------------
+    */
     $formatValue = function ($value, $key) {
-        if ($key === 'activo') return (bool) $value ? 'Activo' : 'Inactivo';
-        if ($value instanceof \DateTimeInterface) return $value->format('d/m/Y H:i');
-        return blank($value) ? '—' : (string) $value;
+        if ($key === 'activo') {
+            return (bool) $value ? 'Activo' : 'Inactivo';
+        }
+
+        if ($value instanceof \DateTimeInterface) {
+            return $value->format('d/m/Y H:i');
+        }
+
+        return blank($value) && $value !== 0 && $value !== '0'
+            ? '—'
+            : (string) $value;
     };
 @endphp
 
 <x-app-layout>
-    <div class="container-fluid py-4 px-3 px-lg-4" x-data="crudModule()" x-init="init()" x-cloak>
+    <div
+        class="container-fluid py-4 px-3 px-lg-4"
+        x-data="crudModule()"
+        x-init="init()"
+        x-cloak
+    >
 
+        {{-- ENCABEZADO --}}
         <div class="d-flex flex-column flex-sm-row align-items-sm-center justify-content-between gap-3 mb-4">
             <div>
-                <h1 class="h2 fw-bold text-brand-primary mb-1">{{ $title }}</h1>
-                <p class="text-secondary mb-0">{{ $subtitle }}</p>
+                <h1 class="h2 fw-bold text-brand-primary mb-1">
+                    {{ $title }}
+                </h1>
+
+                <p class="text-secondary mb-0">
+                    {{ $subtitle }}
+                </p>
             </div>
 
             @if($canStore)
-                <button type="button" @click="openCreateModal()" class="btn btn-brand d-inline-flex align-items-center justify-content-center gap-2 px-4 py-2 rounded-3">
+                <button
+                    type="button"
+                    @click="openCreateModal()"
+                    class="btn btn-brand d-inline-flex align-items-center justify-content-center gap-2 px-4 py-2 rounded-3"
+                >
                     <i class="bi bi-plus-lg fs-5"></i>
                     <span>Nuevo {{ $entitySingular }}</span>
                 </button>
             @endif
         </div>
 
+        {{-- ERRORES --}}
         @if($errors->any())
             <div class="alert alert-danger shadow-sm rounded-3 mb-4">
                 <div class="d-flex align-items-center gap-2 mb-2 fw-bold">
@@ -57,269 +134,740 @@
             </div>
         @endif
 
+        {{-- TABLA --}}
         <div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-4">
+
+            {{-- FILTROS --}}
             <div class="card-header bg-light border-bottom border-light-subtle py-3 px-3 px-sm-4">
                 <div class="row g-3 align-items-center justify-content-between">
-                    <div class="col-12 col-md-auto d-flex flex-wrap align-items-center gap-2 gap-sm-3">
-                        <div class="d-flex align-items-center gap-2">
-                            <label class="form-label mb-0 small fw-bold text-secondary">Mostrar</label>
 
-                            <select x-model="perPage" class="form-select form-select-sm w-auto fw-bold text-brand-primary rounded-3 border-secondary-subtle">
+                    <div class="col-12 col-md-auto d-flex flex-wrap align-items-center gap-2 gap-sm-3">
+
+                        <div class="d-flex align-items-center gap-2">
+                            <label class="form-label mb-0 small fw-bold text-secondary">
+                                Mostrar
+                            </label>
+
+                            <select
+                                x-model="perPage"
+                                class="form-select form-select-sm w-auto fw-bold text-brand-primary rounded-3 border-secondary-subtle"
+                            >
                                 <option value="10">10</option>
                                 <option value="20">20</option>
                                 <option value="50">50</option>
                                 <option value="100">100</option>
                             </select>
 
-                            <span class="small fw-bold text-secondary">registros</span>
+                            <span class="small fw-bold text-secondary">
+                                registros
+                            </span>
                         </div>
 
                         <span class="badge rounded-pill bg-brand-soft text-brand-primary px-3 py-2 border border-brand-subtle d-inline-flex align-items-center gap-2">
                             <span class="badge-dot bg-brand-accent"></span>
-                            <span><span x-text="filteredRows.length"></span> resultados</span>
+
+                            <span>
+                                <span x-text="filteredRows.length"></span>
+                                resultados
+                            </span>
                         </span>
+
                     </div>
 
                     <div class="col-12 col-md-6 col-xl-4">
                         <div class="input-group input-group-sm">
+
                             <span class="input-group-text bg-white border-end-0 text-brand-primary ps-3 rounded-start-3">
                                 <i class="bi bi-search"></i>
                             </span>
 
-                            <input type="search" x-model="search" placeholder="Buscar {{ strtolower($entityPlural) }}..." class="form-control border-start-0 ps-1 rounded-end-3 py-2">
+                            <input
+                                type="search"
+                                x-model="search"
+                                placeholder="Buscar {{ strtolower($entityPlural) }}..."
+                                class="form-control border-start-0 ps-1 rounded-end-3 py-2"
+                            >
 
-                            <button type="button" x-show="search.length > 0" x-cloak @click="clearSearch()" title="Limpiar búsqueda" class="btn btn-outline-secondary border-start-0 border-end-0">
+                            <button
+                                type="button"
+                                x-show="search.length > 0"
+                                x-cloak
+                                @click="clearSearch()"
+                                title="Limpiar búsqueda"
+                                class="btn btn-outline-secondary border-start-0 border-end-0"
+                            >
                                 <i class="bi bi-x-lg"></i>
                             </button>
+
                         </div>
                     </div>
+
                 </div>
             </div>
 
+            {{-- CONTENIDO TABLA --}}
             <div class="card-body p-0">
                 <div class="table-responsive">
+
                     <table class="table table-hover align-middle mb-0">
+
                         <thead class="crud-table-header">
                         <tr>
                             @foreach($columns as $column)
-                                <th class="px-3 px-sm-4 py-3 text-nowrap">{{ $column['label'] }}</th>
+                                <th class="px-3 px-sm-4 py-3 text-nowrap">
+                                    {{ $column['label'] }}
+                                </th>
                             @endforeach
 
-                            <th class="px-3 px-sm-4 py-3 text-center text-nowrap" style="width: 140px;">Acciones</th>
+                            @if($hasActions)
+                                <th
+                                    class="px-3 px-sm-4 py-3 text-center text-nowrap"
+                                    style="width:140px;"
+                                >
+                                    Acciones
+                                </th>
+                            @endif
                         </tr>
                         </thead>
 
                         <tbody x-ref="recordsContainer">
-                        @forelse($items as $item)
-                            @php
-                                $showPayload = collect($columns)->map(function ($column) use ($item, $formatValue) {
-                                    $value = data_get($item, $column['key']);
-                                    return ['label' => $column['label'], 'value' => $formatValue($value, $column['key'])];
-                                })->values()->all();
 
+                        @forelse($items as $item)
+
+                            @php
+                                /*
+                                |--------------------------------------------------------------------------
+                                | Información para modal Ver
+                                |--------------------------------------------------------------------------
+                                */
+                                $showPayload = collect($columns)
+                                    ->map(function ($column) use ($item, $formatValue) {
+                                        $value = data_get($item, $column['key']);
+
+                                        return [
+                                            'label' => $column['label'],
+                                            'value' => $formatValue($value, $column['key']),
+                                        ];
+                                    })
+                                    ->values()
+                                    ->all();
+
+                                /*
+                                |--------------------------------------------------------------------------
+                                | Información para modal Editar
+                                |--------------------------------------------------------------------------
+                                */
                                 $editPayload = [
-                                    'action' => $canUpdate ? route($routeBase . '.update', $item) : '',
-                                    'fields' => collect($fields)->mapWithKeys(function ($field) use ($item) {
-                                        $name = $field['name'];
-                                        $key = $field['edit_key'] ?? $name;
-                                        $value = ($field['type'] ?? 'text') === 'password' ? '' : data_get($item, $key, '');
-                                        return [$name => (string) $value];
-                                    })->toArray(),
+                                    'action' => $canUpdate
+                                        ? route($routeBase . '.update', $item)
+                                        : '',
+
+                                    'fields' => collect($fields)
+                                        ->mapWithKeys(function ($field) use ($item) {
+                                            $name = $field['name'];
+                                            $key = $field['edit_key'] ?? $name;
+
+                                            $value = ($field['type'] ?? 'text') === 'password'
+                                                ? ''
+                                                : data_get($item, $key, '');
+
+                                            /*
+                                            |--------------------------------------------------------------
+                                            | Evita que false se convierta en cadena vacía.
+                                            |--------------------------------------------------------------
+                                            */
+                                            if (is_bool($value)) {
+                                                $value = $value ? '1' : '0';
+                                            }
+
+                                            /*
+                                            |--------------------------------------------------------------
+                                            | Formatos compatibles con inputs HTML.
+                                            |--------------------------------------------------------------
+                                            */
+                                            if ($value instanceof \DateTimeInterface) {
+                                                $type = $field['type'] ?? 'text';
+
+                                                $value = match ($type) {
+                                                    'date' => $value->format('Y-m-d'),
+                                                    'datetime-local' => $value->format('Y-m-d\TH:i'),
+                                                    default => $value->format('Y-m-d H:i:s'),
+                                                };
+                                            }
+
+                                            return [
+                                                $name => (string) $value
+                                            ];
+                                        })
+                                        ->toArray(),
                                 ];
 
-                                $searchText = collect($columns)->map(fn($column) => $formatValue(data_get($item, $column['key']), $column['key']))->implode(' ');
+                                /*
+                                |--------------------------------------------------------------------------
+                                | Texto para buscador
+                                |--------------------------------------------------------------------------
+                                */
+                                $searchText = collect($columns)
+                                    ->map(
+                                        fn($column) =>
+                                            $formatValue(
+                                                data_get($item, $column['key']),
+                                                $column['key']
+                                            )
+                                    )
+                                    ->implode(' ');
                             @endphp
 
-                            <tr class="item-row crud-table-row" data-search="{{ $searchText }}">
+                            <tr
+                                class="item-row crud-table-row"
+                                data-search="{{ $searchText }}"
+                            >
+
+                                {{-- COLUMNAS --}}
                                 @foreach($columns as $column)
+
                                     @php
                                         $value = data_get($item, $column['key']);
-                                        $displayValue = $formatValue($value, $column['key']);
-                                        $isLong = in_array($column['key'], $longFields, true);
+
+                                        $displayValue = $formatValue(
+                                            $value,
+                                            $column['key']
+                                        );
+
+                                        $isLong = in_array(
+                                            $column['key'],
+                                            $longFields,
+                                            true
+                                        );
                                     @endphp
 
                                     <td class="px-3 px-sm-4 py-3 text-secondary {{ $isLong ? 'min-w-250 text-wrap text-break' : '' }}">
+
                                         @if($column['key'] === 'activo')
+
                                             <span class="badge rounded-pill {{ (bool) $value ? 'bg-brand-soft text-brand-primary border border-brand-subtle' : 'bg-light text-secondary border' }}">
                                                     {{ $displayValue }}
                                                 </span>
+
                                         @else
-                                            <div class="text-wrap text-break lh-sm">{{ $displayValue }}</div>
+
+                                            <div class="text-wrap text-break lh-sm">
+                                                {{ $displayValue }}
+                                            </div>
+
                                         @endif
+
                                     </td>
+
                                 @endforeach
 
-                                <td class="px-3 px-sm-4 py-3 text-center text-nowrap">
-                                    <div class="d-inline-flex align-items-center justify-content-center gap-1">
-                                        <button type="button" @click="openShowModal(@js($showPayload))" title="Ver datos" class="btn btn-sm btn-outline-primary rounded-2 px-2 py-1">
-                                            <i class="bi bi-eye"></i>
-                                        </button>
+                                {{-- ACCIONES --}}
+                                @if($hasActions)
+                                    <td class="px-3 px-sm-4 py-3 text-center text-nowrap">
 
-                                        @if($canUpdate)
-                                            <button type="button" @click="openEditModal(@js($editPayload))" title="Editar" class="btn btn-sm btn-outline-success rounded-2 px-2 py-1">
-                                                <i class="bi bi-pencil"></i>
-                                            </button>
-                                        @endif
+                                        <div class="d-inline-flex align-items-center justify-content-center gap-1">
 
-                                        @if($canDestroy)
-                                            <form action="{{ route($routeBase . '.destroy', $item) }}" method="POST" class="d-inline" @submit.prevent="askDeleteConfirmation($event)">
-                                                @csrf
-                                                @method('DELETE')
+                                            {{-- VER --}}
+                                            @if($canShow)
 
-                                                <button type="submit" title="Eliminar" class="btn btn-sm btn-outline-danger rounded-2 px-2 py-1">
-                                                    <i class="bi bi-trash"></i>
+                                                @if($showWithRoute)
+
+                                                    <a
+                                                        href="{{ route($routeBase . '.show', $item) }}"
+                                                        title="Ver datos"
+                                                        class="btn btn-sm btn-outline-primary rounded-2 px-2 py-1"
+                                                    >
+                                                        <i class="bi bi-eye"></i>
+                                                    </a>
+
+                                                @else
+
+                                                    <button
+                                                        type="button"
+                                                        @click="openShowModal(@js($showPayload))"
+                                                        title="Ver datos"
+                                                        class="btn btn-sm btn-outline-primary rounded-2 px-2 py-1"
+                                                    >
+                                                        <i class="bi bi-eye"></i>
+                                                    </button>
+
+                                                @endif
+
+                                            @endif
+
+                                            {{-- EDITAR --}}
+                                            @if($canUpdate)
+
+                                                <button
+                                                    type="button"
+                                                    @click="openEditModal(@js($editPayload))"
+                                                    title="Editar"
+                                                    class="btn btn-sm btn-outline-success rounded-2 px-2 py-1"
+                                                >
+                                                    <i class="bi bi-pencil"></i>
                                                 </button>
-                                            </form>
-                                        @endif
-                                    </div>
+
+                                            @endif
+
+                                            {{-- ELIMINAR --}}
+                                            @if($canDestroy)
+
+                                                <form
+                                                    action="{{ route($routeBase . '.destroy', $item) }}"
+                                                    method="POST"
+                                                    class="d-inline"
+                                                    @submit.prevent="askDeleteConfirmation($event)"
+                                                >
+                                                    @csrf
+                                                    @method('DELETE')
+
+                                                    <button
+                                                        type="submit"
+                                                        title="Eliminar"
+                                                        class="btn btn-sm btn-outline-danger rounded-2 px-2 py-1"
+                                                    >
+                                                        <i class="bi bi-trash"></i>
+                                                    </button>
+
+                                                </form>
+
+                                            @endif
+
+                                        </div>
+
+                                    </td>
+                                @endif
+
+                            </tr>
+
+                        @empty
+
+                            <tr>
+                                <td
+                                    colspan="{{ count($columns) + ($hasActions ? 1 : 0) }}"
+                                    class="px-4 py-5 text-center text-muted"
+                                >
+                                    No hay {{ strtolower($entityPlural) }} registrados.
                                 </td>
                             </tr>
-                        @empty
-                            <tr>
-                                <td colspan="{{ count($columns) + 1 }}" class="px-4 py-5 text-center text-muted">No hay {{ strtolower($entityPlural) }} registrados.</td>
-                            </tr>
+
                         @endforelse
+
                         </tbody>
+
                     </table>
+
                 </div>
 
-                <div x-show="filteredRows.length === 0 && rows.length > 0" x-cloak class="py-5 text-center text-muted">
+                {{-- SIN RESULTADOS --}}
+                <div
+                    x-show="filteredRows.length === 0 && rows.length > 0"
+                    x-cloak
+                    class="py-5 text-center text-muted"
+                >
                     <i class="bi bi-search fs-3 text-secondary mb-2 d-block"></i>
                     No se encontraron resultados para la búsqueda.
                 </div>
+
             </div>
 
-            <div x-show="totalPages > 1" x-cloak class="card-footer bg-light border-top border-light-subtle d-flex flex-column flex-sm-row align-items-center justify-content-between gap-3 py-3 px-3 px-sm-4">
+            {{-- PAGINACIÓN --}}
+            <div
+                x-show="totalPages > 1"
+                x-cloak
+                class="card-footer bg-light border-top border-light-subtle d-flex flex-column flex-sm-row align-items-center justify-content-between gap-3 py-3 px-3 px-sm-4"
+            >
+
                 <span class="small text-secondary">
-                    Página <strong class="text-brand-primary" x-text="currentPage"></strong> de <strong class="text-brand-primary" x-text="totalPages"></strong>
+                    Página
+                    <strong
+                        class="text-brand-primary"
+                        x-text="currentPage"
+                    ></strong>
+
+                    de
+
+                    <strong
+                        class="text-brand-primary"
+                        x-text="totalPages"
+                    ></strong>
                 </span>
 
                 <ul class="pagination pagination-sm mb-0">
-                    <li class="page-item" :class="{ 'disabled': currentPage === 1 }">
-                        <button type="button" class="page-link rounded-start-2" @click="previousPage()" :disabled="currentPage === 1">
-                            <i class="bi bi-chevron-left me-1"></i> Anterior
+
+                    <li
+                        class="page-item"
+                        :class="{ 'disabled': currentPage === 1 }"
+                    >
+                        <button
+                            type="button"
+                            class="page-link rounded-start-2"
+                            @click="previousPage()"
+                            :disabled="currentPage === 1"
+                        >
+                            <i class="bi bi-chevron-left me-1"></i>
+                            Anterior
                         </button>
                     </li>
 
-                    <li class="page-item" :class="{ 'disabled': currentPage === totalPages }">
-                        <button type="button" class="page-link rounded-end-2" @click="nextPage()" :disabled="currentPage === totalPages">
-                            Siguiente <i class="bi bi-chevron-right ms-1"></i>
+                    <li
+                        class="page-item"
+                        :class="{ 'disabled': currentPage === totalPages }"
+                    >
+                        <button
+                            type="button"
+                            class="page-link rounded-end-2"
+                            @click="nextPage()"
+                            :disabled="currentPage === totalPages"
+                        >
+                            Siguiente
+                            <i class="bi bi-chevron-right ms-1"></i>
                         </button>
                     </li>
+
                 </ul>
+
             </div>
+
         </div>
 
-        <div x-show.important="showModalOpen" x-cloak class="modal fade show d-block crud-modal-backdrop" tabindex="-1" role="dialog" aria-modal="true" @keydown.escape.window="closeShowModal()" @click.self="closeShowModal()">
-            <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable" @click.outside="closeShowModal()">
-                <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden position-relative">
-                    <button type="button" class="btn-close position-absolute top-0 end-0 m-3" @click="closeShowModal()" aria-label="Cerrar"></button>
+        {{-- MODAL VER --}}
+        @if($canShow && !$showWithRoute)
 
-                    <div class="modal-header border-bottom-0 pb-0 pt-4 px-4 text-center d-flex flex-column align-items-center">
-                        <div class="crud-modal-icon mb-3"><i class="bi bi-eye fs-3"></i></div>
-                        <h4 class="modal-title fw-bold text-brand-dark">Ver {{ $entitySingular }}</h4>
-                        <p class="text-secondary small mb-0 mt-1">Consulta la información completa del registro seleccionado.</p>
-                    </div>
+            <div
+                x-show.important="showModalOpen"
+                x-cloak
+                class="modal fade show d-block crud-modal-backdrop"
+                tabindex="-1"
+                role="dialog"
+                aria-modal="true"
+                @keydown.escape.window="closeShowModal()"
+                @click.self="closeShowModal()"
+            >
 
-                    <div class="modal-body px-4 py-4">
-                        <div class="row g-3">
-                            <template x-for="(field, index) in selectedShow" :key="index">
-                                <div :class="field.value && field.value.length > 120 ? 'col-12' : 'col-12 col-md-6'">
-                                    <div class="crud-field-box h-100">
-                                        <label class="d-flex align-items-center gap-2 small fw-bold text-brand-primary mb-1">
-                                            <span class="badge bg-brand-primary text-white rounded-2 px-1 py-0" style="font-size: 0.65rem;" x-text="String(index + 1).padStart(2, '0')"></span>
-                                            <span x-text="field.label"></span>
-                                        </label>
+                <div
+                    class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable"
+                    @click.outside="closeShowModal()"
+                >
 
-                                        <p class="mb-0 text-dark small fw-medium text-break" style="white-space: pre-line;" x-text="field.value"></p>
-                                    </div>
-                                </div>
-                            </template>
-                        </div>
-                    </div>
+                    <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden position-relative">
 
-                    <div class="modal-footer border-top-0 justify-content-center pb-4 pt-0">
-                        <button type="button" @click="closeShowModal()" class="btn btn-brand-outline px-4 py-2 rounded-3">Cerrar</button>
-                    </div>
-                </div>
-            </div>
-        </div>
+                        <button
+                            type="button"
+                            class="btn-close position-absolute top-0 end-0 m-3"
+                            @click="closeShowModal()"
+                            aria-label="Cerrar"
+                        ></button>
 
-        <div x-show.important="formModalOpen" x-cloak class="modal fade show d-block crud-modal-backdrop" tabindex="-1" role="dialog" aria-modal="true" @keydown.escape.window="closeFormModal()" @click.self="closeFormModal()">
-            <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable" @click.outside="closeFormModal()">
-                <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden position-relative">
-                    <button type="button" class="btn-close position-absolute top-0 end-0 m-3" @click="closeFormModal()" aria-label="Cerrar"></button>
+                        <div class="modal-header border-bottom-0 pb-0 pt-4 px-4 text-center d-flex flex-column align-items-center">
 
-                    <div class="modal-header border-bottom-0 pb-0 pt-4 px-4 text-center d-flex flex-column align-items-center">
-                        <div class="crud-modal-icon mb-3">
-                            <i class="bi fs-3" :class="formMode === 'create' ? 'bi-plus-circle' : 'bi-pencil-square'"></i>
-                        </div>
-
-                        <h4 class="modal-title fw-bold text-brand-dark" x-text="formMode === 'create' ? 'Nuevo {{ $entitySingular }}' : 'Editar {{ $entitySingular }}'"></h4>
-
-                        <p class="text-secondary small mb-0 mt-1" x-text="formMode === 'create' ? 'Ingresa la información necesaria para registrar un nuevo elemento.' : 'Modifica la información del registro seleccionado.'"></p>
-                    </div>
-
-                    <form :action="formAction" method="POST" @submit.prevent="askFormConfirmation($event)">
-                        @csrf
-
-                        <input type="hidden" name="_method" value="PUT" :disabled="formMode !== 'edit'">
-                        <input type="hidden" name="_crud_mode" :value="formMode">
-                        <input type="hidden" name="_crud_edit_action" :value="formMode === 'edit' ? formAction : ''">
-
-                        <div class="modal-body px-4 py-3">
-                            <div class="row g-3">
-                                @foreach($fields as $field)
-                                    @php
-                                        $fieldName = $field['name'];
-                                        $fieldType = $field['type'] ?? 'text';
-                                        $required = $field['required'] ?? false;
-                                        $requiredCreate = $field['required_create'] ?? false;
-                                    @endphp
-
-                                    <div class="{{ $fieldType === 'textarea' ? 'col-12' : 'col-12 col-md-6' }}">
-                                        <label for="{{ $fieldName }}" class="form-label small fw-bold text-brand-primary mb-1">
-                                            {{ $field['label'] }}
-
-                                            @if($required)
-                                                <span class="text-danger">*</span>
-                                            @elseif($requiredCreate)
-                                                <span x-show="formMode === 'create'" class="text-danger">*</span>
-                                            @endif
-                                        </label>
-
-                                        @if($fieldType === 'textarea')
-                                            <textarea id="{{ $fieldName }}" name="{{ $fieldName }}" x-model="formData['{{ $fieldName }}']" rows="3" @if($required) required @elseif($requiredCreate) :required="formMode === 'create'" @endif class="form-control rounded-3 @error($fieldName) is-invalid @enderror"></textarea>
-
-                                        @elseif($fieldType === 'select')
-                                            <select id="{{ $fieldName }}" name="{{ $fieldName }}" x-model="formData['{{ $fieldName }}']" @if($required) required @elseif($requiredCreate) :required="formMode === 'create'" @endif class="form-select rounded-3 @error($fieldName) is-invalid @enderror">
-                                                <option value="">Seleccione una opción</option>
-
-                                                @foreach(($field['options'] ?? []) as $option)
-                                                    <option value="{{ data_get($option, $field['option_value'] ?? 'id') }}">{{ data_get($option, $field['option_label'] ?? 'nombre') }}</option>
-                                                @endforeach
-                                            </select>
-
-                                        @else
-                                            <input id="{{ $fieldName }}" type="{{ $fieldType }}" name="{{ $fieldName }}" x-model="formData['{{ $fieldName }}']" @if(!empty($field['step'])) step="{{ $field['step'] }}" @endif @if($required) required @elseif($requiredCreate) :required="formMode === 'create'" @endif class="form-control rounded-3 @error($fieldName) is-invalid @enderror">
-                                        @endif
-
-                                        @error($fieldName)
-                                        <div class="invalid-feedback d-block small">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-                                @endforeach
+                            <div class="crud-modal-icon mb-3">
+                                <i class="bi bi-eye fs-3"></i>
                             </div>
+
+                            <h4 class="modal-title fw-bold text-brand-dark">
+                                Ver {{ $entitySingular }}
+                            </h4>
+
+                            <p class="text-secondary small mb-0 mt-1">
+                                Consulta la información completa del registro seleccionado.
+                            </p>
+
                         </div>
 
-                        <div class="modal-footer border-top-0 justify-content-center gap-3 pb-4 pt-2">
-                            <button type="button" @click="closeFormModal()" class="btn btn-secondary px-4 py-2 rounded-3 fw-semibold">Cancelar</button>
-                            <button type="submit" class="btn btn-brand px-4 py-2 rounded-3" x-text="formMode === 'create' ? 'Guardar registro' : 'Guardar cambios'"></button>
+                        <div class="modal-body px-4 py-4">
+
+                            <div class="row g-3">
+
+                                <template
+                                    x-for="(field, index) in selectedShow"
+                                    :key="index"
+                                >
+
+                                    <div
+                                        :class="field.value && field.value.length > 120
+                                            ? 'col-12'
+                                            : 'col-12 col-md-6'"
+                                    >
+
+                                        <div class="crud-field-box h-100">
+
+                                            <label class="d-flex align-items-center gap-2 small fw-bold text-brand-primary mb-1">
+
+                                                <span
+                                                    class="badge bg-brand-primary text-white rounded-2 px-1 py-0"
+                                                    style="font-size:0.65rem;"
+                                                    x-text="String(index + 1).padStart(2, '0')"
+                                                ></span>
+
+                                                <span x-text="field.label"></span>
+
+                                            </label>
+
+                                            <p
+                                                class="mb-0 text-dark small fw-medium text-break"
+                                                style="white-space:pre-line;"
+                                                x-text="field.value"
+                                            ></p>
+
+                                        </div>
+
+                                    </div>
+
+                                </template>
+
+                            </div>
+
                         </div>
-                    </form>
+
+                        <div class="modal-footer border-top-0 justify-content-center pb-4 pt-0">
+
+                            <button
+                                type="button"
+                                @click="closeShowModal()"
+                                class="btn btn-brand-outline px-4 py-2 rounded-3"
+                            >
+                                Cerrar
+                            </button>
+
+                        </div>
+
+                    </div>
+
                 </div>
+
             </div>
-        </div>
+
+        @endif
+
+        {{-- MODAL CREAR / EDITAR --}}
+        @if($canStore || $canUpdate)
+
+            <div
+                x-show.important="formModalOpen"
+                x-cloak
+                class="modal fade show d-block crud-modal-backdrop"
+                tabindex="-1"
+                role="dialog"
+                aria-modal="true"
+                @keydown.escape.window="closeFormModal()"
+                @click.self="closeFormModal()"
+            >
+
+                <div
+                    class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable"
+                    @click.outside="closeFormModal()"
+                >
+
+                    <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden position-relative">
+
+                        <button
+                            type="button"
+                            class="btn-close position-absolute top-0 end-0 m-3"
+                            @click="closeFormModal()"
+                            aria-label="Cerrar"
+                        ></button>
+
+                        <div class="modal-header border-bottom-0 pb-0 pt-4 px-4 text-center d-flex flex-column align-items-center">
+
+                            <div class="crud-modal-icon mb-3">
+                                <i
+                                    class="bi fs-3"
+                                    :class="formMode === 'create'
+                                        ? 'bi-plus-circle'
+                                        : 'bi-pencil-square'"
+                                ></i>
+                            </div>
+
+                            <h4
+                                class="modal-title fw-bold text-brand-dark"
+                                x-text="formMode === 'create'
+                                    ? 'Nuevo {{ $entitySingular }}'
+                                    : 'Editar {{ $entitySingular }}'"
+                            ></h4>
+
+                            <p
+                                class="text-secondary small mb-0 mt-1"
+                                x-text="formMode === 'create'
+                                    ? 'Ingresa la información necesaria para registrar un nuevo elemento.'
+                                    : 'Modifica la información del registro seleccionado.'"
+                            ></p>
+
+                        </div>
+
+                        <form
+                            :action="formAction"
+                            method="POST"
+                            @submit.prevent="askFormConfirmation($event)"
+                        >
+
+                            @csrf
+
+                            <input
+                                type="hidden"
+                                name="_method"
+                                value="PUT"
+                                :disabled="formMode !== 'edit'"
+                            >
+
+                            <input
+                                type="hidden"
+                                name="_crud_mode"
+                                :value="formMode"
+                            >
+
+                            <input
+                                type="hidden"
+                                name="_crud_edit_action"
+                                :value="formMode === 'edit' ? formAction : ''"
+                            >
+
+                            <div class="modal-body px-4 py-3">
+
+                                <div class="row g-3">
+
+                                    @foreach($fields as $field)
+
+                                        @php
+                                            $fieldName = $field['name'];
+                                            $fieldType = $field['type'] ?? 'text';
+                                            $required = $field['required'] ?? false;
+                                            $requiredCreate = $field['required_create'] ?? false;
+                                        @endphp
+
+                                        <div class="{{ $fieldType === 'textarea' ? 'col-12' : 'col-12 col-md-6' }}">
+
+                                            <label
+                                                for="{{ $fieldName }}"
+                                                class="form-label small fw-bold text-brand-primary mb-1"
+                                            >
+                                                {{ $field['label'] }}
+
+                                                @if($required)
+                                                    <span class="text-danger">*</span>
+
+                                                @elseif($requiredCreate)
+                                                    <span
+                                                        x-show="formMode === 'create'"
+                                                        class="text-danger"
+                                                    >
+                                                        *
+                                                    </span>
+                                                @endif
+                                            </label>
+
+                                            {{-- TEXTAREA --}}
+                                            @if($fieldType === 'textarea')
+
+                                                <textarea
+                                                    id="{{ $fieldName }}"
+                                                    name="{{ $fieldName }}"
+                                                    x-model="formData['{{ $fieldName }}']"
+                                                    rows="3"
+                                                    @if($required)
+                                                        required
+                                                    @elseif($requiredCreate)
+                                                        x-bind:required="formMode === 'create'"
+                                                    @endif
+                                                    class="form-control rounded-3 @error($fieldName) is-invalid @enderror"
+                                                ></textarea>
+
+                                                {{-- SELECT --}}
+                                            @elseif($fieldType === 'select')
+
+                                                <select
+                                                    id="{{ $fieldName }}"
+                                                    name="{{ $fieldName }}"
+                                                    x-model="formData['{{ $fieldName }}']"
+                                                    @if($required)
+                                                        required
+                                                    @elseif($requiredCreate)
+                                                        x-bind:required="formMode === 'create'"
+                                                    @endif
+                                                    class="form-select rounded-3 @error($fieldName) is-invalid @enderror"
+                                                >
+
+                                                    <option value="">
+                                                        Seleccione una opción
+                                                    </option>
+
+                                                    @foreach(($field['options'] ?? []) as $option)
+
+                                                        <option
+                                                            value="{{ data_get($option, $field['option_value'] ?? 'id') }}"
+                                                        >
+                                                            {{ data_get($option, $field['option_label'] ?? 'nombre') }}
+                                                        </option>
+
+                                                    @endforeach
+
+                                                </select>
+
+                                                {{-- INPUT --}}
+                                            @else
+
+                                                <input
+                                                    id="{{ $fieldName }}"
+                                                    type="{{ $fieldType }}"
+                                                    name="{{ $fieldName }}"
+                                                    x-model="formData['{{ $fieldName }}']"
+                                                    @if(!empty($field['step']))
+                                                        step="{{ $field['step'] }}"
+                                                    @endif
+                                                    @if($required)
+                                                        required
+                                                    @elseif($requiredCreate)
+                                                        x-bind:required="formMode === 'create'"
+                                                    @endif
+                                                    class="form-control rounded-3 @error($fieldName) is-invalid @enderror"
+                                                >
+
+                                            @endif
+
+                                            @error($fieldName)
+                                            <div class="invalid-feedback d-block small">
+                                                {{ $message }}
+                                            </div>
+                                            @enderror
+
+                                        </div>
+
+                                    @endforeach
+
+                                </div>
+
+                            </div>
+
+                            <div class="modal-footer border-top-0 justify-content-center gap-3 pb-4 pt-2">
+
+                                <button
+                                    type="button"
+                                    @click="closeFormModal()"
+                                    class="btn btn-secondary px-4 py-2 rounded-3 fw-semibold"
+                                >
+                                    Cancelar
+                                </button>
+
+                                <button
+                                    type="submit"
+                                    class="btn btn-brand px-4 py-2 rounded-3"
+                                    x-text="formMode === 'create'
+                                        ? 'Guardar registro'
+                                        : 'Guardar cambios'"
+                                ></button>
+
+                            </div>
+
+                        </form>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        @endif
+
     </div>
 
     <script>
@@ -328,13 +876,17 @@
                 search: '',
                 perPage: 10,
                 currentPage: 1,
+
                 rows: [],
                 filteredRows: [],
+
                 showModalOpen: false,
                 selectedShow: [],
+
                 formModalOpen: false,
                 formMode: 'create',
                 formAction: '',
+
                 formData: @js($emptyForm),
 
                 init() {
@@ -354,11 +906,19 @@
                     });
 
                     const hasErrors = @js($errors->any());
+                    const hasFormPermissions = @js($canStore || $canUpdate);
 
-                    if (hasErrors) {
+                    if (hasErrors && hasFormPermissions) {
                         const oldMode = @js(old('_crud_mode', 'create'));
-                        this.formMode = oldMode === 'edit' ? 'edit' : 'create';
-                        this.formAction = this.formMode === 'edit' ? @js(old('_crud_edit_action', '')) : @js($canStore ? route($routeBase . '.store') : '');
+
+                        this.formMode = oldMode === 'edit'
+                            ? 'edit'
+                            : 'create';
+
+                        this.formAction = this.formMode === 'edit'
+                            ? @js(old('_crud_edit_action', ''))
+                            : @js($canStore ? route($routeBase . '.store') : '');
+
                         this.formData = @js($oldForm);
                         this.formModalOpen = true;
                     }
@@ -370,41 +930,71 @@
                         return;
                     }
 
-                    this.rows = Array.from(this.$refs.recordsContainer.querySelectorAll('.item-row'));
+                    this.rows = Array.from(
+                        this.$refs.recordsContainer.querySelectorAll('.item-row')
+                    );
                 },
 
                 updateTable() {
-                    const term = this.search.trim().toLowerCase();
+                    const term = this.search
+                        .trim()
+                        .toLowerCase();
 
                     this.filteredRows = this.rows.filter(row => {
-                        const content = (row.dataset.search ?? '').toLowerCase();
+                        const content = (row.dataset.search ?? '')
+                            .toLowerCase();
+
                         return content.includes(term);
                     });
 
                     const amount = Number(this.perPage);
-                    const pages = Math.max(1, Math.ceil(this.filteredRows.length / amount));
 
-                    if (this.currentPage > pages) this.currentPage = pages;
+                    const pages = Math.max(
+                        1,
+                        Math.ceil(this.filteredRows.length / amount)
+                    );
+
+                    if (this.currentPage > pages) {
+                        this.currentPage = pages;
+                    }
 
                     const start = (this.currentPage - 1) * amount;
                     const end = start + amount;
 
-                    this.rows.forEach(row => row.style.display = 'none');
-                    this.filteredRows.slice(start, end).forEach(row => row.style.display = '');
+                    this.rows.forEach(row => {
+                        row.style.display = 'none';
+                    });
+
+                    this.filteredRows
+                        .slice(start, end)
+                        .forEach(row => {
+                            row.style.display = '';
+                        });
                 },
 
                 get totalPages() {
-                    return Math.max(1, Math.ceil(this.filteredRows.length / Number(this.perPage)));
+                    return Math.max(
+                        1,
+                        Math.ceil(
+                            this.filteredRows.length / Number(this.perPage)
+                        )
+                    );
                 },
 
                 previousPage() {
-                    if (this.currentPage <= 1) return;
+                    if (this.currentPage <= 1) {
+                        return;
+                    }
+
                     this.currentPage--;
                     this.updateTable();
                 },
 
                 nextPage() {
-                    if (this.currentPage >= this.totalPages) return;
+                    if (this.currentPage >= this.totalPages) {
+                        return;
+                    }
+
                     this.currentPage++;
                     this.updateTable();
                 },
@@ -427,7 +1017,13 @@
 
                 openCreateModal() {
                     this.formMode = 'create';
-                    this.formAction = @js($canStore ? route($routeBase . '.store') : '');
+
+                    this.formAction = @js(
+                        $canStore
+                            ? route($routeBase . '.store')
+                            : ''
+                    );
+
                     this.formData = @js($emptyForm);
                     this.formModalOpen = true;
                 },
@@ -435,7 +1031,12 @@
                 openEditModal(payload) {
                     this.formMode = 'edit';
                     this.formAction = payload.action ?? '';
-                    this.formData = {...@js($emptyForm), ...(payload.fields ?? {})};
+
+                    this.formData = {
+                        ...@js($emptyForm),
+                        ...(payload.fields ?? {})
+                    };
+
                     this.formModalOpen = true;
                 },
 
@@ -448,32 +1049,50 @@
 
                 async askFormConfirmation(event) {
                     event.preventDefault();
+
                     const form = event.currentTarget;
 
                     if (this.formMode === 'edit') {
+
                         if (typeof window.microseedConfirmEdit === 'function') {
                             const result = await window.microseedConfirmEdit();
-                            if (result && result.isConfirmed) form.submit();
+
+                            if (result && result.isConfirmed) {
+                                form.submit();
+                            }
+
                         } else {
                             form.submit();
                         }
+
                     } else {
+
                         if (typeof window.microseedConfirmCreate === 'function') {
                             const result = await window.microseedConfirmCreate();
-                            if (result && result.isConfirmed) form.submit();
+
+                            if (result && result.isConfirmed) {
+                                form.submit();
+                            }
+
                         } else {
                             form.submit();
                         }
+
                     }
                 },
 
                 async askDeleteConfirmation(event) {
                     event.preventDefault();
+
                     const form = event.currentTarget;
 
                     if (typeof window.microseedConfirmDelete === 'function') {
                         const result = await window.microseedConfirmDelete();
-                        if (result && result.isConfirmed) form.submit();
+
+                        if (result && result.isConfirmed) {
+                            form.submit();
+                        }
+
                     } else {
                         form.submit();
                     }
@@ -481,4 +1100,5 @@
             };
         }
     </script>
+
 </x-app-layout>

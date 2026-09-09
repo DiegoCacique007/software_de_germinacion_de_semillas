@@ -2,10 +2,14 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class LecturaMicroclima extends Model
 {
+    use HasFactory;
+
     protected $table = 'lecturas_microclima';
 
     protected $fillable = [
@@ -25,7 +29,7 @@ class LecturaMicroclima extends Model
         ];
     }
 
-    public function incubadora()
+    public function incubadora(): BelongsTo
     {
         return $this->belongsTo(Incubadora::class, 'incubadora_id');
     }

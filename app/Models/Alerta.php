@@ -2,8 +2,10 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Alerta extends Model
 {
@@ -29,28 +31,35 @@ class Alerta extends Model
         ];
     }
 
-    public function incubadora()
+    public function incubadora(): BelongsTo
     {
         return $this->belongsTo(Incubadora::class);
     }
 
-    public function tipo()
+    public function tipo(): BelongsTo
     {
         return $this->belongsTo(TipoAlerta::class, 'tipo_alerta_id');
     }
 
-    public function nivel()
+    public function nivel(): BelongsTo
     {
         return $this->belongsTo(NivelAlerta::class, 'nivel_alerta_id');
     }
 
-    public function estado()
+    public function estado(): BelongsTo
     {
         return $this->belongsTo(EstadoAlerta::class, 'estado_alerta_id');
     }
 
-    public function atendidaPor()
+    public function atendidaPor(): BelongsTo
     {
         return $this->belongsTo(User::class, 'atendida_por');
+    }
+
+    public function scopeDeEncargado(Builder $query, int $userId): Builder
+    {
+        return $query->whereHas('incubadora.asignaciones', function (Builder $query) use ($userId) {
+            $query->deUsuario($userId)->vigentes();
+        });
     }
 }
