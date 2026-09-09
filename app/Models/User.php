@@ -3,6 +3,8 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
@@ -14,7 +16,8 @@ class User extends Authenticatable
         'name',
         'email',
         'foto_perfil',
-        'role',
+        'role_id',
+        'activo',
         'password',
     ];
 
@@ -27,36 +30,115 @@ class User extends Authenticatable
     {
         return [
             'email_verified_at' => 'datetime',
+            'ultimo_acceso_at' => 'datetime',
+            'activo' => 'boolean',
             'password' => 'hashed',
         ];
     }
 
-    public function asignacionesIncubadora()
+    /*
+    |--------------------------------------------------------------------------
+    | Rol
+    |--------------------------------------------------------------------------
+    */
+
+    public function rol(): BelongsTo
+    {
+        return $this->belongsTo(Role::class, 'role_id');
+    }
+
+    public function getRolClaveAttribute(): ?string
+    {
+        return $this->rol?->clave;
+    }
+
+    public function getRolNombreAttribute(): string
+    {
+        return $this->rol?->nombre ?? 'Sin rol';
+    }
+
+    public function hasRole(string ...$roles): bool
+    {
+        return in_array($this->rol_clave, $roles, true);
+    }
+
+    public function isSuperAdmin(): bool
+    {
+        return $this->hasRole('super_admin');
+    }
+
+    public function isAdministrador(): bool
+    {
+        return $this->hasRole('administrador');
+    }
+
+    public function isEncargado(): bool
+    {
+        return $this->hasRole('encargado');
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Asignaciones de incubadora
+    |--------------------------------------------------------------------------
+    */
+
+    public function asignacionesIncubadora(): HasMany
     {
         return $this->hasMany(AsignacionIncubadora::class);
     }
 
-    public function alertasAtendidas()
+    /*
+    |--------------------------------------------------------------------------
+    | Alertas atendidas
+    |--------------------------------------------------------------------------
+    */
+
+    public function alertasAtendidas(): HasMany
     {
         return $this->hasMany(Alerta::class, 'atendida_por');
     }
 
-    public function controlesIncubadora()
+    /*
+    |--------------------------------------------------------------------------
+    | Controles de incubadora
+    |--------------------------------------------------------------------------
+    */
+
+    public function controlesIncubadora(): HasMany
     {
         return $this->hasMany(ControlIncubadora::class);
     }
 
-    public function seguimientosLote()
+    /*
+    |--------------------------------------------------------------------------
+    | Seguimientos de lotes
+    |--------------------------------------------------------------------------
+    */
+
+    public function seguimientosLote(): HasMany
     {
         return $this->hasMany(SeguimientoLote::class);
     }
 
-    public function seguimientosFrasco()
+    /*
+    |--------------------------------------------------------------------------
+    | Seguimientos de frascos
+    |--------------------------------------------------------------------------
+    */
+
+    public function seguimientosFrasco(): HasMany
     {
         return $this->hasMany(SeguimientoFrasco::class);
     }
 
-    public function registrosBiologicos()
+    /*
+    |--------------------------------------------------------------------------
+    | Registros biológicos
+    |--------------------------------------------------------------------------
+    */
+
+    public function registrosBiologicos(): HasMany
     {
         return $this->hasMany(RegistroBiologico::class);
     }

@@ -12,7 +12,7 @@ use Illuminate\View\View;
 class AuthenticatedSessionController extends Controller
 {
     /**
-     * Muestra la vista de login.
+     * Muestra la vista de inicio de sesión.
      */
     public function create(): View
     {
@@ -28,12 +28,36 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
-        $user = Auth::user();
+        $user = $request->user();
 
-        return match ($user->role) {
-            'super_admin'   => redirect()->route('super_admin.dashboard')->with('success', 'Bienvenido de nuevo al sistema.'),
-            'administrador' => redirect()->route('administrador.dashboard')->with('success', 'Bienvenido de nuevo al sistema.'),
-            default         => redirect()->route('dashboard')->with('success', 'Bienvenido de nuevo.'),
+        /*
+        |--------------------------------------------------------------------------
+        | Registrar último acceso
+        |--------------------------------------------------------------------------
+        */
+        $user->forceFill([
+            'ultimo_acceso_at' => now(),
+        ])->saveQuietly();
+
+        /*
+        |--------------------------------------------------------------------------
+        | Redirección según rol
+        |--------------------------------------------------------------------------
+        */
+        return match ($user->rol_clave) {
+            'super_admin' => redirect()
+                ->route('super_admin.dashboard')
+                ->with('success', 'Bienvenido de nuevo al sistema.'),
+
+            'administrador' => redirect()
+                ->route('administrador.dashboard')
+                ->with('success', 'Bienvenido de nuevo al sistema.'),
+
+            'encargado' => redirect()
+                ->route('dashboard')
+                ->with('success', 'Bienvenido de nuevo al sistema.'),
+
+            default => $this->rolNoValido($request),
         };
     }
 
@@ -48,6 +72,24 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerateToken();
 
-        return redirect()->route('login')->with('success', 'Sesión cerrada correctamente.');
+        return redirect()
+            ->route('login')
+            ->with('success', 'Sesión cerrada correctamente.');
+    }
+
+    /**
+     * Cierra la sesión si el usuario no tiene un rol válido.
+     */
+    private function rolNoValido(Request $request): RedirectResponse
+    {
+        Auth::guard('web')->logout();
+
+        $request->session()->invalidate();
+
+        $request->session()->regenerateToken();
+
+        return redirect()
+            ->route('login')
+            ->with('error', 'Tu cuenta no tiene un rol válido asignado.');
     }
 }

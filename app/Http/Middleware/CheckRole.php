@@ -8,18 +8,19 @@ use Symfony\Component\HttpFoundation\Response;
 
 class CheckRole
 {
-    /**
-     * Handle an incoming request.
-     */
-    public function handle(Request $request, Closure $next, string ...$roles): Response
+    public function handle(Request $request, Closure $next, ...$roles): Response
     {
-        $user = auth()->user();
+        $user = $request->user();
 
         if (!$user) {
             abort(403, 'No autenticado.');
         }
 
-        if (!in_array($user->role, $roles)) {
+        if (!$user->activo) {
+            abort(403, 'Tu cuenta se encuentra inactiva.');
+        }
+
+        if (!$user->hasRole(...$roles)) {
             abort(403, 'No tienes permisos para acceder a esta sección.');
         }
 

@@ -3,60 +3,130 @@
 namespace App\Http\Controllers\SuperAdmin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\SuperAdmin\StoreUserRequest;
+use App\Http\Requests\SuperAdmin\UpdateUserRequest;
+use App\Models\Role;
 use App\Models\User;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\Rule;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\View\View;
 
 class UserController extends Controller
 {
-    public function index()
+    public function index(): View
     {
-        $usuarios = User::latest()->get();
+        $authUser = auth()->user();
+        $this->verificarAcceso($authUser);
 
-        return view('vistas_principales.super_admin.usuarios.index', compact('usuarios'));
-    }
+        $usuariosQuery = User::with('rol');
 
-    public function store(Request $request)
-    {
-        $data = $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|max:255|unique:users,email',
-            'role' => ['required', Rule::in(['super_admin'])],
-            'password' => 'required|string|min:8',
+        if ($authUser->isAdministrador()) {
+            $usuariosQuery->whereHas('rol', fn($query) => $query->where('clave', 'encargado'));
+        }
+
+        $usuarios = $usuariosQuery->orderBy('name')->get();
+
+        $roles = $authUser->isSuperAdmin()
+            ? Role::where('activo', true)->orderBy('nombre')->get()
+            : Role::where('clave', 'encargado')->where('activo', true)->get();
+
+        $estadosUsuario = collect([
+            (object) ['id' => 1, 'nombre' => 'Activo'],
+            (object) ['id' => 0, 'nombre' => 'Inactivo'],
         ]);
 
-        $data['password'] = Hash::make($data['password']);
+        $routeBase = $authUser->isAdministrador()
+            ? 'administrador.usuarios'
+            : 'super_admin.usuarios';
+
+        return view('vistas_principales.super_admin.usuarios.index', compact(
+            'usuarios',
+            'roles',
+            'estadosUsuario',
+            'routeBase'
+        ));
+    }
+
+    public function store(StoreUserRequest $request): RedirectResponse
+    {
+        $authUser = auth()->user();
+        $this->verificarAcceso($authUser);
+
+        $data = $request->validated();
+        $role = Role::findOrFail($data['role_id']);
+
+        if ($authUser->isAdministrador() && $role->clave !== 'encargado') {
+            return back()->with('error', 'Un administrador solo puede registrar usuarios con rol de encargado.');
+        }
 
         User::create($data);
 
-        return redirect()->route('super_admin.usuarios.index')->with('success', 'Usuario registrado correctamente.');
+        return redirect()
+            ->route($this->rutaUsuarios($authUser))
+            ->with('success', 'Usuario registrado correctamente.');
     }
 
-    public function update(Request $request, User $usuario)
+    public function update(UpdateUserRequest $request, User $usuario): RedirectResponse
     {
-        $data = $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|max:255|unique:users,email,' . $usuario->id,
-            'role' => ['required', Rule::in(['super_admin'])],
-            'password' => 'nullable|string|min:8',
-        ]);
+        $authUser = auth()->user();
+        $this->verificarAcceso($authUser);
 
-        if (!empty($data['password'])) {
-            $data['password'] = Hash::make($data['password']);
-        } else {
-            unset($data['password']);
+        $data = $request->validated();
+        $nuevoRol = Role::findOrFail($data['role_id']);
+
+        if ($authUser->isAdministrador()) {
+            if (!$usuario->isEncargado()) abort(403, 'No tienes permisos para modificar este usuario.');
+
+            if ($nuevoRol->clave !== 'encargado') {
+                return back()->with('error', 'Un administrador solamente puede asignar el rol de encargado.');
+            }
         }
+
+        if ($usuario->id === $authUser->id && !(bool) $data['activo']) {
+            return back()->with('error', 'No puedes desactivar tu propia cuenta.');
+        }
+
+        if ($usuario->id === $authUser->id && $authUser->isSuperAdmin() && $nuevoRol->clave !== 'super_admin') {
+            return back()->with('error', 'No puedes retirar tu propio rol de superadministrador.');
+        }
+
+        if ($usuario->isSuperAdmin() && $nuevoRol->clave !== 'super_admin' && $this->esUltimoSuperAdminActivo($usuario)) {
+            return back()->with('error', 'No puedes cambiar el rol del último superadministrador activo.');
+        }
+
+        if ($usuario->isSuperAdmin() && !(bool) $data['activo'] && $this->esUltimoSuperAdminActivo($usuario)) {
+            return back()->with('error', 'No puedes desactivar al último superadministrador activo.');
+        }
+
+        if (empty($data['password'])) unset($data['password']);
 
         $usuario->update($data);
 
-        return redirect()->route('super_admin.usuarios.index')->with('success', 'Usuario actualizado correctamente.');
+        return redirect()
+            ->route($this->rutaUsuarios($authUser))
+            ->with('success', 'Usuario actualizado correctamente.');
     }
 
-    public function destroy(User $usuario)
+    private function verificarAcceso(?User $user): void
     {
-        $usuario->delete();
+        if (!$user || (!$user->isSuperAdmin() && !$user->isAdministrador())) {
+            abort(403, 'No tienes permisos para administrar usuarios.');
+        }
+    }
 
-        return redirect()->route('super_admin.usuarios.index')->with('success', 'Usuario eliminado correctamente.');
+    private function rutaUsuarios(User $user): string
+    {
+        return $user->isAdministrador()
+            ? 'administrador.usuarios.index'
+            : 'super_admin.usuarios.index';
+    }
+
+    private function esUltimoSuperAdminActivo(User $usuario): bool
+    {
+        if (!$usuario->isSuperAdmin() || !$usuario->activo) return false;
+
+        return User::where('activo', true)
+            ->where('id', '!=', $usuario->id)
+            ->whereHas('rol', fn($query) => $query->where('clave', 'super_admin'))
+            ->doesntExist();
     }
 }

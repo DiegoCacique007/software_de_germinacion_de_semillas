@@ -1,19 +1,78 @@
+@php
+    $authUser = auth()->user();
+    $esAdministrador = $authUser?->isAdministrador() ?? false;
+
+    $titulo = $esAdministrador ? 'Encargados' : 'Usuarios';
+    $subtitulo = $esAdministrador
+        ? 'Administra los usuarios con rol de encargado.'
+        : 'Administra los usuarios registrados en el sistema.';
+
+    $entidadSingular = $esAdministrador ? 'Encargado' : 'Usuario';
+    $entidadPlural = $esAdministrador ? 'Encargados' : 'Usuarios';
+
+    $rutaBaseUsuarios = $routeBase ?? ($esAdministrador
+        ? 'administrador.usuarios'
+        : 'super_admin.usuarios');
+@endphp
+
 @include('vistas_principales.shared.modulo-crud', [
-    'title' => 'Usuarios',
-    'subtitle' => 'Administra los usuarios registrados en el sistema.',
+    'title' => $titulo,
+    'subtitle' => $subtitulo,
     'items' => $usuarios ?? collect(),
-    'routeBase' => 'super_admin.usuarios',
-    'entitySingular' => 'Usuario',
-    'entityPlural' => 'Usuarios',
+    'routeBase' => $rutaBaseUsuarios,
+    'entitySingular' => $entidadSingular,
+    'entityPlural' => $entidadPlural,
+
     'columns' => [
         ['label' => 'Nombre', 'key' => 'name'],
         ['label' => 'Correo', 'key' => 'email'],
-        ['label' => 'Rol', 'key' => 'role'],
+        ['label' => 'Rol', 'key' => 'rol.nombre'],
+        ['label' => 'Estado', 'key' => 'activo'],
+        ['label' => 'Último acceso', 'key' => 'ultimo_acceso_at'],
     ],
+
     'fields' => [
-        ['name' => 'name', 'label' => 'Nombre', 'type' => 'text', 'required' => true],
-        ['name' => 'email', 'label' => 'Correo electrónico', 'type' => 'email', 'required' => true],
-        ['name' => 'role', 'label' => 'Rol', 'type' => 'select', 'required' => true, 'options' => collect([['id' => 'super_admin', 'nombre' => 'Super Admin']]), 'option_value' => 'id', 'option_label' => 'nombre'],
-        ['name' => 'password', 'label' => 'Contraseña', 'type' => 'password'],
+        [
+            'name' => 'name',
+            'label' => 'Nombre',
+            'type' => 'text',
+            'required' => true,
+        ],
+        [
+            'name' => 'email',
+            'label' => 'Correo electrónico',
+            'type' => 'email',
+            'required' => true,
+        ],
+        [
+            'name' => 'role_id',
+            'label' => 'Rol',
+            'type' => 'select',
+            'required' => true,
+            'options' => $roles ?? collect(),
+            'option_value' => 'id',
+            'option_label' => 'nombre',
+        ],
+        [
+            'name' => 'activo',
+            'label' => 'Estado',
+            'type' => 'select',
+            'required' => true,
+            'options' => $estadosUsuario ?? collect(),
+            'option_value' => 'id',
+            'option_label' => 'nombre',
+        ],
+        [
+            'name' => 'password',
+            'label' => 'Contraseña',
+            'type' => 'password',
+            'required_create' => true,
+        ],
+        [
+            'name' => 'password_confirmation',
+            'label' => 'Confirmar contraseña',
+            'type' => 'password',
+            'required_create' => true,
+        ],
     ],
 ])
