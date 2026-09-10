@@ -10,6 +10,7 @@ use App\Http\Controllers\Encargado\DashboardController as EncargadoDashboardCont
 use App\Http\Controllers\Encargado\IncubadoraController as EncargadoIncubadoraController;
 use App\Http\Controllers\Encargado\AlertaController as EncargadoAlertaController;
 use App\Http\Controllers\Encargado\LoteController as EncargadoLoteController;
+use App\Http\Controllers\Encargado\FrascoController as EncargadoFrascoController;
 
 use App\Http\Controllers\SuperAdmin\DashboardController as SuperAdminDashboardController;
 use App\Http\Controllers\SuperAdmin\UserController as SuperAdminUserController;
@@ -302,6 +303,16 @@ Route::prefix('encargado')
 
         Route::get('/lotes', [EncargadoLoteController::class, 'index'])
             ->name('lotes.index');
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Mis frascos
+        |--------------------------------------------------------------------------
+        */
+
+        Route::get('/frascos', [EncargadoFrascoController::class, 'index'])
+            ->name('frascos.index');
     });
 
 
