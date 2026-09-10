@@ -109,6 +109,7 @@
             ['label' => 'Dashboard', 'route' => 'encargado.dashboard', 'active' => ['encargado.dashboard']],
             ['label' => 'Mis incubadoras', 'route' => 'encargado.incubadoras.index', 'active' => ['encargado.incubadoras.*']],
             ['label' => 'Mis alertas', 'route' => 'encargado.alertas.index', 'active' => ['encargado.alertas.*']],
+            ['label' => 'Mis lotes', 'route' => 'encargado.lotes.index', 'active' => ['encargado.lotes.*']],
         ],
     ],
 ];

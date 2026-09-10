@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\MicroclimaActuadorController;
 use App\Http\Controllers\Encargado\DashboardController as EncargadoDashboardController;
 use App\Http\Controllers\Encargado\IncubadoraController as EncargadoIncubadoraController;
 use App\Http\Controllers\Encargado\AlertaController as EncargadoAlertaController;
+use App\Http\Controllers\Encargado\LoteController as EncargadoLoteController;
 
 use App\Http\Controllers\SuperAdmin\DashboardController as SuperAdminDashboardController;
 use App\Http\Controllers\SuperAdmin\UserController as SuperAdminUserController;
@@ -291,6 +292,16 @@ Route::prefix('encargado')
 
         Route::resource('alertas', EncargadoAlertaController::class)
             ->only(['index', 'update']);
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Mis lotes
+        |--------------------------------------------------------------------------
+        */
+
+        Route::get('/lotes', [EncargadoLoteController::class, 'index'])
+            ->name('lotes.index');
     });
 
 

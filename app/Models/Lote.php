@@ -2,8 +2,11 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Lote extends Model
 {
@@ -31,33 +34,43 @@ class Lote extends Model
         ];
     }
 
-    public function posicion()
+    public function posicion(): BelongsTo
     {
         return $this->belongsTo(PosicionIncubadora::class, 'posicion_incubadora_id');
     }
 
-    public function especie()
+    public function especie(): BelongsTo
     {
         return $this->belongsTo(Especie::class);
     }
 
-    public function estado()
+    public function estado(): BelongsTo
     {
         return $this->belongsTo(EstadoLote::class, 'estado_lote_id');
     }
 
-    public function frascos()
+    public function frascos(): HasMany
     {
         return $this->hasMany(Frasco::class);
     }
 
-    public function seguimientos()
+    public function seguimientos(): HasMany
     {
         return $this->hasMany(SeguimientoLote::class);
     }
 
-    public function registrosBiologicos()
+    public function registrosBiologicos(): HasMany
     {
         return $this->hasMany(RegistroBiologico::class);
+    }
+
+    public function scopeDeEncargado(Builder $query, int $userId): Builder
+    {
+        return $query->whereHas(
+            'posicion.incubadora.asignaciones',
+            function (Builder $query) use ($userId) {
+                $query->deUsuario($userId)->vigentes();
+            }
+        );
     }
 }
