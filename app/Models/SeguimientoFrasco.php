@@ -2,8 +2,10 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class SeguimientoFrasco extends Model
 {
@@ -30,23 +32,28 @@ class SeguimientoFrasco extends Model
         ];
     }
 
-    public function frasco()
+    public function frasco(): BelongsTo
     {
         return $this->belongsTo(Frasco::class);
     }
 
-    public function estado()
+    public function estado(): BelongsTo
     {
         return $this->belongsTo(EstadoFrasco::class, 'estado_frasco_id');
     }
 
-    public function user()
+    public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
-    public function usuario()
+    public function scopeDeEncargado(Builder $query, int $userId): Builder
     {
-        return $this->belongsTo(User::class, 'user_id');
+        return $query->whereHas(
+            'frasco.lote.posicion.incubadora.asignaciones',
+            function (Builder $query) use ($userId) {
+                $query->deUsuario($userId)->vigentes();
+            }
+        );
     }
 }

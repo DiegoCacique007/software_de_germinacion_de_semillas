@@ -11,6 +11,9 @@ use App\Http\Controllers\Encargado\IncubadoraController as EncargadoIncubadoraCo
 use App\Http\Controllers\Encargado\AlertaController as EncargadoAlertaController;
 use App\Http\Controllers\Encargado\LoteController as EncargadoLoteController;
 use App\Http\Controllers\Encargado\FrascoController as EncargadoFrascoController;
+use App\Http\Controllers\Encargado\SeguimientoFrascoController as EncargadoSeguimientoFrascoController;
+use App\Http\Controllers\Encargado\SeguimientoLoteController as EncargadoSeguimientoLoteController;
+use App\Http\Controllers\Encargado\EvidenciaLoteController as EncargadoEvidenciaLoteController;
 
 use App\Http\Controllers\SuperAdmin\DashboardController as SuperAdminDashboardController;
 use App\Http\Controllers\SuperAdmin\UserController as SuperAdminUserController;
@@ -313,7 +316,35 @@ Route::prefix('encargado')
 
         Route::get('/frascos', [EncargadoFrascoController::class, 'index'])
             ->name('frascos.index');
+
+        /*
+        |--------------------------------------------------------------------------
+        | Seguimientos de frasco
+        |--------------------------------------------------------------------------
+        */
+
+        Route::resource('seguimientos-frasco', EncargadoSeguimientoFrascoController::class)
+            ->only(['index', 'store']);
+
+        /*
+        |--------------------------------------------------------------------------
+        | Seguimientos de lote
+        |--------------------------------------------------------------------------
+        */
+
+        Route::resource('seguimientos-lote', EncargadoSeguimientoLoteController::class)
+                    ->only(['index', 'store']);
+        /*
+        |--------------------------------------------------------------------------
+        | Evidencias de lote
+        |--------------------------------------------------------------------------
+        */
+
+        Route::resource('evidencias-lote', EncargadoEvidenciaLoteController::class)
+                ->only(['index', 'store']);
+
     });
+
 
 
 require __DIR__ . '/auth.php';

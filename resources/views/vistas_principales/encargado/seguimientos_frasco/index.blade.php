@@ -1,0 +1,72 @@
+@include('vistas_principales.shared.modulo-crud', [
+    'title' => 'Seguimientos de frasco',
+    'subtitle' => 'Registra y consulta el avance de germinación de los frascos bajo tu responsabilidad.',
+    'items' => $seguimientos ?? collect(),
+    'routeBase' => 'encargado.seguimientos-frasco',
+    'entitySingular' => 'Seguimiento',
+    'entityPlural' => 'Seguimientos',
+
+    'columns' => [
+        ['label' => 'Incubadora', 'key' => 'frasco.lote.posicion.incubadora.nombre'],
+        ['label' => 'Lote', 'key' => 'frasco.lote.codigo_lote'],
+        ['label' => 'Frasco', 'key' => 'frasco.numero_frasco'],
+        ['label' => 'Especie', 'key' => 'frasco.lote.especie.nombre_comun'],
+        ['label' => 'Fecha', 'key' => 'fecha_revision'],
+        ['label' => 'Germinadas', 'key' => 'semillas_germinadas'],
+        ['label' => 'Altura promedio', 'key' => 'altura_promedio_cm'],
+        ['label' => 'Estado', 'key' => 'estado.nombre'],
+        ['label' => 'Registró', 'key' => 'user.name'],
+        ['label' => 'Observaciones', 'key' => 'observaciones'],
+    ],
+
+    'fields' => [
+        [
+            'name' => 'frasco_id',
+            'label' => 'Frasco',
+            'type' => 'select',
+            'required' => true,
+            'options' => $frascosOptions ?? [],
+            'option_value' => 'id',
+            'option_label' => 'etiqueta',
+            'edit_key' => 'frasco_id',
+        ],
+        [
+            'name' => 'fecha_revision',
+            'label' => 'Fecha de revisión',
+            'type' => 'date',
+            'required' => true,
+        ],
+        [
+            'name' => 'semillas_germinadas',
+            'label' => 'Semillas germinadas',
+            'type' => 'number',
+            'required' => true,
+        ],
+        [
+            'name' => 'altura_promedio_cm',
+            'label' => 'Altura promedio (cm)',
+            'type' => 'number',
+        ],
+        [
+            'name' => 'estado_frasco_id',
+            'label' => 'Estado del frasco',
+            'type' => 'select',
+            'required' => true,
+            'options' => $estados ?? [],
+            'option_value' => 'id',
+            'option_label' => 'nombre',
+            'edit_key' => 'estado_frasco_id',
+        ],
+        [
+            'name' => 'observaciones',
+            'label' => 'Observaciones',
+            'type' => 'textarea',
+        ],
+    ],
+
+    'canCreate' => true,
+    'canEdit' => false,
+    'canDelete' => false,
+    'canShow' => true,
+    'showAsPage' => false,
+])

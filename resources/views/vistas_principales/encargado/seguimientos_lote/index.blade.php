@@ -1,0 +1,77 @@
+@include('vistas_principales.shared.modulo-crud', [
+    'title' => 'Seguimientos de lote',
+    'subtitle' => 'Registra y consulta el estado general de los lotes bajo tu responsabilidad.',
+    'items' => $seguimientos ?? collect(),
+    'routeBase' => 'encargado.seguimientos-lote',
+    'entitySingular' => 'Seguimiento',
+    'entityPlural' => 'Seguimientos',
+
+    'columns' => [
+        ['label' => 'Incubadora', 'key' => 'lote.posicion.incubadora.nombre'],
+        ['label' => 'Lote', 'key' => 'lote.codigo_lote'],
+        ['label' => 'Especie', 'key' => 'lote.especie.nombre_comun'],
+        ['label' => 'Fecha', 'key' => 'fecha_revision'],
+        ['label' => 'Frascos activos', 'key' => 'frascos_activos'],
+        ['label' => 'Germinadas', 'key' => 'semillas_germinadas'],
+        ['label' => '% germinación', 'key' => 'porcentaje_germinacion'],
+        ['label' => 'Altura promedio', 'key' => 'altura_promedio_cm'],
+        ['label' => 'Etapa', 'key' => 'etapa.nombre'],
+        ['label' => 'Registró', 'key' => 'user.name'],
+        ['label' => 'Observaciones', 'key' => 'observaciones'],
+    ],
+
+    'fields' => [
+        [
+            'name' => 'lote_id',
+            'label' => 'Lote',
+            'type' => 'select',
+            'required' => true,
+            'options' => $lotesOptions ?? [],
+            'option_value' => 'id',
+            'option_label' => 'etiqueta',
+        ],
+        [
+            'name' => 'fecha_revision',
+            'label' => 'Fecha de revisión',
+            'type' => 'date',
+            'required' => true,
+        ],
+        [
+            'name' => 'frascos_activos',
+            'label' => 'Frascos activos',
+            'type' => 'number',
+            'required' => true,
+        ],
+        [
+            'name' => 'semillas_germinadas',
+            'label' => 'Semillas germinadas',
+            'type' => 'number',
+            'required' => true,
+        ],
+        [
+            'name' => 'altura_promedio_cm',
+            'label' => 'Altura promedio (cm)',
+            'type' => 'number',
+        ],
+        [
+            'name' => 'etapa_desarrollo_id',
+            'label' => 'Etapa de desarrollo',
+            'type' => 'select',
+            'required' => true,
+            'options' => $etapas ?? [],
+            'option_value' => 'id',
+            'option_label' => 'nombre',
+        ],
+        [
+            'name' => 'observaciones',
+            'label' => 'Observaciones',
+            'type' => 'textarea',
+        ],
+    ],
+
+    'canCreate' => true,
+    'canEdit' => false,
+    'canDelete' => false,
+    'canShow' => true,
+    'showAsPage' => false,
+])

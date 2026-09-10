@@ -2,8 +2,11 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class SeguimientoLote extends Model
 {
@@ -34,28 +37,38 @@ class SeguimientoLote extends Model
         ];
     }
 
-    public function lote()
+    public function lote(): BelongsTo
     {
         return $this->belongsTo(Lote::class);
     }
 
-    public function etapa()
+    public function etapa(): BelongsTo
     {
         return $this->belongsTo(EtapaDesarrollo::class, 'etapa_desarrollo_id');
     }
 
-    public function user()
+    public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
-    public function usuario()
+    public function usuario(): BelongsTo
     {
         return $this->belongsTo(User::class, 'user_id');
     }
 
-    public function evidencias()
+    public function evidencias(): HasMany
     {
         return $this->hasMany(EvidenciaLote::class);
+    }
+
+    public function scopeDeEncargado(Builder $query, int $userId): Builder
+    {
+        return $query->whereHas(
+            'lote.posicion.incubadora.asignaciones',
+            function (Builder $query) use ($userId) {
+                $query->deUsuario($userId)->vigentes();
+            }
+        );
     }
 }
