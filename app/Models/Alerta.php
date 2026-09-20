@@ -15,6 +15,8 @@ class Alerta extends Model
 
     protected $fillable = [
         'incubadora_id',
+        'lote_id',
+        'lectura_microclima_id',
         'tipo_alerta_id',
         'nivel_alerta_id',
         'estado_alerta_id',
@@ -39,6 +41,16 @@ class Alerta extends Model
     public function tipo(): BelongsTo
     {
         return $this->belongsTo(TipoAlerta::class, 'tipo_alerta_id');
+    }
+
+    public function lote(): BelongsTo
+    {
+        return $this->belongsTo(Lote::class);
+    }
+
+    public function lecturaMicroclima(): BelongsTo
+    {
+        return $this->belongsTo(LecturaMicroclima::class);
     }
 
     public function nivel(): BelongsTo
