@@ -22,6 +22,8 @@ class Alerta extends Model
         'estado_alerta_id',
         'mensaje',
         'fecha_hora',
+        'fecha_atencion',
+        'fecha_resolucion',
         'atendida_por',
         'observaciones',
     ];
@@ -30,6 +32,8 @@ class Alerta extends Model
     {
         return [
             'fecha_hora' => 'datetime',
+            'fecha_atencion' => 'datetime',
+            'fecha_resolucion' => 'datetime',
         ];
     }
 

@@ -17,6 +17,8 @@ class AlertaController extends Controller
 
         $alertas = Alerta::with([
             'incubadora',
+            'lote',
+            'lecturaMicroclima',
             'tipo',
             'nivel',
             'estado',
@@ -26,7 +28,9 @@ class AlertaController extends Controller
             ->latest('fecha_hora')
             ->get();
 
-        $estados = EstadoAlerta::orderBy('nombre')->get();
+        $estados = EstadoAlerta::whereIn('clave', ['pendiente', 'atendida', 'resuelta'])
+            ->orderBy('nombre')
+            ->get();
 
         return view(
             'vistas_principales.encargado.alertas.index',
@@ -38,27 +42,40 @@ class AlertaController extends Controller
     {
         $user = auth()->user();
 
-        $alerta = Alerta::deEncargado($user->id)
-            ->findOrFail($alerta);
+        $alerta = Alerta::deEncargado($user->id)->findOrFail($alerta);
 
         $data = $request->validate([
-            'estado_alerta_id' => [
-                'required',
-                'integer',
-                'exists:estados_alerta,id',
-            ],
-            'observaciones' => [
-                'nullable',
-                'string',
-                'max:1000',
-            ],
+            'estado_alerta_id' => ['required', 'integer', 'exists:estados_alerta,id'],
+            'observaciones' => ['nullable', 'string', 'max:1000'],
         ]);
 
-        $alerta->update([
-            'estado_alerta_id' => $data['estado_alerta_id'],
+        $estado = EstadoAlerta::whereIn('clave', ['pendiente', 'atendida', 'resuelta'])
+            ->findOrFail($data['estado_alerta_id']);
+
+        $actualizacion = [
+            'estado_alerta_id' => $estado->id,
             'observaciones' => $data['observaciones'] ?? null,
-            'atendida_por' => $user->id,
-        ]);
+        ];
+
+        if ($estado->clave === 'pendiente') {
+            $actualizacion['atendida_por'] = null;
+            $actualizacion['fecha_atencion'] = null;
+            $actualizacion['fecha_resolucion'] = null;
+        }
+
+        if ($estado->clave === 'atendida') {
+            $actualizacion['atendida_por'] = $user->id;
+            $actualizacion['fecha_atencion'] = $alerta->fecha_atencion ?? now('America/Mexico_City');
+            $actualizacion['fecha_resolucion'] = null;
+        }
+
+        if ($estado->clave === 'resuelta') {
+            $actualizacion['atendida_por'] = $alerta->atendida_por ?? $user->id;
+            $actualizacion['fecha_atencion'] = $alerta->fecha_atencion ?? now('America/Mexico_City');
+            $actualizacion['fecha_resolucion'] = now('America/Mexico_City');
+        }
+
+        $alerta->update($actualizacion);
 
         return redirect()
             ->route('encargado.alertas.index')
