@@ -44,7 +44,7 @@ use App\Http\Controllers\SuperAdmin\PerfilFotoController;
 
 Route::get('/', fn() => auth()->check() ? redirect()->route('dashboard') : redirect()->route('login'))->name('home');
 
-Route::middleware(['auth', 'verified'])->group(function () {
+Route::middleware('auth')->group(function () {
     Route::get('/dashboard', function () {
         $user = auth()->user();
 
@@ -73,7 +73,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 |--------------------------------------------------------------------------
 */
 
-Route::prefix('super-admin')->name('super_admin.')->middleware(['auth', 'verified', 'check.role:super_admin'])->group(function () {
+Route::prefix('super-admin')->name('super_admin.')->middleware(['auth', 'check.role:super_admin'])->group(function () {
 
     Route::get('/dashboard', [SuperAdminDashboardController::class, 'index'])->name('dashboard');
     Route::get('/dashboard/tiempo-real', [SuperAdminDashboardController::class, 'tiempoReal'])->name('dashboard.tiempo-real');
@@ -163,7 +163,7 @@ Route::prefix('super-admin')->name('super_admin.')->middleware(['auth', 'verifie
 |--------------------------------------------------------------------------
 */
 
-Route::prefix('encargado')->name('encargado.')->middleware(['auth', 'verified', 'check.role:encargado'])->group(function () {
+Route::prefix('encargado')->name('encargado.')->middleware(['auth', 'check.role:encargado'])->group(function () {
 
     /*
     |--------------------------------------------------------------------------

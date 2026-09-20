@@ -20,9 +20,6 @@ class ProfileController extends Controller
     {
         $user = $request->user();
         $user->fill($request->validated());
-
-        if ($user->isDirty('email')) $user->email_verified_at = null;
-
         $user->save();
 
         return Redirect::route('profile.edit')->with('status', 'profile-updated');
@@ -30,7 +27,9 @@ class ProfileController extends Controller
 
     public function destroy(Request $request): RedirectResponse
     {
-        $request->validateWithBag('userDeletion', ['password' => ['required', 'current_password']]);
+        $request->validateWithBag('userDeletion', [
+            'password' => ['required', 'current_password'],
+        ]);
 
         $user = $request->user();
 
