@@ -17,33 +17,17 @@ class UserController extends Controller
         $authUser = auth()->user();
         $this->verificarAcceso($authUser);
 
-        $usuariosQuery = User::with('rol');
-
-        if ($authUser->isAdministrador()) {
-            $usuariosQuery->whereHas('rol', fn($query) => $query->where('clave', 'encargado'));
-        }
-
-        $usuarios = $usuariosQuery->orderBy('name')->get();
-
-        $roles = $authUser->isSuperAdmin()
-            ? Role::where('activo', true)->orderBy('nombre')->get()
-            : Role::where('clave', 'encargado')->where('activo', true)->get();
+        $usuarios = User::with('rol')->orderBy('name')->get();
+        $roles = Role::whereIn('clave', ['super_admin', 'encargado'])->where('activo', true)->orderBy('nombre')->get();
 
         $estadosUsuario = collect([
             (object) ['id' => 1, 'nombre' => 'Activo'],
             (object) ['id' => 0, 'nombre' => 'Inactivo'],
         ]);
 
-        $routeBase = $authUser->isAdministrador()
-            ? 'administrador.usuarios'
-            : 'super_admin.usuarios';
+        $routeBase = 'super_admin.usuarios';
 
-        return view('vistas_principales.super_admin.usuarios.index', compact(
-            'usuarios',
-            'roles',
-            'estadosUsuario',
-            'routeBase'
-        ));
+        return view('vistas_principales.super_admin.usuarios.index', compact('usuarios', 'roles', 'estadosUsuario', 'routeBase'));
     }
 
     public function store(StoreUserRequest $request): RedirectResponse
@@ -52,17 +36,13 @@ class UserController extends Controller
         $this->verificarAcceso($authUser);
 
         $data = $request->validated();
-        $role = Role::findOrFail($data['role_id']);
+        $rol = Role::whereIn('clave', ['super_admin', 'encargado'])->findOrFail($data['role_id']);
 
-        if ($authUser->isAdministrador() && $role->clave !== 'encargado') {
-            return back()->with('error', 'Un administrador solo puede registrar usuarios con rol de encargado.');
-        }
+        $data['role_id'] = $rol->id;
 
         User::create($data);
 
-        return redirect()
-            ->route($this->rutaUsuarios($authUser))
-            ->with('success', 'Usuario registrado correctamente.');
+        return redirect()->route('super_admin.usuarios.index')->with('success', 'Usuario registrado correctamente.');
     }
 
     public function update(UpdateUserRequest $request, User $usuario): RedirectResponse
@@ -71,21 +51,13 @@ class UserController extends Controller
         $this->verificarAcceso($authUser);
 
         $data = $request->validated();
-        $nuevoRol = Role::findOrFail($data['role_id']);
-
-        if ($authUser->isAdministrador()) {
-            if (!$usuario->isEncargado()) abort(403, 'No tienes permisos para modificar este usuario.');
-
-            if ($nuevoRol->clave !== 'encargado') {
-                return back()->with('error', 'Un administrador solamente puede asignar el rol de encargado.');
-            }
-        }
+        $nuevoRol = Role::whereIn('clave', ['super_admin', 'encargado'])->findOrFail($data['role_id']);
 
         if ($usuario->id === $authUser->id && !(bool) $data['activo']) {
             return back()->with('error', 'No puedes desactivar tu propia cuenta.');
         }
 
-        if ($usuario->id === $authUser->id && $authUser->isSuperAdmin() && $nuevoRol->clave !== 'super_admin') {
+        if ($usuario->id === $authUser->id && $nuevoRol->clave !== 'super_admin') {
             return back()->with('error', 'No puedes retirar tu propio rol de superadministrador.');
         }
 
@@ -99,25 +71,16 @@ class UserController extends Controller
 
         if (empty($data['password'])) unset($data['password']);
 
+        $data['role_id'] = $nuevoRol->id;
+
         $usuario->update($data);
 
-        return redirect()
-            ->route($this->rutaUsuarios($authUser))
-            ->with('success', 'Usuario actualizado correctamente.');
+        return redirect()->route('super_admin.usuarios.index')->with('success', 'Usuario actualizado correctamente.');
     }
 
     private function verificarAcceso(?User $user): void
     {
-        if (!$user || (!$user->isSuperAdmin() && !$user->isAdministrador())) {
-            abort(403, 'No tienes permisos para administrar usuarios.');
-        }
-    }
-
-    private function rutaUsuarios(User $user): string
-    {
-        return $user->isAdministrador()
-            ? 'administrador.usuarios.index'
-            : 'super_admin.usuarios.index';
+        if (!$user || !$user->isSuperAdmin()) abort(403, 'No tienes permisos para administrar usuarios.');
     }
 
     private function esUltimoSuperAdminActivo(User $usuario): bool

@@ -8,37 +8,20 @@
     $rolVisible = strtoupper($usuario?->rol_nombre ?? 'Sin rol');
 
     $isSuperAdmin = $usuario?->isSuperAdmin() ?? false;
-    $isAdministrador = $usuario?->isAdministrador() ?? false;
     $isEncargado = $usuario?->isEncargado() ?? false;
 
-    $fotoUsuario = $usuario && !empty($usuario->foto_perfil)
-        ? asset('storage/' . $usuario->foto_perfil)
-        : null;
+    $fotoUsuario = $usuario && !empty($usuario->foto_perfil) ? asset('storage/' . $usuario->foto_perfil) : null;
 
     $cantidadAlertas = isset($alertasActivas)
         ? (is_countable($alertasActivas) ? count($alertasActivas) : (int) $alertasActivas)
         : 0;
 
-    $cantidadActividad = isset($actividadNoLeida)
-        ? (int) $actividadNoLeida
-        : 0;
+    $cantidadActividad = isset($actividadNoLeida) ? (int) $actividadNoLeida : 0;
 
     $rutaInicio = match ($rolClave) {
-        'super_admin' => Route::has('super_admin.dashboard')
-            ? route('super_admin.dashboard')
-            : url('/'),
-
-        'administrador' => Route::has('administrador.dashboard')
-            ? route('administrador.dashboard')
-            : url('/'),
-
-        'encargado' => Route::has('encargado.dashboard')
-            ? route('encargado.dashboard')
-            : url('/'),
-
-        default => Route::has('dashboard')
-            ? route('dashboard')
-            : url('/'),
+        'super_admin' => Route::has('super_admin.dashboard') ? route('super_admin.dashboard') : url('/'),
+        'encargado' => Route::has('encargado.dashboard') ? route('encargado.dashboard') : url('/'),
+        default => Route::has('dashboard') ? route('dashboard') : url('/'),
     };
 
     $modulosDisponibles = [];
@@ -73,13 +56,6 @@
         ];
     }
 
-    if ($isAdministrador) {
-        $modulosDisponibles = [
-            ['label' => 'Dashboard', 'description' => 'Panel del administrador', 'route' => 'administrador.dashboard'],
-            ['label' => 'Encargados', 'description' => 'Gestión de usuarios encargados', 'route' => 'administrador.usuarios.index'],
-        ];
-    }
-
     if ($isEncargado) {
         $modulosDisponibles = [
             ['label' => 'Dashboard', 'description' => 'Panel del encargado', 'route' => 'encargado.dashboard'],
@@ -96,13 +72,8 @@
         ->values()
         ->all();
 
-    $rutaAlertas = $isSuperAdmin && Route::has('super_admin.alertas.index')
-        ? route('super_admin.alertas.index')
-        : null;
-
-    $rutaEncargados = $isAdministrador && Route::has('administrador.usuarios.index')
-        ? route('administrador.usuarios.index')
-        : null;
+    $rutaAlertas = $isSuperAdmin && Route::has('super_admin.alertas.index') ? route('super_admin.alertas.index') : null;
+    $rutaUsuarios = $isSuperAdmin && Route::has('super_admin.usuarios.index') ? route('super_admin.usuarios.index') : null;
 @endphp
 
 <style>
@@ -1016,9 +987,7 @@
         get filteredModules() {
             const query = this.searchValue.trim().toLowerCase();
 
-            if (!query) {
-                return this.modules.slice(0, 6);
-            }
+            if (!query) return this.modules.slice(0, 6);
 
             return this.modules
                 .filter(module =>
@@ -1039,9 +1008,7 @@
         },
 
         closeProfile() {
-            if (this.openPanel === 'profile') {
-                this.openPanel = null;
-            }
+            if (this.openPanel === 'profile') this.openPanel = null;
         },
 
         openLogoutModal() {
@@ -1059,9 +1026,7 @@
         },
 
         goToModule(url) {
-            if (url) {
-                window.location.href = url;
-            }
+            if (url) window.location.href = url;
         },
 
         init() {
@@ -1141,9 +1106,7 @@
 
         <div class="microseed-topbar-actions">
 
-            <div class="microseed-action-wrapper"
-                 @click.outside="if (openPanel === 'notifications') openPanel = null;">
-
+            <div class="microseed-action-wrapper" @click.outside="if (openPanel === 'notifications') openPanel = null;">
                 <button
                     type="button"
                     class="microseed-action-button"
@@ -1156,18 +1119,14 @@
                     </svg>
 
                     @if($cantidadAlertas > 0)
-                        <span class="microseed-counter">
-                            {{ $cantidadAlertas > 99 ? '99+' : $cantidadAlertas }}
-                        </span>
+                        <span class="microseed-counter">{{ $cantidadAlertas > 99 ? '99+' : $cantidadAlertas }}</span>
                     @endif
                 </button>
 
                 <div x-show="openPanel === 'notifications'" x-cloak x-transition.opacity class="microseed-dropdown">
                     <div class="microseed-dropdown-header">
                         <p class="microseed-dropdown-title">Notificaciones</p>
-                        <span class="microseed-dropdown-count">
-                            {{ $cantidadAlertas }} {{ $cantidadAlertas === 1 ? 'activa' : 'activas' }}
-                        </span>
+                        <span class="microseed-dropdown-count">{{ $cantidadAlertas }} {{ $cantidadAlertas === 1 ? 'activa' : 'activas' }}</span>
                     </div>
 
                     @if($cantidadAlertas > 0)
@@ -1205,9 +1164,7 @@
                 </div>
             </div>
 
-            <div class="microseed-action-wrapper"
-                 @click.outside="if (openPanel === 'activity') openPanel = null;">
-
+            <div class="microseed-action-wrapper" @click.outside="if (openPanel === 'activity') openPanel = null;">
                 <button
                     type="button"
                     class="microseed-action-button"
@@ -1220,9 +1177,7 @@
                     </svg>
 
                     @if($cantidadActividad > 0)
-                        <span class="microseed-counter microseed-counter-green">
-                            {{ $cantidadActividad > 99 ? '99+' : $cantidadActividad }}
-                        </span>
+                        <span class="microseed-counter microseed-counter-green">{{ $cantidadActividad > 99 ? '99+' : $cantidadActividad }}</span>
                     @endif
                 </button>
 
@@ -1283,11 +1238,7 @@
                     </svg>
                 </button>
 
-                <div x-show="openPanel === 'profile'"
-                     x-cloak
-                     x-transition.opacity
-                     class="microseed-dropdown microseed-profile-dropdown">
-
+                <div x-show="openPanel === 'profile'" x-cloak x-transition.opacity class="microseed-dropdown microseed-profile-dropdown">
                     <div class="microseed-profile-header">
                         <div class="microseed-profile-header-row">
 
@@ -1309,7 +1260,6 @@
                     </div>
 
                     <div class="microseed-profile-body">
-
                         @if(Route::has('profile.edit'))
                             <a href="{{ route('profile.edit') }}" class="microseed-profile-action">
                                 <span class="microseed-profile-action-icon">
@@ -1326,12 +1276,7 @@
                         @endif
 
                         @if(Route::has('perfil.foto.update'))
-                            <form
-                                id="topbar-photo-form"
-                                method="POST"
-                                action="{{ route('perfil.foto.update') }}"
-                                enctype="multipart/form-data"
-                            >
+                            <form id="topbar-photo-form" method="POST" action="{{ route('perfil.foto.update') }}" enctype="multipart/form-data">
                                 @csrf
                                 @method('PATCH')
 
@@ -1361,11 +1306,7 @@
 
                         <div class="microseed-profile-separator"></div>
 
-                        <button
-                            type="button"
-                            class="microseed-profile-action microseed-profile-action-danger"
-                            @click="openLogoutModal()"
-                        >
+                        <button type="button" class="microseed-profile-action microseed-profile-action-danger" @click="openLogoutModal()">
                             <span class="microseed-profile-action-icon">
                                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m17 16 4-4m0 0-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
@@ -1377,35 +1318,18 @@
                                 <span class="microseed-profile-action-description">Salir del sistema</span>
                             </span>
                         </button>
-
                     </div>
                 </div>
             </div>
 
         </div>
 
-        <button
-            type="button"
-            class="microseed-mobile-menu-button"
-            aria-label="Abrir menú"
-            @click="mobileOpen = !mobileOpen"
-        >
-            <svg x-show="!mobileOpen"
-                 width="21"
-                 height="21"
-                 fill="none"
-                 stroke="currentColor"
-                 viewBox="0 0 24 24">
+        <button type="button" class="microseed-mobile-menu-button" aria-label="Abrir menú" @click="mobileOpen = !mobileOpen">
+            <svg x-show="!mobileOpen" width="21" height="21" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
             </svg>
 
-            <svg x-show="mobileOpen"
-                 x-cloak
-                 width="21"
-                 height="21"
-                 fill="none"
-                 stroke="currentColor"
-                 viewBox="0 0 24 24">
+            <svg x-show="mobileOpen" x-cloak width="21" height="21" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18 18 6M6 6l12 12"/>
             </svg>
         </button>
@@ -1438,12 +1362,12 @@
             Dashboard
         </a>
 
-        @if($rutaEncargados)
-            <a href="{{ $rutaEncargados }}" class="microseed-mobile-link">
+        @if($rutaUsuarios)
+            <a href="{{ $rutaUsuarios }}" class="microseed-mobile-link">
                 <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2m7-10a4 4 0 100-8 4 4 0 000 8zm8 1v6m3-3h-6"/>
                 </svg>
-                Encargados
+                Usuarios
             </a>
         @endif
 
@@ -1456,11 +1380,7 @@
             </a>
         @endif
 
-        <button
-            type="button"
-            class="microseed-mobile-link microseed-mobile-link-danger"
-            @click="openLogoutModal()"
-        >
+        <button type="button" class="microseed-mobile-link microseed-mobile-link-danger" @click="openLogoutModal()">
             <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m17 16 4-4m0 0-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
             </svg>
@@ -1469,12 +1389,7 @@
 
     </div>
 
-    <form
-        x-ref="logoutForm"
-        method="POST"
-        action="{{ route('logout') }}"
-        style="display:none;"
-    >
+    <form x-ref="logoutForm" method="POST" action="{{ route('logout') }}" style="display:none;">
         @csrf
     </form>
 
@@ -1503,21 +1418,8 @@
             </div>
 
             <div class="microseed-logout-actions">
-                <button
-                    type="button"
-                    class="microseed-logout-cancel"
-                    @click="closeLogoutModal()"
-                >
-                    No, cancelar
-                </button>
-
-                <button
-                    type="button"
-                    class="microseed-logout-confirm"
-                    @click="confirmLogout()"
-                >
-                    Sí, cerrar sesión
-                </button>
+                <button type="button" class="microseed-logout-cancel" @click="closeLogoutModal()">No, cancelar</button>
+                <button type="button" class="microseed-logout-confirm" @click="confirmLogout()">Sí, cerrar sesión</button>
             </div>
 
         </div>

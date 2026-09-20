@@ -1,18 +1,9 @@
 @php
-    $authUser = auth()->user();
-    $esAdministrador = $authUser?->isAdministrador() ?? false;
-
-    $titulo = $esAdministrador ? 'Encargados' : 'Usuarios';
-    $subtitulo = $esAdministrador
-        ? 'Administra los usuarios con rol de encargado.'
-        : 'Administra los usuarios registrados en el sistema.';
-
-    $entidadSingular = $esAdministrador ? 'Encargado' : 'Usuario';
-    $entidadPlural = $esAdministrador ? 'Encargados' : 'Usuarios';
-
-    $rutaBaseUsuarios = $routeBase ?? ($esAdministrador
-        ? 'administrador.usuarios'
-        : 'super_admin.usuarios');
+    $titulo = 'Usuarios';
+    $subtitulo = 'Administra los usuarios registrados en el sistema.';
+    $entidadSingular = 'Usuario';
+    $entidadPlural = 'Usuarios';
+    $rutaBaseUsuarios = $routeBase ?? 'super_admin.usuarios';
 @endphp
 
 @include('vistas_principales.shared.modulo-crud', [
@@ -32,18 +23,8 @@
     ],
 
     'fields' => [
-        [
-            'name' => 'name',
-            'label' => 'Nombre',
-            'type' => 'text',
-            'required' => true,
-        ],
-        [
-            'name' => 'email',
-            'label' => 'Correo electrónico',
-            'type' => 'email',
-            'required' => true,
-        ],
+        ['name' => 'name', 'label' => 'Nombre', 'type' => 'text', 'required' => true],
+        ['name' => 'email', 'label' => 'Correo electrónico', 'type' => 'email', 'required' => true],
         [
             'name' => 'role_id',
             'label' => 'Rol',
@@ -62,17 +43,7 @@
             'option_value' => 'id',
             'option_label' => 'nombre',
         ],
-        [
-            'name' => 'password',
-            'label' => 'Contraseña',
-            'type' => 'password',
-            'required_create' => true,
-        ],
-        [
-            'name' => 'password_confirmation',
-            'label' => 'Confirmar contraseña',
-            'type' => 'password',
-            'required_create' => true,
-        ],
+        ['name' => 'password', 'label' => 'Contraseña', 'type' => 'password', 'required_create' => true],
+        ['name' => 'password_confirmation', 'label' => 'Confirmar contraseña', 'type' => 'password', 'required_create' => true],
     ],
 ])

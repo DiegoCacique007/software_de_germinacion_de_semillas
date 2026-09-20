@@ -49,12 +49,8 @@ class AuthenticatedSessionController extends Controller
                 ->route('super_admin.dashboard')
                 ->with('success', 'Bienvenido de nuevo al sistema.'),
 
-            'administrador' => redirect()
-                ->route('administrador.dashboard')
-                ->with('success', 'Bienvenido de nuevo al sistema.'),
-
             'encargado' => redirect()
-                ->route('dashboard')
+                ->route('encargado.dashboard')
                 ->with('success', 'Bienvenido de nuevo al sistema.'),
 
             default => $this->rolNoValido($request),

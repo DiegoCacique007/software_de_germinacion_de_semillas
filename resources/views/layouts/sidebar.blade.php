@@ -6,9 +6,7 @@
     $roleNombre = $user?->rol_nombre ?? 'Sin rol';
 
     $isSuperAdmin = $user?->isSuperAdmin() ?? false;
-    $isAdministrador = $user?->isAdministrador() ?? false;
     $isEncargado = $user?->isEncargado() ?? false;
-    $hasValidRole = $isSuperAdmin || $isAdministrador || $isEncargado;
 
     /*
     |--------------------------------------------------------------------------
@@ -63,23 +61,7 @@
 
     /*
     |--------------------------------------------------------------------------
-    | ADMINISTRADOR
-    |--------------------------------------------------------------------------
-    */
-
-    $administradorGroups = [
-        ['key'=>'administrador','title'=>'Administrador','description'=>'Gestión operativa','icon'=>'dashboard','items'=>[
-            ['label'=>'Dashboard','route'=>'administrador.dashboard','active'=>['administrador.dashboard']],
-            ['label'=>'Encargados','route'=>'administrador.usuarios.index','active'=>['administrador.usuarios.*']],
-        ]],
-    ];
-
-    /*
-    |--------------------------------------------------------------------------
     | ENCARGADO
-    |--------------------------------------------------------------------------
-    | El Encargado utiliza accesos directos.
-    | Al contraerse el sidebar siguen visibles todos los iconos.
     |--------------------------------------------------------------------------
     */
 
@@ -100,11 +82,7 @@
     |--------------------------------------------------------------------------
     */
 
-    $menuGroups = match($roleClave){
-        'super_admin' => $superAdminGroups,
-        'administrador' => $administradorGroups,
-        default => [],
-    };
+    $menuGroups = $roleClave === 'super_admin' ? $superAdminGroups : [];
 
     /*
     |--------------------------------------------------------------------------
@@ -129,7 +107,6 @@
 
     $dashboardRoute = match($roleClave){
         'super_admin' => 'super_admin.dashboard',
-        'administrador' => 'administrador.dashboard',
         'encargado' => 'encargado.dashboard',
         default => 'dashboard',
     };
@@ -144,31 +121,18 @@
 
     $iconSvg = function($icon,$class='sidebar-svg'){
         return match($icon){
-
             'dashboard' => '<svg class="'.$class.'" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 13h6V4H4v9zm10 7h6V4h-6v16zM4 20h6v-5H4v5z"/></svg>',
-
             'alert' => '<svg class="'.$class.'" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/></svg>',
-
             'incubator' => '<svg class="'.$class.'" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 3h12a2 2 0 012 2v14a2 2 0 01-2 2H6a2 2 0 01-2-2V5a2 2 0 012-2zm3 4h6m-6 4h6m-6 4h3"/></svg>',
-
             'chart' => '<svg class="'.$class.'" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 19V5m4 14v-7m4 7V8m4 11v-4m4 4V9"/></svg>',
-
             'seed' => '<svg class="'.$class.'" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 22V12m0 0C8 12 5 9 5 5c4 0 7 3 7 7zm0 0c0-4 3-7 7-7 0 4-3 7-7 7z"/></svg>',
-
             'biology' => '<svg class="'.$class.'" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 2v6m4-6v6M8 8h8m-7 0l-4 9a3 3 0 002.75 4h8.5A3 3 0 0019 17l-4-9M9 15h6"/></svg>',
-
             'reports' => '<svg class="'.$class.'" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h10M7 16h6M7 3h7l5 5v13a1 1 0 01-1 1H7a1 1 0 01-1-1V4a1 1 0 011-1z"/></svg>',
-
             'lot' => '<svg class="'.$class.'" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3L3 8l9 5 9-5-9-5zm-9 9l9 5 9-5M3 16l9 5 9-5"/></svg>',
-
             'jar' => '<svg class="'.$class.'" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 3h8M9 3v3l-2 2v10a3 3 0 003 3h4a3 3 0 003-3V8l-2-2V3M8 10h8M10 15h4"/></svg>',
-
             'follow-jar' => '<svg class="'.$class.'" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3h6m-5 0v3L8 8v9a3 3 0 003 3h2m3-10v4l2 2m-5 1l2 2 4-5"/></svg>',
-
             'follow-lot' => '<svg class="'.$class.'" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5h6M9 9h6M9 13h3M6 3h12a2 2 0 012 2v14a2 2 0 01-2 2H6a2 2 0 01-2-2V5a2 2 0 012-2zm8 14l2 2 4-5"/></svg>',
-
             'evidence' => '<svg class="'.$class.'" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a2 2 0 012-2h12a2 2 0 012 2v14a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 11l3-3 2 2 3-4 4 5M9 8h.01"/></svg>',
-
             default => '<svg class="'.$class.'" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>',
         };
     };
@@ -236,7 +200,7 @@
 
         /*
         |--------------------------------------------------------------------------
-        | GRUPOS SUPER ADMIN / ADMINISTRADOR
+        | GRUPOS SUPER ADMIN
         |--------------------------------------------------------------------------
         */
 
@@ -294,15 +258,15 @@
         <div class="sidebar-brand">
             <a href="{{ $dashboardUrl }}" class="sidebar-brand-link" aria-label="Ir al dashboard de MicroSeed Control">
 
-            <span class="sidebar-brand-logo">
-                <img src="{{ asset('img/logo.png') }}" alt="Logo de MicroSeed Control" onerror="this.style.display='none';this.nextElementSibling.style.display='block';">
-                <span class="sidebar-brand-fallback" style="display:none;">MC</span>
-            </span>
+                <span class="sidebar-brand-logo">
+                    <img src="{{ asset('img/logo.png') }}" alt="Logo de MicroSeed Control" onerror="this.style.display='none';this.nextElementSibling.style.display='block';">
+                    <span class="sidebar-brand-fallback" style="display:none;">MC</span>
+                </span>
 
                 <span x-show="sidebarOpen" x-cloak x-transition.opacity.duration.160ms class="sidebar-brand-information">
-                <span class="sidebar-brand-name">MicroSeed Control</span>
-                <span class="sidebar-brand-description">{{ $roleNombre }}</span>
-            </span>
+                    <span class="sidebar-brand-name">MicroSeed Control</span>
+                    <span class="sidebar-brand-description">{{ $roleNombre }}</span>
+                </span>
 
             </a>
         </div>
@@ -329,17 +293,17 @@
                                class="sidebar-direct-link {{ $isActive ? 'sidebar-direct-link-active' : '' }}"
                                title="{{ $item['label'] }}">
 
-                            <span class="sidebar-direct-icon">
-                                {!! $iconSvg($item['icon']) !!}
-                            </span>
+                                <span class="sidebar-direct-icon">
+                                    {!! $iconSvg($item['icon']) !!}
+                                </span>
 
                                 <span x-show="sidebarOpen" x-cloak x-transition.opacity.duration.140ms class="sidebar-direct-content">
-                                <span class="sidebar-direct-label">{{ $item['label'] }}</span>
+                                    <span class="sidebar-direct-label">{{ $item['label'] }}</span>
 
-                                @if($isActive)
+                                    @if($isActive)
                                         <span class="sidebar-direct-dot"></span>
                                     @endif
-                            </span>
+                                </span>
 
                             </a>
 
@@ -347,9 +311,9 @@
 
                     </div>
 
-                @elseif($isSuperAdmin || $isAdministrador)
+                @elseif($isSuperAdmin)
 
-                    {{-- MENÚ AGRUPADO --}}
+                    {{-- MENÚ AGRUPADO DEL SUPER ADMIN --}}
                     @foreach($menuGroups as $group)
 
                         @php
@@ -366,26 +330,26 @@
                                     @click="toggleGroup(@js($group['key']))"
                                     :aria-expanded="openGroup === @js($group['key'])">
 
-                            <span class="sidebar-icon-button {{ $groupActive ? 'sidebar-icon-active' : '' }}">
-                                {!! $iconSvg($group['icon']) !!}
-                            </span>
+                                <span class="sidebar-icon-button {{ $groupActive ? 'sidebar-icon-active' : '' }}">
+                                    {!! $iconSvg($group['icon']) !!}
+                                </span>
 
                                 <span x-show="sidebarOpen" x-cloak x-transition.opacity.duration.140ms class="sidebar-group-content">
 
-                                <span class="sidebar-group-text">
-                                    <span class="sidebar-group-title">{{ $group['title'] }}</span>
-                                    <span class="sidebar-group-description">{{ $group['description'] }}</span>
+                                    <span class="sidebar-group-text">
+                                        <span class="sidebar-group-title">{{ $group['title'] }}</span>
+                                        <span class="sidebar-group-description">{{ $group['description'] }}</span>
+                                    </span>
+
+                                    <svg class="sidebar-chevron"
+                                         :class="openGroup === @js($group['key']) ? 'rotate-180' : ''"
+                                         fill="none"
+                                         stroke="currentColor"
+                                         viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                                    </svg>
+
                                 </span>
-
-                                <svg class="sidebar-chevron"
-                                     :class="openGroup === @js($group['key']) ? 'rotate-180' : ''"
-                                     fill="none"
-                                     stroke="currentColor"
-                                     viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-                                </svg>
-
-                            </span>
 
                             </button>
 
@@ -402,12 +366,15 @@
                                         $isActive = request()->routeIs(...$item['active']);
                                     @endphp
 
-                                    <a href="{{ route($item['route']) }}" class="sidebar-submenu-link {{ $isActive ? 'sidebar-submenu-link-active' : '' }}">
+                                    <a href="{{ route($item['route']) }}"
+                                       class="sidebar-submenu-link {{ $isActive ? 'sidebar-submenu-link-active' : '' }}">
+
                                         <span class="sidebar-submenu-label">{{ $item['label'] }}</span>
 
                                         @if($isActive)
                                             <span class="sidebar-active-dot"></span>
                                         @endif
+
                                     </a>
 
                                 @endforeach
@@ -419,23 +386,21 @@
                     @endforeach
 
                     {{-- REPORTES DEL SUPER ADMIN --}}
-                    @if($isSuperAdmin)
+                    <div class="sidebar-group"
+                         :class="openGroup === 'reportes' ? 'sidebar-group-open' : ''"
+                         @mouseenter="openGroupOnHover('reportes')">
 
-                        <div class="sidebar-group"
-                             :class="openGroup === 'reportes' ? 'sidebar-group-open' : ''"
-                             @mouseenter="openGroupOnHover('reportes')">
-
-                            <button type="button"
-                                    class="sidebar-group-button"
-                                    aria-label="Reportes"
-                                    @click="toggleGroup('reportes')"
-                                    :aria-expanded="openGroup === 'reportes'">
+                        <button type="button"
+                                class="sidebar-group-button"
+                                aria-label="Reportes"
+                                @click="toggleGroup('reportes')"
+                                :aria-expanded="openGroup === 'reportes'">
 
                             <span class="sidebar-icon-button">
                                 {!! $iconSvg('reports') !!}
                             </span>
 
-                                <span x-show="sidebarOpen" x-cloak x-transition.opacity.duration.140ms class="sidebar-group-content">
+                            <span x-show="sidebarOpen" x-cloak x-transition.opacity.duration.140ms class="sidebar-group-content">
 
                                 <span class="sidebar-group-text">
                                     <span class="sidebar-group-title">Reportes</span>
@@ -452,23 +417,21 @@
 
                             </span>
 
-                            </button>
+                        </button>
 
-                            <div x-show="sidebarOpen && openGroup === 'reportes'" x-cloak x-collapse class="sidebar-submenu">
+                        <div x-show="sidebarOpen && openGroup === 'reportes'" x-cloak x-collapse class="sidebar-submenu">
 
-                                <a href="#" class="sidebar-submenu-link" @click.prevent="$dispatch('open-microclima-modal');closeSidebar();">
-                                    <span class="sidebar-submenu-label">PDF Microclima</span>
-                                </a>
+                            <a href="#" class="sidebar-submenu-link" @click.prevent="$dispatch('open-microclima-modal');closeSidebar();">
+                                <span class="sidebar-submenu-label">PDF Microclima</span>
+                            </a>
 
-                                <a href="#" class="sidebar-submenu-link" @click.prevent="$dispatch('open-biologico-modal');closeSidebar();">
-                                    <span class="sidebar-submenu-label">PDF Biológico</span>
-                                </a>
-
-                            </div>
+                            <a href="#" class="sidebar-submenu-link" @click.prevent="$dispatch('open-biologico-modal');closeSidebar();">
+                                <span class="sidebar-submenu-label">PDF Biológico</span>
+                            </a>
 
                         </div>
 
-                    @endif
+                    </div>
 
                 @else
 
@@ -482,24 +445,34 @@
                                 @click="toggleGroup('sin-permisos')"
                                 :aria-expanded="openGroup === 'sin-permisos'">
 
-                        <span class="sidebar-icon-button">
-                            {!! $iconSvg('alert') !!}
-                        </span>
+                            <span class="sidebar-icon-button">
+                                {!! $iconSvg('alert') !!}
+                            </span>
 
                             <span x-show="sidebarOpen" x-cloak class="sidebar-group-content">
 
-                            <span class="sidebar-group-text">
-                                <span class="sidebar-group-title">Sin permisos</span>
-                                <span class="sidebar-group-description">Rol no reconocido</span>
-                            </span>
+                                <span class="sidebar-group-text">
+                                    <span class="sidebar-group-title">Sin permisos</span>
+                                    <span class="sidebar-group-description">Rol no reconocido</span>
+                                </span>
 
-                        </span>
+                            </span>
 
                         </button>
 
-                        <div x-show="sidebarOpen && openGroup === 'sin-permisos'" x-cloak x-collapse class="sidebar-permission-content">
-                            <p class="sidebar-permission-text">Rol detectado: <strong>{{ $roleClave ?: 'sin rol' }}</strong>.</p>
-                            <p class="sidebar-permission-text">El usuario no tiene un rol válido asignado en MicroSeed Control.</p>
+                        <div x-show="sidebarOpen && openGroup === 'sin-permisos'"
+                             x-cloak
+                             x-collapse
+                             class="sidebar-permission-content">
+
+                            <p class="sidebar-permission-text">
+                                Rol detectado: <strong>{{ $roleClave ?: 'sin rol' }}</strong>.
+                            </p>
+
+                            <p class="sidebar-permission-text">
+                                El usuario no tiene un rol válido asignado en MicroSeed Control.
+                            </p>
+
                         </div>
 
                     </div>

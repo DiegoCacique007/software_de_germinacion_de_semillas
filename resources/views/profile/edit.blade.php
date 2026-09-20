@@ -9,7 +9,6 @@
 
     $rutaInicio = match ($rolClave) {
         'super_admin' => Route::has('super_admin.dashboard') ? route('super_admin.dashboard') : route('dashboard'),
-        'administrador' => Route::has('administrador.dashboard') ? route('administrador.dashboard') : route('dashboard'),
         'encargado' => Route::has('encargado.dashboard') ? route('encargado.dashboard') : route('dashboard'),
         default => Route::has('dashboard') ? route('dashboard') : url('/'),
     };

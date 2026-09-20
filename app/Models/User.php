@@ -12,19 +12,9 @@ class User extends Authenticatable
 {
     use HasFactory, Notifiable;
 
-    protected $fillable = [
-        'name',
-        'email',
-        'foto_perfil',
-        'role_id',
-        'activo',
-        'password',
-    ];
+    protected $fillable = ['name', 'email', 'foto_perfil', 'role_id', 'activo', 'password'];
 
-    protected $hidden = [
-        'password',
-        'remember_token',
-    ];
+    protected $hidden = ['password', 'remember_token'];
 
     protected function casts(): array
     {
@@ -67,11 +57,6 @@ class User extends Authenticatable
         return $this->hasRole('super_admin');
     }
 
-    public function isAdministrador(): bool
-    {
-        return $this->hasRole('administrador');
-    }
-
     public function isEncargado(): bool
     {
         return $this->hasRole('encargado');
@@ -79,7 +64,7 @@ class User extends Authenticatable
 
     /*
     |--------------------------------------------------------------------------
-    | Asignaciones de incubadora
+    | Relaciones
     |--------------------------------------------------------------------------
     */
 
@@ -88,55 +73,25 @@ class User extends Authenticatable
         return $this->hasMany(AsignacionIncubadora::class);
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | Alertas atendidas
-    |--------------------------------------------------------------------------
-    */
-
     public function alertasAtendidas(): HasMany
     {
         return $this->hasMany(Alerta::class, 'atendida_por');
     }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Controles de incubadora
-    |--------------------------------------------------------------------------
-    */
 
     public function controlesIncubadora(): HasMany
     {
         return $this->hasMany(ControlIncubadora::class);
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | Seguimientos de lotes
-    |--------------------------------------------------------------------------
-    */
-
     public function seguimientosLote(): HasMany
     {
         return $this->hasMany(SeguimientoLote::class);
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | Seguimientos de frascos
-    |--------------------------------------------------------------------------
-    */
-
     public function seguimientosFrasco(): HasMany
     {
         return $this->hasMany(SeguimientoFrasco::class);
     }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Registros biológicos
-    |--------------------------------------------------------------------------
-    */
 
     public function registrosBiologicos(): HasMany
     {
