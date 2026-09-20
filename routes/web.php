@@ -125,12 +125,15 @@ Route::prefix('super-admin')
             ->except(['create', 'show', 'edit']);
 
         Route::resource('tipos-alerta', TipoAlertaController::class)
+            ->parameters(['tipos-alerta' => 'tipoAlerta'])
             ->except(['create', 'show', 'edit']);
 
         Route::resource('niveles-alerta', NivelAlertaController::class)
+            ->parameters(['niveles-alerta' => 'nivelAlerta'])
             ->except(['create', 'show', 'edit']);
 
         Route::resource('estados-alerta', EstadoAlertaController::class)
+            ->parameters(['estados-alerta' => 'estadoAlerta'])
             ->except(['create', 'show', 'edit']);
 
 
@@ -144,12 +147,15 @@ Route::prefix('super-admin')
             ->except(['create', 'show', 'edit']);
 
         Route::resource('estados-incubadora', SuperAdminEstadoIncubadoraController::class)
+            ->parameters(['estados-incubadora' => 'estadoIncubadora'])
             ->except(['create', 'show', 'edit']);
 
         Route::resource('posiciones-incubadora', PosicionIncubadoraController::class)
+            ->parameters(['posiciones-incubadora' => 'posicionIncubadora'])
             ->except(['create', 'show', 'edit']);
 
         Route::resource('asignaciones-incubadora', AsignacionIncubadoraController::class)
+            ->parameters(['asignaciones-incubadora' => 'asignacionIncubadora'])
             ->except(['create', 'show', 'edit']);
 
 
@@ -160,15 +166,19 @@ Route::prefix('super-admin')
         */
 
         Route::resource('lecturas-microclima', LecturaMicroclimaController::class)
+            ->parameters(['lecturas-microclima' => 'lecturaMicroclima'])
             ->except(['create', 'show', 'edit']);
 
         Route::resource('controles-incubadora', ControlIncubadoraController::class)
+            ->parameters(['controles-incubadora' => 'controlIncubadora'])
             ->except(['create', 'show', 'edit']);
 
         Route::resource('tipos-control-incubadora', TipoControlIncubadoraController::class)
+            ->parameters(['tipos-control-incubadora' => 'tipoControlIncubadora'])
             ->except(['create', 'show', 'edit']);
 
         Route::resource('modos-control-incubadora', ModoControlIncubadoraController::class)
+            ->parameters(['modos-control-incubadora' => 'modoControlIncubadora'])
             ->except(['create', 'show', 'edit']);
 
 
@@ -179,24 +189,29 @@ Route::prefix('super-admin')
         */
 
         Route::resource('especies', EspecieController::class)
+            ->parameters(['especies' => 'especie'])
             ->except(['create', 'show', 'edit']);
 
         Route::resource('condiciones-optimas-especie', CondicionOptimaEspecieController::class)
+            ->parameters(['condiciones-optimas-especie' => 'condicionOptimaEspecie'])
             ->except(['create', 'show', 'edit']);
 
         Route::resource('lotes', LoteController::class)
             ->except(['create', 'show', 'edit']);
 
         Route::resource('estados-lote', EstadoLoteController::class)
+            ->parameters(['estados-lote' => 'estadoLote'])
             ->except(['create', 'show', 'edit']);
 
         Route::resource('frascos', FrascoController::class)
             ->except(['create', 'show', 'edit']);
 
         Route::resource('estados-frasco', EstadoFrascoController::class)
+            ->parameters(['estados-frasco' => 'estadoFrasco'])
             ->except(['create', 'show', 'edit']);
 
         Route::resource('etapas-desarrollo', EtapaDesarrolloController::class)
+            ->parameters(['etapas-desarrollo' => 'etapaDesarrollo'])
             ->except(['create', 'show', 'edit']);
 
 
@@ -207,15 +222,19 @@ Route::prefix('super-admin')
         */
 
         Route::resource('seguimientos-lote', SeguimientoLoteController::class)
+            ->parameters(['seguimientos-lote' => 'seguimientoLote'])
             ->except(['create', 'show', 'edit']);
 
         Route::resource('seguimientos-frasco', SeguimientoFrascoController::class)
+            ->parameters(['seguimientos-frasco' => 'seguimientoFrasco'])
             ->except(['create', 'show', 'edit']);
 
         Route::resource('evidencias-lote', EvidenciaLoteController::class)
+            ->parameters(['evidencias-lote' => 'evidenciaLote'])
             ->except(['create', 'show', 'edit']);
 
         Route::resource('registros-biologicos', RegistroBiologicoController::class)
+            ->parameters(['registros-biologicos' => 'registroBiologico'])
             ->except(['create', 'show', 'edit']);
 
 
