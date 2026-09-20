@@ -458,11 +458,15 @@
                         <div class="form-area">
 
                             <div class="form-header">
-                                <h2 class="form-title">Nueva contraseña</h2>
+                                <h2 class="form-title">Recuperar contraseña</h2>
                                 <p class="form-subtitle">
-                                    Ingresa tu correo electrónico registrado y tu nueva contraseña para actualizar tu acceso de inmediato.
+                                    Ingresa tu correo electrónico y te enviaremos un enlace para restablecer tu contraseña.
                                 </p>
                             </div>
+
+                            @if (session('status'))
+                                <div class="alert alert-success" role="status">{{ session('status') }}</div>
+                            @endif
 
                             <form method="POST" action="{{ route('password.email') }}">
                                 @csrf
@@ -485,61 +489,8 @@
                                     @enderror
                                 </div>
 
-                                <div class="mb-3">
-                                    <label for="password" class="form-label">Nueva contraseña</label>
-                                    <div class="input-group password-group">
-                                        <input
-                                            id="password"
-                                            type="password"
-                                            name="password"
-                                            class="form-control @error('password') is-invalid @enderror"
-                                            required
-                                            placeholder="Mínimo 8 caracteres"
-                                        >
-                                        <button
-                                            type="button"
-                                            class="btn btn-toggle-password"
-                                            onclick="togglePassword('password', this)"
-                                            aria-label="Mostrar contraseña"
-                                        >
-                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12s3.75-6.75 9.75-6.75S21.75 12 21.75 12 18 18.75 12 18.75 2.25 12 2.25 12z" />
-                                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 15.25A3.25 3.25 0 1 0 12 8.75a3.25 3.25 0 0 0 0 6.5z" />
-                                            </svg>
-                                        </button>
-                                    </div>
-                                    @error('password')
-                                    <div class="error-text">{{ $message }}</div>
-                                    @enderror
-                                </div>
-
-                                <div class="mb-3">
-                                    <label for="password_confirmation" class="form-label">Confirmar contraseña nueva</label>
-                                    <div class="input-group password-group">
-                                        <input
-                                            id="password_confirmation"
-                                            type="password"
-                                            name="password_confirmation"
-                                            class="form-control"
-                                            required
-                                            placeholder="Repite tu contraseña"
-                                        >
-                                        <button
-                                            type="button"
-                                            class="btn btn-toggle-password"
-                                            onclick="togglePassword('password_confirmation', this)"
-                                            aria-label="Mostrar contraseña"
-                                        >
-                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12s3.75-6.75 9.75-6.75S21.75 12 21.75 12 18 18.75 12 18.75 2.25 12 2.25 12z" />
-                                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 15.25A3.25 3.25 0 1 0 12 8.75a3.25 3.25 0 0 0 0 6.5z" />
-                                            </svg>
-                                        </button>
-                                    </div>
-                                </div>
-
                                 <button type="submit" class="btn btn-recover">
-                                    Cambiar contraseña ahora
+                                    Enviar enlace de recuperación
                                 </button>
                             </form>
 
@@ -558,33 +509,6 @@
     </div>
 
     <script>
-        const eyeIcon = `
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12s3.75-6.75 9.75-6.75S21.75 12 21.75 12 18 18.75 12 18.75 2.25 12 2.25 12z" />
-            <path stroke-linecap="round" stroke-linejoin="round" d="M12 15.25A3.25 3.25 0 1 0 12 8.75a3.25 3.25 0 0 0 0 6.5z" />
-        </svg>`;
-
-        const eyeOffIcon = `
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M3 3l18 18" />
-            <path stroke-linecap="round" stroke-linejoin="round" d="M10.58 10.58A2 2 0 0 0 12 14a2 2 0 0 0 1.42-.58" />
-            <path stroke-linecap="round" stroke-linejoin="round" d="M9.88 5.5A9.7 9.7 0 0 1 12 5.25c6 0 9.75 6.75 9.75 6.75a17.9 17.9 0 0 1-3.1 3.85" />
-            <path stroke-linecap="round" stroke-linejoin="round" d="M6.5 6.9C3.85 8.55 2.25 12 2.25 12s3.75 6.75 9.75 6.75c1.25 0 2.42-.3 3.47-.78" />
-        </svg>`;
-
-        window.togglePassword = function(inputId, button) {
-            const input = document.getElementById(inputId);
-            if (input.type === 'password') {
-                input.type = 'text';
-                button.innerHTML = eyeOffIcon;
-                button.setAttribute('aria-label', 'Ocultar contraseña');
-            } else {
-                input.type = 'password';
-                button.innerHTML = eyeIcon;
-                button.setAttribute('aria-label', 'Mostrar contraseña');
-            }
-        };
-
         document.addEventListener('DOMContentLoaded', () => {
             const logoWrapper = document.getElementById('logoWrapper');
             const curvedText = document.getElementById('curvedText');
@@ -644,7 +568,7 @@
                 window.Swal.fire({
                     icon: 'success',
                     title: '¡Operación exitosa!',
-                    text: '{{ session('status') }}',
+                    text: @js(session('status')),
                     confirmButtonColor: '#39b39f',
                     timer: 5000,
                     timerProgressBar: true,

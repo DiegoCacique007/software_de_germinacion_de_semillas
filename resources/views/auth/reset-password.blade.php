@@ -273,6 +273,9 @@
                                 @csrf
 
                                 <input type="hidden" name="token" value="{{ $request->route('token') }}">
+                                @error('token')
+                                <div class="error-text" role="alert">{{ $message }}</div>
+                                @enderror
 
                                 <div class="mb-3">
                                     <label for="email" class="form-label">Correo electrónico</label>
