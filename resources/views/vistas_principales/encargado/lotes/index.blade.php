@@ -7,16 +7,16 @@
     'entityPlural' => 'Lotes',
 
     'columns' => [
-        ['label' => 'Código', 'key' => 'codigo_lote'],
+        ['label' => 'Código', 'key' => 'codigo_lote', 'size' => 'short'],
         ['label' => 'Incubadora', 'key' => 'posicion.incubadora.nombre'],
-        ['label' => 'Posición', 'key' => 'posicion.numero_posicion'],
+        ['label' => 'Posición', 'key' => 'posicion.numero_posicion', 'size' => 'short'],
         ['label' => 'Especie', 'key' => 'especie.nombre_comun'],
-        ['label' => 'Estado', 'key' => 'estado.nombre'],
+        ['label' => 'Estado', 'key' => 'estado.nombre', 'size' => 'short'],
         ['label' => 'Fecha de siembra', 'key' => 'fecha_siembra'],
         ['label' => 'Inicio', 'key' => 'fecha_inicio'],
         ['label' => 'Fin', 'key' => 'fecha_fin'],
-        ['label' => 'Frascos', 'key' => 'frascos_count'],
-        ['label' => 'Observaciones', 'key' => 'observaciones'],
+        ['label' => 'Frascos', 'key' => 'frascos_count', 'size' => 'short'],
+        ['label' => 'Observaciones', 'key' => 'observaciones', 'wrap' => true],
     ],
 
     'fields' => [],
@@ -24,6 +24,6 @@
     'canCreate' => false,
     'canEdit' => false,
     'canDelete' => false,
-    'canShow' => true,
+    'canShow' => false,
     'showAsPage' => false,
 ])

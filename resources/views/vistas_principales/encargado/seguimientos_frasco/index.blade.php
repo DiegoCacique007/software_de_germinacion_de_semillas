@@ -9,14 +9,14 @@
     'columns' => [
         ['label' => 'Incubadora', 'key' => 'frasco.lote.posicion.incubadora.nombre'],
         ['label' => 'Lote', 'key' => 'frasco.lote.codigo_lote'],
-        ['label' => 'Frasco', 'key' => 'frasco.numero_frasco'],
+        ['label' => 'Frasco', 'key' => 'frasco.numero_frasco', 'size' => 'short'],
         ['label' => 'Especie', 'key' => 'frasco.lote.especie.nombre_comun'],
         ['label' => 'Fecha', 'key' => 'fecha_revision'],
-        ['label' => 'Germinadas', 'key' => 'semillas_germinadas'],
-        ['label' => 'Altura promedio', 'key' => 'altura_promedio_cm'],
-        ['label' => 'Estado', 'key' => 'estado.nombre'],
+        ['label' => 'Germinadas', 'key' => 'semillas_germinadas', 'size' => 'short'],
+        ['label' => 'Altura promedio', 'key' => 'altura_promedio_cm', 'size' => 'short'],
+        ['label' => 'Estado', 'key' => 'estado.nombre', 'size' => 'short'],
         ['label' => 'Registró', 'key' => 'user.name'],
-        ['label' => 'Observaciones', 'key' => 'observaciones'],
+        ['label' => 'Observaciones', 'key' => 'observaciones', 'wrap' => true],
     ],
 
     'fields' => [
@@ -28,7 +28,6 @@
             'options' => $frascosOptions ?? [],
             'option_value' => 'id',
             'option_label' => 'etiqueta',
-            'edit_key' => 'frasco_id',
         ],
         [
             'name' => 'fecha_revision',
@@ -55,18 +54,18 @@
             'options' => $estados ?? [],
             'option_value' => 'id',
             'option_label' => 'nombre',
-            'edit_key' => 'estado_frasco_id',
         ],
         [
             'name' => 'observaciones',
             'label' => 'Observaciones',
             'type' => 'textarea',
+            'rows' => 4,
         ],
     ],
 
     'canCreate' => true,
     'canEdit' => false,
     'canDelete' => false,
-    'canShow' => true,
+    'canShow' => false,
     'showAsPage' => false,
 ])

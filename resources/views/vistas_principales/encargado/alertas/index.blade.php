@@ -23,24 +23,7 @@
         ['label' => 'Observaciones', 'key' => 'observaciones', 'wrap' => true],
     ],
 
-    'fields' => [
-        [
-            'name' => 'estado_alerta_id',
-            'label' => 'Estado de la alerta',
-            'type' => 'select',
-            'required' => true,
-            'options' => $estados ?? [],
-            'option_value' => 'id',
-            'option_label' => 'nombre',
-            'edit_key' => 'estado_alerta_id',
-        ],
-        [
-            'name' => 'observaciones',
-            'label' => 'Observaciones',
-            'type' => 'textarea',
-            'rows' => 4,
-        ],
-    ],
+    'fields' => [],
 
     'quickActions' => [
         [
@@ -62,13 +45,13 @@
             'class' => 'btn-outline-success',
             'when' => [
                 'key' => 'estado.clave',
-                'values' => ['pendiente', 'atendida'],
+                'values' => ['atendida'],
             ],
         ],
     ],
 
     'canCreate' => false,
-    'canEdit' => true,
+    'canEdit' => false,
     'canDelete' => false,
     'canShow' => true,
     'showAsPage' => false,

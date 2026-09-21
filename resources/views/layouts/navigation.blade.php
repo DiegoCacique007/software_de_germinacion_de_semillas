@@ -1,1427 +1,383 @@
 @php
     use Illuminate\Support\Facades\Route;
 
-    $usuario = auth()->user();
-    $nombreUsuario = $usuario?->name ?? 'Usuario';
-    $correoUsuario = $usuario?->email ?? 'Sin correo registrado';
-    $rolClave = $usuario?->rol_clave;
-    $rolVisible = strtoupper($usuario?->rol_nombre ?? 'Sin rol');
+    $usuario=auth()->user();
+    $nombre=$usuario?->name??'Usuario';
+    $correo=$usuario?->email??'Sin correo registrado';
+    $rolClave=$usuario?->rol_clave;
+    $rolVisible=strtoupper($usuario?->rol_nombre??'Sin rol');
+    $isSuperAdmin=$usuario?->isSuperAdmin()??false;
+    $isEncargado=$usuario?->isEncargado()??false;
+    $foto=$usuario?->foto_perfil?asset('storage/'.$usuario->foto_perfil):null;
 
-    $isSuperAdmin = $usuario?->isSuperAdmin() ?? false;
-    $isEncargado = $usuario?->isEncargado() ?? false;
+    $cantidadAlertas=isset($alertasActivas)?(is_countable($alertasActivas)?count($alertasActivas):(int)$alertasActivas):0;
+    $cantidadActividad=isset($actividadNoLeida)?(int)$actividadNoLeida:0;
+    $modulos=[];
 
-    $fotoUsuario = $usuario && !empty($usuario->foto_perfil) ? asset('storage/' . $usuario->foto_perfil) : null;
-
-    $cantidadAlertas = isset($alertasActivas)
-        ? (is_countable($alertasActivas) ? count($alertasActivas) : (int) $alertasActivas)
-        : 0;
-
-    $cantidadActividad = isset($actividadNoLeida) ? (int) $actividadNoLeida : 0;
-
-    $rutaInicio = match ($rolClave) {
-        'super_admin' => Route::has('super_admin.dashboard') ? route('super_admin.dashboard') : url('/'),
-        'encargado' => Route::has('encargado.dashboard') ? route('encargado.dashboard') : url('/'),
-        default => Route::has('dashboard') ? route('dashboard') : url('/'),
-    };
-
-    $modulosDisponibles = [];
-
-    if ($isSuperAdmin) {
-        $modulosDisponibles = [
-            ['label' => 'Dashboard Global', 'description' => 'Panel principal del sistema', 'route' => 'super_admin.dashboard'],
-            ['label' => 'Usuarios', 'description' => 'Administración de usuarios', 'route' => 'super_admin.usuarios.index'],
-            ['label' => 'Alertas', 'description' => 'Incidencias registradas', 'route' => 'super_admin.alertas.index'],
-            ['label' => 'Tipos de alerta', 'description' => 'Catálogo de alertas', 'route' => 'super_admin.tipos-alerta.index'],
-            ['label' => 'Niveles de alerta', 'description' => 'Niveles de prioridad', 'route' => 'super_admin.niveles-alerta.index'],
-            ['label' => 'Estados de alerta', 'description' => 'Estados disponibles', 'route' => 'super_admin.estados-alerta.index'],
-            ['label' => 'Incubadoras', 'description' => 'Gestión de dispositivos', 'route' => 'super_admin.incubadoras.index'],
-            ['label' => 'Estados de incubadora', 'description' => 'Catálogo de estados', 'route' => 'super_admin.estados-incubadora.index'],
-            ['label' => 'Posiciones de incubadora', 'description' => 'Ubicación de dispositivos', 'route' => 'super_admin.posiciones-incubadora.index'],
-            ['label' => 'Asignaciones de incubadora', 'description' => 'Usuarios e incubadoras', 'route' => 'super_admin.asignaciones-incubadora.index'],
-            ['label' => 'Lecturas de microclima', 'description' => 'Monitoreo ambiental', 'route' => 'super_admin.lecturas-microclima.index'],
-            ['label' => 'Controles', 'description' => 'Automatización del prototipo', 'route' => 'super_admin.controles-incubadora.index'],
-            ['label' => 'Tipos de control', 'description' => 'Catálogo de controles', 'route' => 'super_admin.tipos-control-incubadora.index'],
-            ['label' => 'Modos de control', 'description' => 'Control automático y manual', 'route' => 'super_admin.modos-control-incubadora.index'],
-            ['label' => 'Especies', 'description' => 'Catálogo de semillas', 'route' => 'super_admin.especies.index'],
-            ['label' => 'Condiciones óptimas', 'description' => 'Parámetros ambientales', 'route' => 'super_admin.condiciones-optimas-especie.index'],
-            ['label' => 'Lotes', 'description' => 'Lotes de germinación', 'route' => 'super_admin.lotes.index'],
-            ['label' => 'Estados de lote', 'description' => 'Estados de los lotes', 'route' => 'super_admin.estados-lote.index'],
-            ['label' => 'Frascos', 'description' => 'Contenedores registrados', 'route' => 'super_admin.frascos.index'],
-            ['label' => 'Estados de frasco', 'description' => 'Estados de los frascos', 'route' => 'super_admin.estados-frasco.index'],
-            ['label' => 'Etapas de desarrollo', 'description' => 'Fases de germinación', 'route' => 'super_admin.etapas-desarrollo.index'],
-            ['label' => 'Seguimientos de lote', 'description' => 'Control biológico', 'route' => 'super_admin.seguimientos-lote.index'],
-            ['label' => 'Seguimientos de frasco', 'description' => 'Control de frascos', 'route' => 'super_admin.seguimientos-frasco.index'],
-            ['label' => 'Evidencias de lote', 'description' => 'Fotografías y archivos', 'route' => 'super_admin.evidencias-lote.index'],
-            ['label' => 'Registros biológicos', 'description' => 'Observaciones del cultivo', 'route' => 'super_admin.registros-biologicos.index'],
+    if($isSuperAdmin){
+        $modulos=[
+            ['Dashboard Global','Panel principal del sistema','super_admin.dashboard'],
+            ['Usuarios','Administración de usuarios','super_admin.usuarios.index'],
+            ['Alertas','Incidencias registradas','super_admin.alertas.index'],
+            ['Tipos de alerta','Catálogo de alertas','super_admin.tipos-alerta.index'],
+            ['Niveles de alerta','Niveles de prioridad','super_admin.niveles-alerta.index'],
+            ['Estados de alerta','Estados disponibles','super_admin.estados-alerta.index'],
+            ['Incubadoras','Gestión de incubadoras','super_admin.incubadoras.index'],
+            ['Estados de incubadora','Catálogo de estados','super_admin.estados-incubadora.index'],
+            ['Posiciones','Posiciones de incubadora','super_admin.posiciones-incubadora.index'],
+            ['Asignaciones','Usuarios e incubadoras','super_admin.asignaciones-incubadora.index'],
+            ['Lecturas microclima','Monitoreo ambiental','super_admin.lecturas-microclima.index'],
+            ['Controles','Automatización del prototipo','super_admin.controles-incubadora.index'],
+            ['Tipos de control','Catálogo de controles','super_admin.tipos-control-incubadora.index'],
+            ['Modos de control','Control manual y automático','super_admin.modos-control-incubadora.index'],
+            ['Especies','Catálogo de semillas','super_admin.especies.index'],
+            ['Condiciones óptimas','Parámetros ambientales','super_admin.condiciones-optimas-especie.index'],
+            ['Lotes','Lotes de germinación','super_admin.lotes.index'],
+            ['Estados de lote','Estados de lotes','super_admin.estados-lote.index'],
+            ['Frascos','Contenedores registrados','super_admin.frascos.index'],
+            ['Estados de frasco','Estados de frascos','super_admin.estados-frasco.index'],
+            ['Etapas de desarrollo','Fases de germinación','super_admin.etapas-desarrollo.index'],
+            ['Seguimientos lote','Control biológico','super_admin.seguimientos-lote.index'],
+            ['Seguimientos frasco','Control de frascos','super_admin.seguimientos-frasco.index'],
+            ['Evidencias lote','Fotografías y archivos','super_admin.evidencias-lote.index'],
+            ['Registros biológicos','Observaciones del cultivo','super_admin.registros-biologicos.index'],
         ];
     }
 
-    if ($isEncargado) {
-        $modulosDisponibles = [
-            ['label' => 'Dashboard', 'description' => 'Panel del encargado', 'route' => 'encargado.dashboard'],
+    if($isEncargado){
+        $modulos=[
+            ['Dashboard','Panel principal del encargado','encargado.dashboard'],
+            ['Mis incubadoras','Incubadoras asignadas','encargado.incubadoras.index'],
+            ['Mis alertas','Incidencias que requieren seguimiento','encargado.alertas.index'],
+            ['Mis lotes','Lotes de germinación asignados','encargado.lotes.index'],
+            ['Mis frascos','Frascos pertenecientes a tus lotes','encargado.frascos.index'],
+            ['Seguimientos de lote','Registrar y consultar lotes','encargado.seguimientos-lote.index'],
+            ['Seguimientos de frasco','Registrar y consultar frascos','encargado.seguimientos-frasco.index'],
+            ['Evidencias','Evidencias fotográficas','encargado.evidencias-lote.index'],
         ];
     }
 
-    $modulosBusqueda = collect($modulosDisponibles)
-        ->filter(fn($modulo) => Route::has($modulo['route']))
-        ->map(fn($modulo) => [
-            'label' => $modulo['label'],
-            'description' => $modulo['description'],
-            'url' => route($modulo['route']),
-        ])
+    $modulos=collect($modulos)
+        ->filter(fn($m)=>Route::has($m[2]))
+        ->map(fn($m)=>['label'=>$m[0],'description'=>$m[1],'route'=>$m[2],'url'=>route($m[2])])
         ->values()
         ->all();
 
-    $rutaAlertas = $isSuperAdmin && Route::has('super_admin.alertas.index') ? route('super_admin.alertas.index') : null;
-    $rutaUsuarios = $isSuperAdmin && Route::has('super_admin.usuarios.index') ? route('super_admin.usuarios.index') : null;
+    $rutaAlertas=match(true){
+        $isSuperAdmin&&Route::has('super_admin.alertas.index')=>route('super_admin.alertas.index'),
+        $isEncargado&&Route::has('encargado.alertas.index')=>route('encargado.alertas.index'),
+        default=>null,
+    };
 @endphp
 
 <style>
-    [x-cloak] { display: none !important; }
-
-    .microseed-topbar {
-        --microseed-navigation-font: 'Instrument Sans', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-        position: relative;
-        z-index: 90;
-        width: 100%;
-        height: 78px;
-        display: flex;
-        align-items: center;
-        flex-shrink: 0;
-        border-bottom: 1px solid #e5eaed;
-        background: rgba(255,255,255,.98);
-        box-shadow: 0 5px 20px rgba(20,66,85,.045);
-        font-family: var(--microseed-navigation-font);
-        font-size: 14px;
-        line-height: 1.5;
-        -webkit-font-smoothing: antialiased;
-    }
-
-    .microseed-topbar *,
-    .microseed-topbar *::before,
-    .microseed-topbar *::after {
-        box-sizing: border-box;
-        font-family: var(--microseed-navigation-font);
-    }
-
-    .microseed-topbar button {
-        margin: 0;
-        padding: 0;
-        border: 0;
-        outline: 0;
-        background: transparent;
-        color: inherit;
-        font: inherit;
-        cursor: pointer;
-        appearance: none;
-    }
-
-    .microseed-topbar a {
-        color: inherit;
-        text-decoration: none;
-    }
-
-    .microseed-topbar-content {
-        width: 100%;
-        height: 100%;
-        min-width: 0;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 18px;
-        padding: 0 16px 0 24px;
-    }
-
-    .microseed-topbar-left {
-        min-width: 0;
-        flex: 1;
-        display: flex;
-        align-items: center;
-        gap: 12px;
-    }
-
-    .microseed-topbar-actions {
-        display: flex;
-        align-items: center;
-        flex-shrink: 0;
-        gap: 5px;
-    }
-
-    .microseed-search-wrapper {
-        position: relative;
-        width: min(550px,100%);
-    }
-
-    .microseed-search {
-        position: relative;
-        width: 100%;
-        height: 46px;
-        display: flex;
-        align-items: center;
-    }
-
-    .microseed-search-icon {
-        position: absolute;
-        left: 16px;
-        z-index: 2;
-        width: 18px;
-        height: 18px;
-        color: #8294a3;
-        pointer-events: none;
-    }
-
-    .microseed-search-input {
-        width: 100%;
-        height: 46px;
-        padding: 0 48px 0 47px;
-        color: #334155;
-        background: #f4f7f7;
-        border: 1px solid transparent;
-        border-radius: 15px;
-        outline: 0;
-        font-size: 13px;
-        font-weight: 500;
-        transition: background .17s ease,border-color .17s ease,box-shadow .17s ease;
-    }
-
-    .microseed-search-input::placeholder { color: #99a5ae; }
-
-    .microseed-search-input:focus {
-        background: #fff;
-        border-color: rgba(59,180,156,.38);
-        box-shadow: 0 0 0 4px rgba(59,180,156,.09);
-    }
-
-    .microseed-search-results {
-        position: absolute;
-        top: calc(100% + 10px);
-        left: 0;
-        z-index: 160;
-        width: 100%;
-        max-height: 390px;
-        overflow-y: auto;
-        background: #fff;
-        border: 1px solid #e2e8ea;
-        border-radius: 17px;
-        box-shadow: 0 24px 60px rgba(15,23,42,.18);
-    }
-
-    .microseed-search-results-header {
-        position: sticky;
-        top: 0;
-        z-index: 2;
-        padding: 11px 14px;
-        color: #94a3b8;
-        background: rgba(255,255,255,.98);
-        border-bottom: 1px solid #edf2f2;
-        font-size: 9px;
-        font-weight: 700;
-        letter-spacing: .13em;
-        text-transform: uppercase;
-    }
-
-    .microseed-search-result {
-        width: 100%;
-        display: flex;
-        align-items: center;
-        gap: 11px;
-        padding: 11px 13px;
-        text-align: left;
-        transition: background .16s ease;
-    }
-
-    .microseed-search-result:hover,
-    .microseed-search-result:focus-visible {
-        background: #effaf8;
-        outline: none;
-    }
-
-    .microseed-search-result-icon {
-        width: 37px;
-        height: 37px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        flex-shrink: 0;
-        color: #216a73;
-        background: linear-gradient(135deg,rgba(33,106,115,.1),rgba(59,180,156,.14));
-        border-radius: 12px;
-    }
-
-    .microseed-search-result-text { min-width: 0; }
-
-    .microseed-search-result-title {
-        display: block;
-        overflow: hidden;
-        color: #334155;
-        font-size: 12px;
-        font-weight: 700;
-        line-height: 1.2;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-    }
-
-    .microseed-search-result-description {
-        display: block;
-        margin-top: 3px;
-        overflow: hidden;
-        color: #94a3b8;
-        font-size: 10px;
-        font-weight: 500;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-    }
-
-    .microseed-search-empty {
-        padding: 28px 16px;
-        color: #94a3b8;
-        font-size: 12px;
-        font-weight: 500;
-        text-align: center;
-    }
-
-    .microseed-action-wrapper { position: relative; }
-
-    .microseed-action-button {
-        position: relative;
-        width: 43px;
-        height: 43px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: #64748b;
-        border-radius: 13px;
-        transition: color .17s ease,background .17s ease,transform .17s ease;
-    }
-
-    .microseed-action-button:hover,
-    .microseed-action-active {
-        color: #216a73;
-        background: #eef8f7;
-    }
-
-    .microseed-action-button:hover { transform: translateY(-1px); }
-
-    .microseed-action-button:focus-visible {
-        outline: none;
-        box-shadow: 0 0 0 4px rgba(59,180,156,.1);
-    }
-
-    .microseed-action-button svg {
-        width: 20px;
-        height: 20px;
-    }
-
-    .microseed-counter {
-        position: absolute;
-        top: 0;
-        right: -1px;
-        min-width: 18px;
-        height: 18px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 0 4px;
-        color: #fff;
-        background: #dc3545;
-        border: 2px solid #fff;
-        border-radius: 9999px;
-        font-size: 8px;
-        font-weight: 800;
-        line-height: 1;
-    }
-
-    .microseed-counter-green { background: #3bb49c; }
-
-    .microseed-dropdown {
-        position: absolute;
-        top: calc(100% + 12px);
-        right: 0;
-        z-index: 170;
-        width: 310px;
-        overflow: hidden;
-        background: #fff;
-        border: 1px solid #e2e8ea;
-        border-radius: 18px;
-        box-shadow: 0 24px 60px rgba(15,23,42,.2);
-    }
-
-    .microseed-dropdown-header {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 12px;
-        padding: 15px 16px;
-        border-bottom: 1px solid #eef2f2;
-    }
-
-    .microseed-dropdown-title {
-        margin: 0;
-        color: #334155;
-        font-size: 13px;
-        font-weight: 700;
-    }
-
-    .microseed-dropdown-count {
-        padding: 4px 8px;
-        color: #1f756a;
-        background: #e9f8f4;
-        border-radius: 999px;
-        font-size: 9px;
-        font-weight: 700;
-    }
-
-    .microseed-notification {
-        display: flex;
-        align-items: flex-start;
-        gap: 11px;
-        padding: 14px 16px;
-    }
-
-    .microseed-notification-icon {
-        width: 39px;
-        height: 39px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        flex-shrink: 0;
-        color: #dc3545;
-        background: #fff1f2;
-        border-radius: 12px;
-    }
-
-    .microseed-notification-icon svg {
-        width: 18px;
-        height: 18px;
-    }
-
-    .microseed-notification-title {
-        display: block;
-        color: #334155;
-        font-size: 12px;
-        font-weight: 700;
-    }
-
-    .microseed-notification-description {
-        display: block;
-        margin-top: 3px;
-        color: #94a3b8;
-        font-size: 10px;
-        font-weight: 500;
-        line-height: 1.45;
-    }
-
-    .microseed-dropdown-empty {
-        padding: 27px 18px;
-        text-align: center;
-    }
-
-    .microseed-empty-icon {
-        width: 46px;
-        height: 46px;
-        margin: 0 auto;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: #216a73;
-        background: #eaf8f5;
-        border-radius: 14px;
-    }
-
-    .microseed-empty-title {
-        margin: 10px 0 0;
-        color: #475569;
-        font-size: 12px;
-        font-weight: 700;
-    }
-
-    .microseed-empty-description {
-        margin: 4px 0 0;
-        color: #94a3b8;
-        font-size: 10px;
-        font-weight: 500;
-    }
-
-    .microseed-dropdown-footer {
-        display: block;
-        padding: 11px 15px;
-        color: #1c607a;
-        background: #f8faf9;
-        border-top: 1px solid #eef2f2;
-        font-size: 11px;
-        font-weight: 700;
-        text-align: center;
-        transition: background .16s ease;
-    }
-
-    .microseed-dropdown-footer:hover { background: #effaf8; }
-
-    .microseed-profile-wrapper {
-        position: relative;
-        margin-left: 3px;
-        margin-right: 5px;
-        flex-shrink: 0;
-        padding-bottom: 12px;
-        margin-bottom: -12px;
-    }
-
-    .microseed-profile-button {
-        width: 238px;
-        height: 52px;
-        display: flex;
-        align-items: center;
-        gap: 11px;
-        padding: 5px 9px 5px 6px;
-        color: #334155;
-        background: transparent;
-        border-radius: 16px;
-        transition: background .17s ease,box-shadow .17s ease,transform .17s ease;
-    }
-
-    .microseed-profile-button:hover,
-    .microseed-profile-active {
-        background: linear-gradient(135deg,rgba(33,106,115,.055),rgba(59,180,156,.08));
-        box-shadow: inset 0 0 0 1px rgba(59,180,156,.13);
-    }
-
-    .microseed-profile-button:hover { transform: translateY(-1px); }
-
-    .microseed-profile-avatar {
-        position: relative;
-        width: 44px;
-        height: 44px;
-        flex: 0 0 44px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        overflow: visible;
-        color: #fff;
-        background: linear-gradient(135deg,#216a73 0%,#3bb49c 100%);
-        border: 1px solid rgba(59,180,156,.35);
-        border-radius: 14px;
-        box-shadow: 0 8px 18px rgba(33,106,115,.13);
-        font-size: 13px;
-        font-weight: 800;
-    }
-
-    .microseed-profile-avatar img {
-        width: 44px;
-        height: 44px;
-        display: block;
-        object-fit: cover;
-        border-radius: 14px;
-    }
-
-    .microseed-profile-online {
-        position: absolute;
-        right: -3px;
-        bottom: -3px;
-        width: 11px;
-        height: 11px;
-        display: block;
-        background: #3bb49c;
-        border: 2px solid #fff;
-        border-radius: 999px;
-        box-shadow: 0 0 0 2px rgba(59,180,156,.12);
-    }
-
-    .microseed-profile-information {
-        min-width: 0;
-        flex: 1;
-        display: block;
-        text-align: left;
-    }
-
-    .microseed-profile-name {
-        display: block;
-        max-width: 155px;
-        overflow: hidden;
-        color: #334155;
-        font-size: 13px;
-        font-weight: 700;
-        line-height: 1.15;
-        letter-spacing: -.015em;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-    }
-
-    .microseed-profile-role {
-        display: block;
-        max-width: 155px;
-        margin-top: 4px;
-        overflow: hidden;
-        color: #3b9a96;
-        font-size: 9px;
-        font-weight: 700;
-        line-height: 1;
-        letter-spacing: .1em;
-        text-overflow: ellipsis;
-        text-transform: uppercase;
-        white-space: nowrap;
-    }
-
-    .microseed-profile-chevron {
-        width: 15px;
-        height: 15px;
-        flex-shrink: 0;
-        color: #94a3b8;
-        transition: transform .18s ease;
-    }
-
-    .microseed-profile-chevron-open { transform: rotate(180deg); }
-
-    .microseed-profile-dropdown {
-        top: calc(100% + 2px);
-        width: 320px;
-        border: 0;
-        border-radius: 20px;
-        box-shadow: 0 26px 65px rgba(15,23,42,.2);
-    }
-
-    .microseed-profile-header {
-        position: relative;
-        min-height: 108px;
-        overflow: hidden;
-        padding: 17px 17px 16px;
-        color: #fff;
-        background:
-            radial-gradient(circle at 88% 6%,rgba(94,224,194,.26),transparent 43%),
-            radial-gradient(circle at 5% 100%,rgba(18,63,84,.24),transparent 42%),
-            linear-gradient(135deg,#123f54 0%,#176475 50%,#2b9691 100%);
-    }
-
-    .microseed-profile-header::before {
-        content: '';
-        position: absolute;
-        top: -72px;
-        right: -55px;
-        width: 180px;
-        height: 180px;
-        background: rgba(255,255,255,.065);
-        border-radius: 999px;
-        pointer-events: none;
-    }
-
-    .microseed-profile-header::after {
-        content: '';
-        position: absolute;
-        right: 18px;
-        bottom: 0;
-        left: 18px;
-        height: 1px;
-        background: linear-gradient(90deg,transparent,rgba(113,231,205,.65),transparent);
-        pointer-events: none;
-    }
-
-    .microseed-profile-header-row {
-        position: relative;
-        z-index: 2;
-        display: flex;
-        align-items: center;
-        gap: 14px;
-    }
-
-    .microseed-profile-large-avatar {
-        width: 62px;
-        height: 62px;
-        flex: 0 0 62px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        overflow: hidden;
-        color: #fff;
-        background: rgba(10,52,66,.72);
-        border: 1px solid rgba(126,231,211,.52);
-        border-radius: 16px;
-        box-shadow: 0 12px 26px rgba(7,37,49,.22);
-        font-size: 19px;
-        font-weight: 800;
-    }
-
-    .microseed-profile-large-avatar img {
-        width: 100%;
-        height: 100%;
-        display: block;
-        object-fit: cover;
-    }
-
-    .microseed-profile-header-information { min-width: 0; }
-
-    .microseed-profile-dropdown-name {
-        display: block;
-        max-width: 210px;
-        overflow: hidden;
-        color: #fff;
-        font-size: 15px;
-        font-weight: 800;
-        line-height: 1.2;
-        letter-spacing: -.025em;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-    }
-
-    .microseed-profile-dropdown-email {
-        display: block;
-        max-width: 210px;
-        margin-top: 5px;
-        overflow: hidden;
-        color: rgba(232,255,249,.82);
-        font-size: 11px;
-        font-weight: 500;
-        line-height: 1.2;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-    }
-
-    .microseed-profile-dropdown-role {
-        display: inline-flex;
-        align-items: center;
-        width: fit-content;
-        margin-top: 8px;
-        padding: 4px 10px;
-        color: #fff;
-        background: rgba(255,255,255,.14);
-        border: 1px solid rgba(255,255,255,.24);
-        border-radius: 999px;
-        font-size: 9px;
-        font-weight: 700;
-        letter-spacing: .07em;
-        text-transform: uppercase;
-    }
-
-    .microseed-profile-body { padding: 8px; }
-    .microseed-profile-body form { margin: 0; }
-
-    .microseed-profile-action {
-        width: 100%;
-        min-height: 54px;
-        display: flex;
-        align-items: center;
-        gap: 11px;
-        margin: 0;
-        padding: 9px;
-        color: #475569;
-        background: transparent;
-        border: 0;
-        border-radius: 15px;
-        outline: none;
-        text-align: left;
-        cursor: pointer;
-        transition: color .16s ease,background .16s ease,transform .16s ease;
-    }
-
-    .microseed-profile-action:hover {
-        color: #216a73;
-        background: rgba(236,254,255,.9);
-        transform: translateX(2px);
-    }
-
-    .microseed-profile-action-icon {
-        width: 39px;
-        height: 39px;
-        flex: 0 0 39px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: #216a73;
-        background: linear-gradient(135deg,rgba(33,106,115,.1),rgba(59,180,156,.14));
-        border-radius: 13px;
-    }
-
-    .microseed-profile-action:hover .microseed-profile-action-icon {
-        color: #fff;
-        background: linear-gradient(135deg,#216a73 0%,#3bb49c 100%);
-        box-shadow: 0 8px 18px rgba(33,106,115,.18);
-    }
-
-    .microseed-profile-action-icon svg {
-        width: 18px;
-        height: 18px;
-    }
-
-    .microseed-profile-action-text {
-        min-width: 0;
-        display: block;
-    }
-
-    .microseed-profile-action-label {
-        display: block;
-        color: inherit;
-        font-size: 12px;
-        font-weight: 700;
-        line-height: 1.2;
-        white-space: nowrap;
-    }
-
-    .microseed-profile-action-description {
-        display: block;
-        margin-top: 3px;
-        color: #94a3b8;
-        font-size: 10px;
-        font-weight: 500;
-        line-height: 1.2;
-        white-space: nowrap;
-    }
-
-    .microseed-profile-photo-input { display: none !important; }
-    .microseed-profile-separator { height: 1px; margin: 6px 8px; background: #eef2f2; }
-
-    .microseed-profile-action-danger { color: #dc3545; }
-    .microseed-profile-action-danger:hover { color: #c92f40; background: #fff1f2; }
-
-    .microseed-profile-action-danger .microseed-profile-action-icon {
-        color: #dc3545;
-        background: rgba(220,53,69,.08);
-    }
-
-    .microseed-profile-action-danger:hover .microseed-profile-action-icon {
-        color: #fff;
-        background: #dc3545;
-    }
-
-    .microseed-mobile-menu-button {
-        display: none;
-        width: 42px;
-        height: 42px;
-        align-items: center;
-        justify-content: center;
-        color: #64748b;
-        background: #f5f7f7;
-        border-radius: 12px;
-    }
-
-    .microseed-mobile-panel {
-        position: absolute;
-        top: 100%;
-        right: 0;
-        left: 0;
-        z-index: 150;
-        padding: 12px;
-        background: #fff;
-        border-top: 1px solid #e5eaed;
-        box-shadow: 0 18px 35px rgba(15,23,42,.12);
-    }
-
-    .microseed-mobile-user {
-        display: flex;
-        align-items: center;
-        gap: 11px;
-        padding: 12px;
-        background: #f7faf9;
-        border-radius: 14px;
-    }
-
-    .microseed-mobile-link {
-        width: 100%;
-        min-height: 43px;
-        margin-top: 5px;
-        display: flex;
-        align-items: center;
-        gap: 11px;
-        padding: 10px 12px;
-        color: #64748b;
-        background: transparent;
-        border-radius: 11px;
-        font-size: 12px;
-        font-weight: 600;
-        transition: color .16s ease,background .16s ease;
-    }
-
-    .microseed-mobile-link:hover {
-        color: #216a73;
-        background: #effaf8;
-    }
-
-    .microseed-mobile-link-danger { color: #dc3545; }
-
-    .microseed-logout-backdrop {
-        position: fixed;
-        inset: 0;
-        z-index: 99999;
-        width: 100vw;
-        height: 100vh;
-        display: grid;
-        place-items: center;
-        padding: 16px;
-        background: rgba(15,23,42,.45);
-        backdrop-filter: blur(2px);
-    }
-
-    .microseed-logout-modal {
-        width: min(340px,100%);
-        overflow: hidden;
-        background: #fff;
-        border: 1px solid rgba(59,180,156,.22);
-        border-radius: 20px;
-        box-shadow: 0 22px 60px rgba(15,23,42,.24);
-    }
-
-    .microseed-logout-modal-header {
-        padding: 22px 22px 14px;
-        text-align: center;
-    }
-
-    .microseed-logout-icon {
-        width: 50px;
-        height: 50px;
-        margin: 0 auto 13px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: #216a73;
-        background: linear-gradient(135deg,rgba(33,106,115,.1),rgba(59,180,156,.16));
-        border-radius: 16px;
-    }
-
-    .microseed-logout-icon svg {
-        width: 24px;
-        height: 24px;
-    }
-
-    .microseed-logout-title {
-        margin: 0;
-        color: #334155;
-        font-size: 17px;
-        font-weight: 800;
-        line-height: 1.2;
-    }
-
-    .microseed-logout-description {
-        max-width: 265px;
-        margin: 8px auto 0;
-        color: #64748b;
-        font-size: 12px;
-        font-weight: 500;
-        line-height: 1.45;
-    }
-
-    .microseed-logout-actions {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 10px;
-        padding: 14px 20px 20px;
-    }
-
-    .microseed-logout-cancel,
-    .microseed-logout-confirm {
-        min-height: 41px;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: 13px;
-        font-size: 11px;
-        font-weight: 700;
-    }
-
-    .microseed-logout-cancel {
-        color: #475569;
-        background: #f1f5f4;
-    }
-
-    .microseed-logout-confirm {
-        color: #fff;
-        background: linear-gradient(135deg,#216a73,#3bb49c);
-        box-shadow: 0 10px 22px rgba(33,106,115,.2);
-    }
-
-    @media(max-width:1100px) {
-        .microseed-search-wrapper { max-width: 400px; }
-        .microseed-profile-button { width: 210px; }
-        .microseed-profile-name,
-        .microseed-profile-role { max-width: 132px; }
-    }
-
-    @media(max-width:900px) {
-        .microseed-profile-button {
-            width: 48px;
-            height: 48px;
-            padding: 2px;
-            justify-content: center;
-        }
-
-        .microseed-profile-information,
-        .microseed-profile-chevron { display: none; }
-    }
-
-    @media(max-width:760px) {
-        .microseed-topbar { height: 70px; }
-        .microseed-topbar-content { gap: 8px; padding: 0 12px; }
-        .microseed-search-wrapper { max-width: 250px; }
-
-        .microseed-dropdown {
-            position: fixed;
-            top: 76px;
-            right: 12px;
-            left: 12px;
-            width: auto;
-        }
-
-        .microseed-profile-dropdown { width: auto; }
-    }
-
-    @media(max-width:560px) {
-        .microseed-search-wrapper,
-        .microseed-topbar-actions,
-        .microseed-topbar-left,
-        .microseed-profile-wrapper { display: none; }
-
-        .microseed-topbar-content { justify-content: flex-end; }
-        .microseed-mobile-menu-button { display: flex; }
-    }
-
-    @media(max-width:460px) {
-        .microseed-logout-modal { width: min(315px,100%); }
-        .microseed-logout-actions { grid-template-columns: 1fr; }
-    }
+    [x-cloak]{display:none!important}
+    .microseed-topbar{--font:'Instrument Sans',ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;position:relative;z-index:90;width:100%;height:78px;display:flex;align-items:center;flex-shrink:0;border-bottom:1px solid #e5eaed;background:rgba(255,255,255,.98);box-shadow:0 5px 20px rgba(20,66,85,.045);font-family:var(--font);font-size:14px;line-height:1.5;font-synthesis:none;text-rendering:optimizeLegibility;-webkit-font-smoothing:antialiased}
+    .microseed-topbar *,.microseed-topbar *::before,.microseed-topbar *::after{box-sizing:border-box;font-family:var(--font)}
+    .microseed-topbar button{border:0;background:transparent;color:inherit;font:inherit;cursor:pointer}
+    .microseed-topbar a{color:inherit;text-decoration:none}
+    .topbar-content{width:100%;height:100%;display:flex;align-items:center;justify-content:space-between;gap:18px;padding:0 18px 0 24px}
+    .topbar-left{min-width:0;flex:1}
+    .topbar-actions{display:flex;align-items:center;gap:5px;flex-shrink:0}
+
+    .topbar-search-wrap{position:relative;width:min(550px,100%)}
+    .topbar-search{position:relative;height:46px;display:flex;align-items:center}
+    .topbar-search svg{position:absolute;left:16px;width:18px;height:18px;color:#8294a3;pointer-events:none}
+    .topbar-search input{width:100%;height:46px;padding:0 45px 0 47px;border:1px solid transparent;border-radius:15px;outline:0;background:#f4f7f7;color:#334155;font-size:13px;font-weight:500}
+    .topbar-search input:focus{background:#fff;border-color:rgba(59,180,156,.38);box-shadow:0 0 0 4px rgba(59,180,156,.09)}
+    .topbar-results{position:absolute;top:56px;left:0;z-index:170;width:100%;max-height:390px;overflow:auto;background:#fff;border:1px solid #e2e8ea;border-radius:17px;box-shadow:0 24px 60px rgba(15,23,42,.18)}
+    .topbar-results-title{padding:11px 14px;color:#94a3b8;border-bottom:1px solid #edf2f2;font-size:9px;font-weight:800;letter-spacing:.12em;text-transform:uppercase}
+    .topbar-result{width:100%;display:flex;align-items:center;gap:11px;padding:11px 13px;text-align:left}
+    .topbar-result:hover{background:#effaf8}
+    .topbar-result-icon{width:36px;height:36px;display:flex;align-items:center;justify-content:center;flex-shrink:0;color:#216a73;background:#eaf8f5;border-radius:11px}
+    .topbar-result-title{display:block;color:#334155;font-size:12px;font-weight:700}
+    .topbar-result-desc{display:block;margin-top:2px;color:#94a3b8;font-size:10px}
+    .topbar-empty{padding:25px;text-align:center;color:#94a3b8;font-size:12px}
+
+    .topbar-action-wrap{position:relative}
+    .topbar-action{position:relative;width:43px;height:43px;display:flex;align-items:center;justify-content:center;color:#64748b;border-radius:13px}
+    .topbar-action:hover,.topbar-action.active{color:#216a73;background:#eef8f7}
+    .topbar-action svg{width:20px;height:20px}
+    .topbar-counter{position:absolute;top:0;right:-1px;min-width:18px;height:18px;display:flex;align-items:center;justify-content:center;padding:0 4px;color:#fff;background:#dc3545;border:2px solid #fff;border-radius:999px;font-size:8px;font-weight:800}
+    .topbar-counter.green{background:#3bb49c}
+
+    .topbar-dropdown{position:absolute;top:55px;right:0;z-index:180;width:310px;overflow:hidden;background:#fff;border:1px solid #e2e8ea;border-radius:18px;box-shadow:0 24px 60px rgba(15,23,42,.2)}
+    .topbar-dropdown-head{display:flex;align-items:center;justify-content:space-between;padding:15px 16px;border-bottom:1px solid #eef2f2}
+    .topbar-dropdown-head strong{font-size:13px;color:#334155}
+    .topbar-pill{padding:4px 8px;color:#1f756a;background:#e9f8f4;border-radius:999px;font-size:9px;font-weight:700}
+    .topbar-notification{display:flex;gap:11px;padding:14px 16px}
+    .topbar-notification-icon{width:39px;height:39px;display:flex;align-items:center;justify-content:center;flex-shrink:0;color:#dc3545;background:#fff1f2;border-radius:12px}
+    .topbar-notification-title{display:block;color:#334155;font-size:12px;font-weight:700}
+    .topbar-notification-desc{display:block;margin-top:3px;color:#94a3b8;font-size:10px;line-height:1.45}
+    .topbar-empty-state{padding:26px 16px;text-align:center;color:#64748b;font-size:11px}
+    .topbar-dropdown-footer{display:block;padding:11px 15px;background:#f8faf9;border-top:1px solid #eef2f2;color:#1c607a;font-size:11px;font-weight:700;text-align:center}
+
+    .topbar-profile-wrap{position:relative;margin-left:3px;padding-bottom:12px;margin-bottom:-12px}
+    .topbar-profile{width:238px;height:52px;display:flex;align-items:center;gap:11px;padding:5px 9px 5px 6px;border-radius:16px}
+    .topbar-profile:hover,.topbar-profile.active{background:linear-gradient(135deg,rgba(33,106,115,.055),rgba(59,180,156,.08))}
+    .topbar-avatar{position:relative;width:44px;height:44px;flex:0 0 44px;display:flex;align-items:center;justify-content:center;color:#fff;background:linear-gradient(135deg,#216a73,#3bb49c);border-radius:14px;font-size:13px;font-weight:800}
+    .topbar-avatar img{width:44px;height:44px;object-fit:cover;border-radius:14px}
+    .topbar-online{position:absolute;right:-3px;bottom:-3px;width:11px;height:11px;background:#3bb49c;border:2px solid #fff;border-radius:999px}
+    .topbar-user{min-width:0;flex:1;text-align:left}
+    .topbar-user-name,.topbar-user-role{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .topbar-user-name{color:#334155;font-size:13px;font-weight:700}
+    .topbar-user-role{margin-top:4px;color:#3b9a96;font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase}
+
+    /* PERFIL */
+    .topbar-profile-dropdown{width:320px;max-height:calc(100vh - 95px);overflow-x:hidden;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:rgba(100,116,139,.30) transparent}
+    .topbar-profile-dropdown::-webkit-scrollbar{width:5px}
+    .topbar-profile-dropdown::-webkit-scrollbar-track{background:transparent}
+    .topbar-profile-dropdown::-webkit-scrollbar-thumb{background:rgba(100,116,139,.28);border-radius:999px}
+    .topbar-profile-dropdown::-webkit-scrollbar-thumb:hover{background:rgba(100,116,139,.45)}
+
+    .topbar-profile-header{display:flex;align-items:center;gap:13px;padding:17px;color:#fff;background:linear-gradient(135deg,#123f54,#176475,#2b9691)}
+    .topbar-profile-large{width:58px;height:58px;display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0;background:rgba(10,52,66,.7);border-radius:15px;font-size:18px;font-weight:800}
+    .topbar-profile-large img{width:100%;height:100%;object-fit:cover}
+    .topbar-profile-name{display:block;max-width:210px;overflow:hidden;color:#fff;font-size:15px;font-weight:800;line-height:1.2;letter-spacing:-.025em;text-overflow:ellipsis;white-space:nowrap}
+    .topbar-profile-email{display:block;max-width:210px;margin-top:5px;overflow:hidden;color:rgba(232,255,249,.82);font-size:11px;font-weight:500;line-height:1.2;text-overflow:ellipsis;white-space:nowrap}
+    .topbar-profile-role{display:inline-flex;align-items:center;width:fit-content;margin-top:8px;padding:4px 10px;color:#fff;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.24);border-radius:999px;font-size:9px;font-weight:700;line-height:1;letter-spacing:.07em;text-transform:uppercase}
+    .topbar-profile-body{padding:8px}
+    .topbar-profile-body form{margin:0}
+    .topbar-profile-link{width:100%;min-height:54px;display:flex;align-items:center;gap:11px;margin:0;padding:9px;color:#475569;background:transparent;border:0;border-radius:15px;outline:none;text-align:left;cursor:pointer;transition:color .16s ease,background .16s ease,transform .16s ease}
+    .topbar-profile-link>span:last-child{display:block;color:inherit;font-size:12px;font-weight:700;line-height:1.2;white-space:nowrap}
+    .topbar-profile-link:hover{color:#216a73;background:rgba(236,254,255,.9);transform:translateX(2px)}
+    .topbar-profile-link.danger{color:#dc3545}
+    .topbar-profile-link.danger:hover{color:#dc3545;background:#fff1f2}
+    .topbar-profile-icon{width:39px;height:39px;flex:0 0 39px;display:flex;align-items:center;justify-content:center;color:#64748b;background:#eef8f7;border-radius:13px;transition:color .16s ease,background .16s ease}
+    .topbar-profile-icon svg{width:19px;height:19px;display:block;fill:none;stroke:currentColor}
+    .topbar-profile-link:hover .topbar-profile-icon{color:#216a73;background:#e5f5f2}
+    .topbar-profile-link.danger .topbar-profile-icon{color:#dc3545;background:#fff1f2}
+    .topbar-profile-link.danger:hover .topbar-profile-icon{color:#dc3545;background:#ffe7e9}
+    .topbar-profile-photo{display:none!important}
+
+    .mobile-button{display:none;width:42px;height:42px;align-items:center;justify-content:center;color:#64748b;background:#f5f7f7!important;border-radius:12px}
+    .mobile-panel{position:absolute;top:100%;right:0;left:0;z-index:190;max-height:calc(100vh - 70px);overflow:auto;padding:12px;background:#fff;border-top:1px solid #e5eaed;box-shadow:0 18px 35px rgba(15,23,42,.12)}
+    .mobile-user{display:flex;align-items:center;gap:11px;padding:12px;background:#f7faf9;border-radius:14px}
+    .mobile-title{margin:14px 5px 6px;color:#94a3b8;font-size:9px;font-weight:800;letter-spacing:.12em;text-transform:uppercase}
+    .mobile-link{width:100%;min-height:43px;display:flex;align-items:center;gap:10px;padding:10px 12px;margin-top:4px;color:#64748b;border-radius:11px;font-size:12px;font-weight:600}
+    .mobile-link:hover,.mobile-link.active{color:#216a73;background:#effaf8}
+    .mobile-icon{width:32px;height:32px;display:flex;align-items:center;justify-content:center;background:#effaf8;border-radius:9px}
+
+    .logout-backdrop{position:fixed;inset:0;z-index:99999;display:grid;place-items:center;padding:16px;background:rgba(15,23,42,.45);backdrop-filter:blur(2px)}
+    .logout-modal{width:min(340px,100%);padding:22px;background:#fff;border-radius:20px;box-shadow:0 22px 60px rgba(15,23,42,.24);text-align:center}
+    .logout-icon{width:50px;height:50px;margin:0 auto 13px;display:flex;align-items:center;justify-content:center;color:#216a73;background:#eaf8f5;border-radius:16px}
+    .logout-icon svg{width:22px;height:22px;display:block;fill:none;stroke:currentColor}
+    .logout-title{margin:0;color:#334155;font-size:17px;font-weight:800}
+    .logout-text{margin:8px 0 18px;color:#64748b;font-size:12px;line-height:1.45}
+    .logout-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .logout-actions button{min-height:41px;border-radius:13px!important;font-size:11px!important;font-weight:700!important}
+    .logout-cancel{background:#f1f5f4!important;color:#475569!important}
+    .logout-confirm{background:linear-gradient(135deg,#216a73,#3bb49c)!important;color:#fff!important}
+
+    @media(max-width:900px){.topbar-profile{width:48px;padding:2px}.topbar-user{display:none}}
+    @media(max-width:760px){.microseed-topbar{height:70px}.topbar-content{padding:0 12px}.topbar-search-wrap{max-width:250px}.topbar-dropdown{position:fixed;top:76px;right:12px;left:12px;width:auto}}
+    @media(max-width:560px){.topbar-left,.topbar-actions,.topbar-profile-wrap{display:none}.topbar-content{justify-content:flex-end}.mobile-button{display:flex}}
 </style>
 
-<nav class="microseed-topbar"
-     x-data="{
-        searchValue: '',
-        searchOpen: false,
-        openPanel: null,
-        mobileOpen: false,
-        logoutModalOpen: false,
-        modules: @js($modulosBusqueda),
+<nav class="microseed-topbar" x-data="{
+search:'',searchOpen:false,panel:null,mobile:false,logout:false,modules:@js($modulos),
+get filtered(){const q=this.search.trim().toLowerCase();return(q?this.modules.filter(m=>m.label.toLowerCase().includes(q)||m.description.toLowerCase().includes(q)):this.modules).slice(0,8)},
+toggle(p){this.panel=this.panel===p?null:p;this.searchOpen=false},
+go(url){if(url)window.location.href=url},
+openLogout(){this.panel=null;this.mobile=false;this.logout=true},
+confirmLogout(){this.$refs.logoutForm.submit()}
+}">
 
-        get filteredModules() {
-            const query = this.searchValue.trim().toLowerCase();
+    <div class="topbar-content">
 
-            if (!query) return this.modules.slice(0, 6);
-
-            return this.modules
-                .filter(module =>
-                    module.label.toLowerCase().includes(query)
-                    || module.description.toLowerCase().includes(query)
-                )
-                .slice(0, 8);
-        },
-
-        togglePanel(panel) {
-            this.openPanel = this.openPanel === panel ? null : panel;
-            this.searchOpen = false;
-        },
-
-        openProfile() {
-            this.searchOpen = false;
-            this.openPanel = 'profile';
-        },
-
-        closeProfile() {
-            if (this.openPanel === 'profile') this.openPanel = null;
-        },
-
-        openLogoutModal() {
-            this.openPanel = null;
-            this.mobileOpen = false;
-            this.logoutModalOpen = true;
-        },
-
-        closeLogoutModal() {
-            this.logoutModalOpen = false;
-        },
-
-        confirmLogout() {
-            this.$refs.logoutForm.submit();
-        },
-
-        goToModule(url) {
-            if (url) window.location.href = url;
-        },
-
-        init() {
-            window.addEventListener('keydown', event => {
-                if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'k') {
-                    event.preventDefault();
-                    this.openPanel = null;
-                    this.searchOpen = true;
-
-                    this.$nextTick(() => {
-                        this.$refs.globalSearch?.focus();
-                    });
-                }
-
-                if (event.key === 'Escape') {
-                    this.searchOpen = false;
-                    this.openPanel = null;
-                    this.mobileOpen = false;
-                    this.logoutModalOpen = false;
-                }
-            });
-        }
-     }">
-
-    <div class="microseed-topbar-content">
-
-        <div class="microseed-topbar-left">
-            <div class="microseed-search-wrapper" @click.outside="searchOpen = false">
-
-                <div class="microseed-search">
-                    <svg class="microseed-search-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m21 21-4.35-4.35m1.35-5.65a7 7 0 11-14 0 7 7 0 0114 0z"/>
-                    </svg>
-
-                    <input
-                        x-ref="globalSearch"
-                        x-model="searchValue"
-                        type="search"
-                        class="microseed-search-input"
-                        placeholder="Buscar módulos..."
-                        autocomplete="off"
-                        @focus="searchOpen = true; openPanel = null;"
-                        @input="searchOpen = true"
-                        @keydown.enter.prevent="if (filteredModules.length) goToModule(filteredModules[0].url)"
-                    >
+        <div class="topbar-left">
+            <div class="topbar-search-wrap" @click.outside="searchOpen=false">
+                <div class="topbar-search">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2" d="m21 21-4.35-4.35m1.35-5.65a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                    <input x-model="search" type="search" placeholder="Buscar módulos..." @focus="searchOpen=true;panel=null" @input="searchOpen=true" @keydown.enter.prevent="if(filtered.length)go(filtered[0].url)">
                 </div>
 
-                <div x-show="searchOpen" x-cloak x-transition.opacity class="microseed-search-results">
-                    <div class="microseed-search-results-header">Acceso rápido</div>
+                <div x-show="searchOpen" x-cloak class="topbar-results">
+                    <div class="topbar-results-title">Acceso rápido</div>
 
-                    <template x-if="filteredModules.length > 0">
+                    <template x-if="filtered.length">
                         <div>
-                            <template x-for="module in filteredModules" :key="module.url">
-                                <button type="button" class="microseed-search-result" @click="goToModule(module.url)">
-                                    <span class="microseed-search-result-icon">
-                                        <svg width="17" height="17" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14m-6-6 6 6-6 6"/>
-                                        </svg>
-                                    </span>
-
-                                    <span class="microseed-search-result-text">
-                                        <span class="microseed-search-result-title" x-text="module.label"></span>
-                                        <span class="microseed-search-result-description" x-text="module.description"></span>
-                                    </span>
+                            <template x-for="module in filtered" :key="module.url">
+                                <button type="button" class="topbar-result" @click="go(module.url)">
+                                    <span class="topbar-result-icon">→</span>
+                                    <span>
+                                <span class="topbar-result-title" x-text="module.label"></span>
+                                <span class="topbar-result-desc" x-text="module.description"></span>
+                            </span>
                                 </button>
                             </template>
                         </div>
                     </template>
 
-                    <template x-if="filteredModules.length === 0">
-                        <div class="microseed-search-empty">No se encontraron módulos.</div>
-                    </template>
+                    <template x-if="!filtered.length"><div class="topbar-empty">No se encontraron módulos.</div></template>
                 </div>
-
             </div>
         </div>
 
-        <div class="microseed-topbar-actions">
+        <div class="topbar-actions">
 
-            <div class="microseed-action-wrapper" @click.outside="if (openPanel === 'notifications') openPanel = null;">
-                <button
-                    type="button"
-                    class="microseed-action-button"
-                    :class="openPanel === 'notifications' ? 'microseed-action-active' : ''"
-                    aria-label="Notificaciones"
-                    @click="togglePanel('notifications')"
-                >
-                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.4-1.4A2 2 0 0118 14.2V11a6 6 0 10-12 0v3.2a2 2 0 01-.6 1.4L4 17h5m6 0a3 3 0 01-6 0"/>
-                    </svg>
-
-                    @if($cantidadAlertas > 0)
-                        <span class="microseed-counter">{{ $cantidadAlertas > 99 ? '99+' : $cantidadAlertas }}</span>
-                    @endif
+            <div class="topbar-action-wrap" @click.outside="if(panel==='alerts')panel=null">
+                <button type="button" class="topbar-action" :class="panel==='alerts'?'active':''" @click="toggle('alerts')">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2" d="M15 17h5l-2-2v-4a6 6 0 10-12 0v4l-2 2h5m6 0a3 3 0 01-6 0"/></svg>
+                    @if($cantidadAlertas>0)<span class="topbar-counter">{{ $cantidadAlertas>99?'99+':$cantidadAlertas }}</span>@endif
                 </button>
 
-                <div x-show="openPanel === 'notifications'" x-cloak x-transition.opacity class="microseed-dropdown">
-                    <div class="microseed-dropdown-header">
-                        <p class="microseed-dropdown-title">Notificaciones</p>
-                        <span class="microseed-dropdown-count">{{ $cantidadAlertas }} {{ $cantidadAlertas === 1 ? 'activa' : 'activas' }}</span>
-                    </div>
+                <div x-show="panel==='alerts'" x-cloak class="topbar-dropdown">
+                    <div class="topbar-dropdown-head"><strong>Notificaciones</strong><span class="topbar-pill">{{ $cantidadAlertas }} activas</span></div>
 
-                    @if($cantidadAlertas > 0)
-                        <div class="microseed-notification">
-                            <span class="microseed-notification-icon">
-                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3m0 4h.01M10.3 3.9 1.8 18a2 2 0 001.7 3h17a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0z"/>
-                                </svg>
-                            </span>
-
+                    @if($cantidadAlertas>0)
+                        <div class="topbar-notification">
+                            <span class="topbar-notification-icon">!</span>
                             <span>
-                                <span class="microseed-notification-title">Alertas pendientes</span>
-                                <span class="microseed-notification-description">
-                                    Existen {{ $cantidadAlertas }}
-                                    {{ $cantidadAlertas === 1 ? 'incidencia pendiente de revisión.' : 'incidencias pendientes de revisión.' }}
-                                </span>
-                            </span>
+                        <span class="topbar-notification-title">Alertas pendientes</span>
+                        <span class="topbar-notification-desc">Existen {{ $cantidadAlertas }} incidencias pendientes de revisión.</span>
+                    </span>
                         </div>
                     @else
-                        <div class="microseed-dropdown-empty">
-                            <span class="microseed-empty-icon">
-                                <svg width="21" height="21" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m5 13 4 4L19 7"/>
-                                </svg>
-                            </span>
-
-                            <p class="microseed-empty-title">Sin alertas activas</p>
-                            <p class="microseed-empty-description">El sistema opera sin incidencias.</p>
-                        </div>
+                        <div class="topbar-empty-state">Sin alertas activas.</div>
                     @endif
 
-                    @if($rutaAlertas)
-                        <a href="{{ $rutaAlertas }}" class="microseed-dropdown-footer">Ver todas las alertas</a>
-                    @endif
+                    @if($rutaAlertas)<a href="{{ $rutaAlertas }}" class="topbar-dropdown-footer">Ver todas las alertas</a>@endif
                 </div>
             </div>
 
-            <div class="microseed-action-wrapper" @click.outside="if (openPanel === 'activity') openPanel = null;">
-                <button
-                    type="button"
-                    class="microseed-action-button"
-                    :class="openPanel === 'activity' ? 'microseed-action-active' : ''"
-                    aria-label="Actividad"
-                    @click="togglePanel('activity')"
-                >
-                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 15a4 4 0 01-4 4H8l-5 3v-7a4 4 0 01-1-2.7V7a4 4 0 014-4h11a4 4 0 014 4v8z"/>
-                    </svg>
-
-                    @if($cantidadActividad > 0)
-                        <span class="microseed-counter microseed-counter-green">{{ $cantidadActividad > 99 ? '99+' : $cantidadActividad }}</span>
-                    @endif
+            <div class="topbar-action-wrap" @click.outside="if(panel==='activity')panel=null">
+                <button type="button" class="topbar-action" :class="panel==='activity'?'active':''" @click="toggle('activity')">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2" d="M21 15a4 4 0 01-4 4H8l-5 3v-7a4 4 0 01-1-3V7a4 4 0 014-4h11a4 4 0 014 4v8z"/></svg>
+                    @if($cantidadActividad>0)<span class="topbar-counter green">{{ $cantidadActividad }}</span>@endif
                 </button>
 
-                <div x-show="openPanel === 'activity'" x-cloak x-transition.opacity class="microseed-dropdown">
-                    <div class="microseed-dropdown-header">
-                        <p class="microseed-dropdown-title">Actividad</p>
-                        <span class="microseed-dropdown-count">{{ $cantidadActividad }} nuevas</span>
+                <div x-show="panel==='activity'" x-cloak class="topbar-dropdown">
+                    <div class="topbar-dropdown-head"><strong>Actividad</strong><span class="topbar-pill">{{ $cantidadActividad }} nuevas</span></div>
+                    <div class="topbar-empty-state">Sin actividad nueva.</div>
+                </div>
+            </div>
+
+            <div class="topbar-profile-wrap" @mouseenter="panel='profile'" @mouseleave="if(panel==='profile')panel=null">
+                <button type="button" class="topbar-profile" :class="panel==='profile'?'active':''" @click="toggle('profile')">
+            <span class="topbar-avatar">
+                @if($foto)<img src="{{ $foto }}" alt="Foto de {{ $nombre }}">@else{{ strtoupper(substr($nombre,0,1)) }}@endif
+                <span class="topbar-online"></span>
+            </span>
+                    <span class="topbar-user">
+                <span class="topbar-user-name">{{ $nombre }}</span>
+                <span class="topbar-user-role">{{ $rolVisible }}</span>
+            </span>
+                </button>
+
+                <div x-show="panel==='profile'" x-cloak class="topbar-dropdown topbar-profile-dropdown">
+
+                    <div class="topbar-profile-header">
+                        <span class="topbar-profile-large">@if($foto)<img src="{{ $foto }}" alt="Foto">@else{{ strtoupper(substr($nombre,0,1)) }}@endif</span>
+                        <span>
+                    <span class="topbar-profile-name">{{ $nombre }}</span>
+                    <span class="topbar-profile-email">{{ $correo }}</span>
+                    <span class="topbar-profile-role">{{ $rolVisible }}</span>
+                </span>
                     </div>
 
-                    <div class="microseed-dropdown-empty">
-                        <span class="microseed-empty-icon">
-                            <svg width="21" height="21" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h7m-9 9 3.5-3H18a3 3 0 003-3V6a3 3 0 00-3-3H6a3 3 0 00-3 3v9a3 3 0 002 2.8V21z"/>
+                    <div class="topbar-profile-body">
+
+                        @if(Route::has('profile.edit'))
+                            <a href="{{ route('profile.edit') }}" class="topbar-profile-link">
+                        <span class="topbar-profile-icon">
+                            <svg viewBox="0 0 24 24" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="7" r="4"/>
+                                <path d="M4 21a8 8 0 0 1 16 0"/>
                             </svg>
                         </span>
-
-                        <p class="microseed-empty-title">Sin actividad nueva</p>
-                        <p class="microseed-empty-description">Las novedades aparecerán en este apartado.</p>
-                    </div>
-                </div>
-            </div>
-
-            <div
-                class="microseed-profile-wrapper"
-                @mouseenter="openProfile()"
-                @mouseleave="closeProfile()"
-                @click.outside="if (openPanel === 'profile') openPanel = null;"
-            >
-                <button
-                    type="button"
-                    class="microseed-profile-button"
-                    :class="openPanel === 'profile' ? 'microseed-profile-active' : ''"
-                    aria-label="Menú de usuario"
-                    :aria-expanded="openPanel === 'profile'"
-                    @click="togglePanel('profile')"
-                >
-                    <span class="microseed-profile-avatar">
-                        @if($fotoUsuario)
-                            <img src="{{ $fotoUsuario }}" alt="Foto de {{ $nombreUsuario }}">
-                        @else
-                            {{ strtoupper(substr($nombreUsuario,0,1)) }}
-                        @endif
-
-                        <span class="microseed-profile-online"></span>
-                    </span>
-
-                    <span class="microseed-profile-information">
-                        <span class="microseed-profile-name">{{ $nombreUsuario }}</span>
-                        <span class="microseed-profile-role">{{ $rolVisible }}</span>
-                    </span>
-
-                    <svg class="microseed-profile-chevron"
-                         :class="openPanel === 'profile' ? 'microseed-profile-chevron-open' : ''"
-                         fill="none"
-                         stroke="currentColor"
-                         viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 9-7 7-7-7"/>
-                    </svg>
-                </button>
-
-                <div x-show="openPanel === 'profile'" x-cloak x-transition.opacity class="microseed-dropdown microseed-profile-dropdown">
-                    <div class="microseed-profile-header">
-                        <div class="microseed-profile-header-row">
-
-                            <span class="microseed-profile-large-avatar">
-                                @if($fotoUsuario)
-                                    <img src="{{ $fotoUsuario }}" alt="Foto de {{ $nombreUsuario }}">
-                                @else
-                                    {{ strtoupper(substr($nombreUsuario,0,1)) }}
-                                @endif
-                            </span>
-
-                            <span class="microseed-profile-header-information">
-                                <span class="microseed-profile-dropdown-name">{{ $nombreUsuario }}</span>
-                                <span class="microseed-profile-dropdown-email">{{ $correoUsuario }}</span>
-                                <span class="microseed-profile-dropdown-role">{{ $rolVisible }}</span>
-                            </span>
-
-                        </div>
-                    </div>
-
-                    <div class="microseed-profile-body">
-                        @if(Route::has('profile.edit'))
-                            <a href="{{ route('profile.edit') }}" class="microseed-profile-action">
-                                <span class="microseed-profile-action-icon">
-                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 12a4 4 0 100-8 4 4 0 000 8zm0 2c-5 0-8 2.5-8 5v1h16v-1c0-2.5-3-5-8-5z"/>
-                                    </svg>
-                                </span>
-
-                                <span class="microseed-profile-action-text">
-                                    <span class="microseed-profile-action-label">Mi perfil</span>
-                                    <span class="microseed-profile-action-description">Ver y editar cuenta</span>
-                                </span>
+                                <span>Mi perfil</span>
                             </a>
                         @endif
 
                         @if(Route::has('perfil.foto.update'))
-                            <form id="topbar-photo-form" method="POST" action="{{ route('perfil.foto.update') }}" enctype="multipart/form-data">
+                            <form id="nav-photo-form" method="POST" action="{{ route('perfil.foto.update') }}" enctype="multipart/form-data">
                                 @csrf
                                 @method('PATCH')
 
-                                <label for="topbar_foto_perfil" class="microseed-profile-action">
-                                    <span class="microseed-profile-action-icon">
-                                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.2 5.2 18.8 8.8M9 13l6.6-6.6a2 2 0 112.8 2.8L11.8 15.8a2 2 0 01-.9.5L7 17l.7-4a2 2 0 01.5-.8L9 13z"/>
-                                        </svg>
-                                    </span>
-
-                                    <span class="microseed-profile-action-text">
-                                        <span class="microseed-profile-action-label">Cambiar fotografía</span>
-                                        <span class="microseed-profile-action-description">Actualizar imagen de usuario</span>
-                                    </span>
+                                <label for="nav_foto" class="topbar-profile-link">
+                            <span class="topbar-profile-icon">
+                                <svg viewBox="0 0 24 24" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M12 20h9"/>
+                                    <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/>
+                                </svg>
+                            </span>
+                                    <span>Cambiar fotografía</span>
                                 </label>
 
-                                <input
-                                    id="topbar_foto_perfil"
-                                    type="file"
-                                    name="foto_perfil"
-                                    accept="image/png,image/jpeg,image/jpg,image/webp"
-                                    class="microseed-profile-photo-input"
-                                    onchange="document.getElementById('topbar-photo-form').submit()"
-                                >
+                                <input id="nav_foto" type="file" name="foto_perfil" accept="image/png,image/jpeg,image/jpg,image/webp" class="topbar-profile-photo" onchange="document.getElementById('nav-photo-form').submit()">
                             </form>
                         @endif
 
-                        <div class="microseed-profile-separator"></div>
-
-                        <button type="button" class="microseed-profile-action microseed-profile-action-danger" @click="openLogoutModal()">
-                            <span class="microseed-profile-action-icon">
-                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m17 16 4-4m0 0-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
-                                </svg>
-                            </span>
-
-                            <span class="microseed-profile-action-text">
-                                <span class="microseed-profile-action-label">Cerrar sesión</span>
-                                <span class="microseed-profile-action-description">Salir del sistema</span>
-                            </span>
+                        <button type="button" class="topbar-profile-link danger" @click="openLogout()">
+                    <span class="topbar-profile-icon">
+                        <svg viewBox="0 0 24 24" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M10 17l5-5-5-5"/>
+                            <path d="M15 12H3"/>
+                            <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/>
+                        </svg>
+                    </span>
+                            <span>Cerrar sesión</span>
                         </button>
+
                     </div>
                 </div>
             </div>
 
         </div>
 
-        <button type="button" class="microseed-mobile-menu-button" aria-label="Abrir menú" @click="mobileOpen = !mobileOpen">
-            <svg x-show="!mobileOpen" width="21" height="21" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
-            </svg>
-
-            <svg x-show="mobileOpen" x-cloak width="21" height="21" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18 18 6M6 6l12 12"/>
-            </svg>
+        <button type="button" class="mobile-button" @click="mobile=!mobile">
+            <svg width="21" height="21" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
         </button>
 
     </div>
 
-    <div x-show="mobileOpen" x-cloak x-transition.opacity class="microseed-mobile-panel">
-
-        <div class="microseed-mobile-user">
-            <span class="microseed-profile-avatar">
-                @if($fotoUsuario)
-                    <img src="{{ $fotoUsuario }}" alt="Foto de {{ $nombreUsuario }}">
-                @else
-                    {{ strtoupper(substr($nombreUsuario,0,1)) }}
-                @endif
-
-                <span class="microseed-profile-online"></span>
-            </span>
-
-            <span class="microseed-profile-information">
-                <span class="microseed-profile-name">{{ $nombreUsuario }}</span>
-                <span class="microseed-profile-role">{{ $rolVisible }}</span>
-            </span>
+    <div x-show="mobile" x-cloak class="mobile-panel">
+        <div class="mobile-user">
+            <span class="topbar-avatar">@if($foto)<img src="{{ $foto }}" alt="Foto">@else{{ strtoupper(substr($nombre,0,1)) }}@endif</span>
+            <span class="topbar-user">
+            <span class="topbar-user-name">{{ $nombre }}</span>
+            <span class="topbar-user-role">{{ $rolVisible }}</span>
+        </span>
         </div>
 
-        <a href="{{ $rutaInicio }}" class="microseed-mobile-link">
-            <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 13h6V4H4v9zm10 7h6V4h-6v16zM4 20h6v-5H4v5z"/>
-            </svg>
-            Dashboard
-        </a>
+        <div class="mobile-title">Módulos</div>
 
-        @if($rutaUsuarios)
-            <a href="{{ $rutaUsuarios }}" class="microseed-mobile-link">
-                <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2m7-10a4 4 0 100-8 4 4 0 000 8zm8 1v6m3-3h-6"/>
-                </svg>
-                Usuarios
+        @foreach($modulos as $modulo)
+            @php $activo=request()->routeIs($modulo['route'])||request()->routeIs(str_replace('.index','.*',$modulo['route'])); @endphp
+            <a href="{{ $modulo['url'] }}" class="mobile-link {{ $activo?'active':'' }}">
+                <span class="mobile-icon">→</span>{{ $modulo['label'] }}
             </a>
-        @endif
+        @endforeach
+
+        <div class="mobile-title">Cuenta</div>
 
         @if(Route::has('profile.edit'))
-            <a href="{{ route('profile.edit') }}" class="microseed-mobile-link">
-                <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 12a4 4 0 100-8 4 4 0 000 8zm0 2c-5 0-8 2.5-8 5v1h16v-1c0-2.5-3-5-8-5z"/>
-                </svg>
-                Mi perfil
-            </a>
+            <a href="{{ route('profile.edit') }}" class="mobile-link"><span class="mobile-icon">👤</span>Mi perfil</a>
         @endif
 
-        <button type="button" class="microseed-mobile-link microseed-mobile-link-danger" @click="openLogoutModal()">
-            <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m17 16 4-4m0 0-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
-            </svg>
-            Cerrar sesión
-        </button>
-
+        <button type="button" class="mobile-link" style="color:#dc3545;" @click="openLogout()"><span class="mobile-icon">↪</span>Cerrar sesión</button>
     </div>
 
-    <form x-ref="logoutForm" method="POST" action="{{ route('logout') }}" style="display:none;">
-        @csrf
-    </form>
+    <form x-ref="logoutForm" method="POST" action="{{ route('logout') }}" style="display:none;">@csrf</form>
 
-    <div
-        x-show="logoutModalOpen"
-        x-cloak
-        x-transition.opacity
-        class="microseed-logout-backdrop"
-        @click.self="closeLogoutModal()"
-        @keydown.escape.window="closeLogoutModal()"
-    >
-        <div x-show="logoutModalOpen" class="microseed-logout-modal">
-
-            <div class="microseed-logout-modal-header">
-                <div class="microseed-logout-icon">
-                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m17 16 4-4m0 0-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
-                    </svg>
-                </div>
-
-                <h3 class="microseed-logout-title">¿Deseas cerrar sesión?</h3>
-
-                <p class="microseed-logout-description">
-                    Se cerrará tu sesión actual y tendrás que iniciar sesión nuevamente para acceder al sistema.
-                </p>
+    <div x-show="logout" x-cloak class="logout-backdrop" @click.self="logout=false">
+        <div class="logout-modal">
+            <div class="logout-icon">
+                <svg viewBox="0 0 24 24" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M10 17l5-5-5-5"/>
+                    <path d="M15 12H3"/>
+                    <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/>
+                </svg>
             </div>
 
-            <div class="microseed-logout-actions">
-                <button type="button" class="microseed-logout-cancel" @click="closeLogoutModal()">No, cancelar</button>
-                <button type="button" class="microseed-logout-confirm" @click="confirmLogout()">Sí, cerrar sesión</button>
-            </div>
+            <h3 class="logout-title">¿Deseas cerrar sesión?</h3>
+            <p class="logout-text">Se cerrará tu sesión actual y tendrás que iniciar sesión nuevamente para acceder al sistema.</p>
 
+            <div class="logout-actions">
+                <button type="button" class="logout-cancel" @click="logout=false">No, cancelar</button>
+                <button type="button" class="logout-confirm" @click="confirmLogout()">Sí, cerrar sesión</button>
+            </div>
         </div>
     </div>
 

@@ -8,13 +8,14 @@
 
     'columns' => [
         ['label' => 'Incubadora', 'key' => 'lote.posicion.incubadora.nombre'],
+        ['label' => 'Posición', 'key' => 'lote.posicion.numero_posicion', 'size' => 'short'],
         ['label' => 'Lote', 'key' => 'lote.codigo_lote'],
         ['label' => 'Especie', 'key' => 'lote.especie.nombre_comun'],
-        ['label' => 'N.º frasco', 'key' => 'numero_frasco'],
-        ['label' => 'Semillas', 'key' => 'cantidad_semillas'],
-        ['label' => 'Estado', 'key' => 'estado.nombre'],
-        ['label' => 'Seguimientos', 'key' => 'seguimientos_count'],
-        ['label' => 'Observaciones', 'key' => 'observaciones'],
+        ['label' => 'N.º frasco', 'key' => 'numero_frasco', 'size' => 'short'],
+        ['label' => 'Semillas', 'key' => 'cantidad_semillas', 'size' => 'short'],
+        ['label' => 'Estado', 'key' => 'estado.nombre', 'size' => 'short'],
+        ['label' => 'Seguimientos', 'key' => 'seguimientos_count', 'size' => 'short'],
+        ['label' => 'Observaciones', 'key' => 'observaciones', 'wrap' => true],
     ],
 
     'fields' => [],
@@ -22,6 +23,6 @@
     'canCreate' => false,
     'canEdit' => false,
     'canDelete' => false,
-    'canShow' => true,
+    'canShow' => false,
     'showAsPage' => false,
 ])

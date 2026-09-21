@@ -28,24 +28,45 @@ class AlertaController extends Controller
             ->latest('fecha_hora')
             ->get();
 
-        $estados = EstadoAlerta::whereIn('clave', ['pendiente', 'atendida', 'resuelta'])
+        $estados = EstadoAlerta::whereIn('clave', [
+            'pendiente',
+            'atendida',
+            'resuelta',
+        ])
             ->orderBy('nombre')
             ->get();
 
-        return view('vistas_principales.encargado.alertas.index', compact('alertas', 'estados'));
+        return view(
+            'vistas_principales.encargado.alertas.index',
+            compact('alertas', 'estados')
+        );
     }
 
     public function update(Request $request, int $alerta): RedirectResponse
     {
         $user = auth()->user();
-        $alerta = Alerta::deEncargado($user->id)->findOrFail($alerta);
+
+        $alerta = Alerta::deEncargado($user->id)
+            ->findOrFail($alerta);
 
         $data = $request->validate([
-            'estado_alerta_id' => ['required', 'integer', 'exists:estados_alerta,id'],
-            'observaciones' => ['nullable', 'string', 'max:1000'],
+            'estado_alerta_id' => [
+                'required',
+                'integer',
+                'exists:estados_alerta,id',
+            ],
+            'observaciones' => [
+                'nullable',
+                'string',
+                'max:1000',
+            ],
         ]);
 
-        $estado = EstadoAlerta::whereIn('clave', ['pendiente', 'atendida', 'resuelta'])
+        $estado = EstadoAlerta::whereIn('clave', [
+            'pendiente',
+            'atendida',
+            'resuelta',
+        ])
             ->findOrFail($data['estado_alerta_id']);
 
         $actualizacion = [
@@ -61,21 +82,31 @@ class AlertaController extends Controller
 
         if ($estado->clave === 'atendida') {
             $actualizacion['atendida_por'] = $user->id;
-            $actualizacion['fecha_atencion'] = $alerta->fecha_atencion ?? now('America/Mexico_City');
+            $actualizacion['fecha_atencion'] =
+                $alerta->fecha_atencion ?? now('America/Mexico_City');
+
             $actualizacion['fecha_resolucion'] = null;
         }
 
         if ($estado->clave === 'resuelta') {
-            $actualizacion['atendida_por'] = $alerta->atendida_por ?? $user->id;
-            $actualizacion['fecha_atencion'] = $alerta->fecha_atencion ?? now('America/Mexico_City');
-            $actualizacion['fecha_resolucion'] = now('America/Mexico_City');
+            $actualizacion['atendida_por'] =
+                $alerta->atendida_por ?? $user->id;
+
+            $actualizacion['fecha_atencion'] =
+                $alerta->fecha_atencion ?? now('America/Mexico_City');
+
+            $actualizacion['fecha_resolucion'] =
+                now('America/Mexico_City');
         }
 
         $alerta->update($actualizacion);
 
         return redirect()
             ->route('encargado.alertas.index')
-            ->with('success', 'La alerta fue actualizada correctamente.');
+            ->with(
+                'success',
+                'La alerta fue actualizada correctamente.'
+            );
     }
 
     public function atender(int $alerta): RedirectResponse
@@ -89,27 +120,41 @@ class AlertaController extends Controller
         if ($alerta->estado?->clave === 'resuelta') {
             return redirect()
                 ->route('encargado.alertas.index')
-                ->with('info', 'La alerta ya se encuentra resuelta.');
+                ->with(
+                    'info',
+                    'La alerta ya se encuentra resuelta.'
+                );
         }
 
         if ($alerta->estado?->clave === 'atendida') {
             return redirect()
                 ->route('encargado.alertas.index')
-                ->with('info', 'La alerta ya fue marcada como atendida.');
+                ->with(
+                    'info',
+                    'La alerta ya fue marcada como atendida.'
+                );
         }
 
-        $estado = EstadoAlerta::where('clave', 'atendida')->firstOrFail();
+        $estado = EstadoAlerta::where(
+            'clave',
+            'atendida'
+        )->firstOrFail();
 
         $alerta->update([
             'estado_alerta_id' => $estado->id,
             'atendida_por' => $user->id,
-            'fecha_atencion' => $alerta->fecha_atencion ?? now('America/Mexico_City'),
+            'fecha_atencion' =>
+                $alerta->fecha_atencion
+                ?? now('America/Mexico_City'),
             'fecha_resolucion' => null,
         ]);
 
         return redirect()
             ->route('encargado.alertas.index')
-            ->with('success', 'La alerta fue marcada como atendida.');
+            ->with(
+                'success',
+                'La alerta fue marcada como atendida.'
+            );
     }
 
     public function resolver(int $alerta): RedirectResponse
@@ -120,23 +165,65 @@ class AlertaController extends Controller
             ->deEncargado($user->id)
             ->findOrFail($alerta);
 
+        /*
+        |--------------------------------------------------------------------------
+        | Ya está resuelta
+        |--------------------------------------------------------------------------
+        */
+
         if ($alerta->estado?->clave === 'resuelta') {
             return redirect()
                 ->route('encargado.alertas.index')
-                ->with('info', 'La alerta ya se encuentra resuelta.');
+                ->with(
+                    'info',
+                    'La alerta ya se encuentra resuelta.'
+                );
         }
 
-        $estado = EstadoAlerta::where('clave', 'resuelta')->firstOrFail();
+        /*
+        |--------------------------------------------------------------------------
+        | No permitir Pendiente -> Resuelta
+        |--------------------------------------------------------------------------
+        */
+
+        if ($alerta->estado?->clave === 'pendiente') {
+            return redirect()
+                ->route('encargado.alertas.index')
+                ->with(
+                    'warning',
+                    'Primero debes marcar la alerta como atendida.'
+                );
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Resolver alerta atendida
+        |--------------------------------------------------------------------------
+        */
+
+        $estado = EstadoAlerta::where(
+            'clave',
+            'resuelta'
+        )->firstOrFail();
 
         $alerta->update([
             'estado_alerta_id' => $estado->id,
-            'atendida_por' => $alerta->atendida_por ?? $user->id,
-            'fecha_atencion' => $alerta->fecha_atencion ?? now('America/Mexico_City'),
-            'fecha_resolucion' => now('America/Mexico_City'),
+            'atendida_por' =>
+                $alerta->atendida_por ?? $user->id,
+
+            'fecha_atencion' =>
+                $alerta->fecha_atencion
+                ?? now('America/Mexico_City'),
+
+            'fecha_resolucion' =>
+                now('America/Mexico_City'),
         ]);
 
         return redirect()
             ->route('encargado.alertas.index')
-            ->with('success', 'La alerta fue resuelta correctamente.');
+            ->with(
+                'success',
+                'La alerta fue resuelta correctamente.'
+            );
     }
 }

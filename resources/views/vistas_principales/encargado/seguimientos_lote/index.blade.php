@@ -11,13 +11,13 @@
         ['label' => 'Lote', 'key' => 'lote.codigo_lote'],
         ['label' => 'Especie', 'key' => 'lote.especie.nombre_comun'],
         ['label' => 'Fecha', 'key' => 'fecha_revision'],
-        ['label' => 'Frascos activos', 'key' => 'frascos_activos'],
-        ['label' => 'Germinadas', 'key' => 'semillas_germinadas'],
-        ['label' => '% germinación', 'key' => 'porcentaje_germinacion'],
-        ['label' => 'Altura promedio', 'key' => 'altura_promedio_cm'],
+        ['label' => 'Frascos activos', 'key' => 'frascos_activos', 'size' => 'short'],
+        ['label' => 'Germinadas', 'key' => 'semillas_germinadas', 'size' => 'short'],
+        ['label' => '% germinación', 'key' => 'porcentaje_germinacion', 'size' => 'short'],
+        ['label' => 'Altura promedio', 'key' => 'altura_promedio_cm', 'size' => 'short'],
         ['label' => 'Etapa', 'key' => 'etapa.nombre'],
         ['label' => 'Registró', 'key' => 'user.name'],
-        ['label' => 'Observaciones', 'key' => 'observaciones'],
+        ['label' => 'Observaciones', 'key' => 'observaciones', 'wrap' => true],
     ],
 
     'fields' => [
@@ -66,12 +66,13 @@
             'name' => 'observaciones',
             'label' => 'Observaciones',
             'type' => 'textarea',
+            'rows' => 4,
         ],
     ],
 
     'canCreate' => true,
     'canEdit' => false,
     'canDelete' => false,
-    'canShow' => true,
+    'canShow' => false,
     'showAsPage' => false,
 ])

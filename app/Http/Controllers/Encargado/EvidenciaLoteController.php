@@ -7,7 +7,9 @@ use App\Models\EvidenciaLote;
 use App\Models\SeguimientoLote;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
+use Throwable;
 
 class EvidenciaLoteController extends Controller
 {
@@ -66,11 +68,16 @@ class EvidenciaLoteController extends Controller
             'public'
         );
 
-        EvidenciaLote::create([
-            'seguimiento_lote_id' => $seguimiento->id,
-            'archivo' => $ruta,
-            'descripcion' => $data['descripcion'] ?? null,
-        ]);
+        try {
+            EvidenciaLote::create([
+                'seguimiento_lote_id' => $seguimiento->id,
+                'archivo' => $ruta,
+                'descripcion' => $data['descripcion'] ?? null,
+            ]);
+        } catch (Throwable $e) {
+            Storage::disk('public')->delete($ruta);
+            throw $e;
+        }
 
         return redirect()
             ->route('encargado.evidencias-lote.index')
