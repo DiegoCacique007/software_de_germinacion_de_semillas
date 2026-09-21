@@ -14,6 +14,7 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([
             'check.role' => \App\Http\Middleware\CheckRole::class,
+            'check.active' => \App\Http\Middleware\CheckActive::class,
         ]);
 
         $middleware->appendToGroup('web', [
@@ -22,4 +23,5 @@ return Application::configure(basePath: dirname(__DIR__))
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //
-    })->create();
+    })
+    ->create();

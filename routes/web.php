@@ -17,7 +17,7 @@ use App\Http\Controllers\Encargado\EvidenciaLoteController as EncargadoEvidencia
 
 use App\Http\Controllers\SuperAdmin\DashboardController as SuperAdminDashboardController;
 use App\Http\Controllers\SuperAdmin\UserController as SuperAdminUserController;
-use App\Http\Controllers\SuperAdmin\AlertaController;
+use App\Http\Controllers\SuperAdmin\AlertaController as SuperAdminAlertaController;
 use App\Http\Controllers\SuperAdmin\AsignacionIncubadoraController;
 use App\Http\Controllers\SuperAdmin\CondicionOptimaEspecieController;
 use App\Http\Controllers\SuperAdmin\ControlIncubadoraController;
@@ -34,23 +34,35 @@ use App\Http\Controllers\SuperAdmin\LecturaMicroclimaController;
 use App\Http\Controllers\SuperAdmin\LoteController;
 use App\Http\Controllers\SuperAdmin\ModoControlIncubadoraController;
 use App\Http\Controllers\SuperAdmin\NivelAlertaController;
+use App\Http\Controllers\SuperAdmin\PerfilFotoController;
 use App\Http\Controllers\SuperAdmin\PosicionIncubadoraController;
 use App\Http\Controllers\SuperAdmin\RegistroBiologicoController;
 use App\Http\Controllers\SuperAdmin\SeguimientoFrascoController;
 use App\Http\Controllers\SuperAdmin\SeguimientoLoteController;
 use App\Http\Controllers\SuperAdmin\TipoAlertaController;
 use App\Http\Controllers\SuperAdmin\TipoControlIncubadoraController;
-use App\Http\Controllers\SuperAdmin\PerfilFotoController;
 
-Route::get('/', fn() => auth()->check() ? redirect()->route('dashboard') : redirect()->route('login'))->name('home');
+/*
+|--------------------------------------------------------------------------
+| INICIO
+|--------------------------------------------------------------------------
+*/
 
-Route::middleware('auth')->group(function () {
+Route::get('/', fn() => auth()->check()
+    ? redirect()->route('dashboard')
+    : redirect()->route('login')
+)->name('home');
+
+/*
+|--------------------------------------------------------------------------
+| USUARIO AUTENTICADO Y ACTIVO
+|--------------------------------------------------------------------------
+*/
+
+Route::middleware(['auth', 'check.active'])->group(function () {
+
     Route::get('/dashboard', function () {
-        $user = auth()->user();
-
-        if (!$user->activo) abort(403, 'Tu cuenta se encuentra inactiva.');
-
-        return match ($user->rol_clave) {
+        return match (auth()->user()->rol_clave) {
             'super_admin' => redirect()->route('super_admin.dashboard'),
             'encargado' => redirect()->route('encargado.dashboard'),
             default => abort(403, 'Rol no permitido.'),
@@ -73,89 +85,165 @@ Route::middleware('auth')->group(function () {
 |--------------------------------------------------------------------------
 */
 
-Route::prefix('super-admin')->name('super_admin.')->middleware(['auth', 'check.role:super_admin'])->group(function () {
+Route::prefix('super-admin')
+    ->name('super_admin.')
+    ->middleware(['auth', 'check.role:super_admin'])
+    ->group(function () {
 
-    Route::get('/dashboard', [SuperAdminDashboardController::class, 'index'])->name('dashboard');
-    Route::get('/dashboard/tiempo-real', [SuperAdminDashboardController::class, 'tiempoReal'])->name('dashboard.tiempo-real');
+        /*
+        |--------------------------------------------------------------------------
+        | Dashboard y control
+        |--------------------------------------------------------------------------
+        */
 
-    Route::post('/microclima/actuadores/{actuador}', [MicroclimaActuadorController::class, 'update'])->name('microclima.actuadores.update');
-    Route::get('/incubadoras/{incubadora}/ultima-lectura', [SuperAdminDashboardController::class, 'getUltimaLectura'])->name('incubadoras.ultima-lectura');
+        Route::get('/dashboard', [SuperAdminDashboardController::class, 'index'])->name('dashboard');
+        Route::get('/dashboard/tiempo-real', [SuperAdminDashboardController::class, 'tiempoReal'])->name('dashboard.tiempo-real');
 
-    /*
-    |--------------------------------------------------------------------------
-    | Usuarios
-    |--------------------------------------------------------------------------
-    */
+        Route::post('/microclima/actuadores/{actuador}', [MicroclimaActuadorController::class, 'update'])
+            ->name('microclima.actuadores.update');
 
-    Route::resource('usuarios', SuperAdminUserController::class)->only(['index', 'store', 'update']);
+        Route::get('/incubadoras/{incubadora}/ultima-lectura', [SuperAdminDashboardController::class, 'getUltimaLectura'])
+            ->name('incubadoras.ultima-lectura');
 
-    /*
-    |--------------------------------------------------------------------------
-    | Alertas
-    |--------------------------------------------------------------------------
-    */
+        /*
+        |--------------------------------------------------------------------------
+        | Usuarios
+        |--------------------------------------------------------------------------
+        */
 
-    Route::resource('alertas', AlertaController::class)->except(['create', 'show', 'edit']);
-    Route::resource('tipos-alerta', TipoAlertaController::class)->parameters(['tipos-alerta' => 'tipoAlerta'])->except(['create', 'show', 'edit']);
-    Route::resource('niveles-alerta', NivelAlertaController::class)->parameters(['niveles-alerta' => 'nivelAlerta'])->except(['create', 'show', 'edit']);
-    Route::resource('estados-alerta', EstadoAlertaController::class)->parameters(['estados-alerta' => 'estadoAlerta'])->except(['create', 'show', 'edit']);
+        Route::resource('usuarios', SuperAdminUserController::class)
+            ->only(['index', 'store', 'update']);
 
-    /*
-    |--------------------------------------------------------------------------
-    | Incubadoras
-    |--------------------------------------------------------------------------
-    */
+        /*
+        |--------------------------------------------------------------------------
+        | Alertas
+        |--------------------------------------------------------------------------
+        */
 
-    Route::resource('incubadoras', SuperAdminIncubadoraController::class)->except(['create', 'show', 'edit']);
-    Route::resource('estados-incubadora', SuperAdminEstadoIncubadoraController::class)->parameters(['estados-incubadora' => 'estadoIncubadora'])->except(['create', 'show', 'edit']);
-    Route::resource('posiciones-incubadora', PosicionIncubadoraController::class)->parameters(['posiciones-incubadora' => 'posicionIncubadora'])->except(['create', 'show', 'edit']);
-    Route::resource('asignaciones-incubadora', AsignacionIncubadoraController::class)->parameters(['asignaciones-incubadora' => 'asignacionIncubadora'])->except(['create', 'show', 'edit']);
+        Route::resource('alertas', SuperAdminAlertaController::class)
+            ->except(['create', 'show', 'edit']);
 
-    /*
-    |--------------------------------------------------------------------------
-    | Monitoreo
-    |--------------------------------------------------------------------------
-    */
+        Route::resource('tipos-alerta', TipoAlertaController::class)
+            ->parameters(['tipos-alerta' => 'tipoAlerta'])
+            ->except(['create', 'show', 'edit']);
 
-    Route::resource('lecturas-microclima', LecturaMicroclimaController::class)->parameters(['lecturas-microclima' => 'lecturaMicroclima'])->except(['create', 'show', 'edit']);
-    Route::resource('controles-incubadora', ControlIncubadoraController::class)->parameters(['controles-incubadora' => 'controlIncubadora'])->except(['create', 'show', 'edit']);
-    Route::resource('tipos-control-incubadora', TipoControlIncubadoraController::class)->parameters(['tipos-control-incubadora' => 'tipoControlIncubadora'])->except(['create', 'show', 'edit']);
-    Route::resource('modos-control-incubadora', ModoControlIncubadoraController::class)->parameters(['modos-control-incubadora' => 'modoControlIncubadora'])->except(['create', 'show', 'edit']);
+        Route::resource('niveles-alerta', NivelAlertaController::class)
+            ->parameters(['niveles-alerta' => 'nivelAlerta'])
+            ->except(['create', 'show', 'edit']);
 
-    /*
-    |--------------------------------------------------------------------------
-    | Germinación
-    |--------------------------------------------------------------------------
-    */
+        Route::resource('estados-alerta', EstadoAlertaController::class)
+            ->parameters(['estados-alerta' => 'estadoAlerta'])
+            ->except(['create', 'show', 'edit']);
 
-    Route::resource('especies', EspecieController::class)->parameters(['especies' => 'especie'])->except(['create', 'show', 'edit']);
-    Route::resource('condiciones-optimas-especie', CondicionOptimaEspecieController::class)->parameters(['condiciones-optimas-especie' => 'condicionOptimaEspecie'])->except(['create', 'show', 'edit']);
-    Route::resource('lotes', LoteController::class)->except(['create', 'show', 'edit']);
-    Route::resource('estados-lote', EstadoLoteController::class)->parameters(['estados-lote' => 'estadoLote'])->except(['create', 'show', 'edit']);
-    Route::resource('frascos', FrascoController::class)->except(['create', 'show', 'edit']);
-    Route::resource('estados-frasco', EstadoFrascoController::class)->parameters(['estados-frasco' => 'estadoFrasco'])->except(['create', 'show', 'edit']);
-    Route::resource('etapas-desarrollo', EtapaDesarrolloController::class)->parameters(['etapas-desarrollo' => 'etapaDesarrollo'])->except(['create', 'show', 'edit']);
+        /*
+        |--------------------------------------------------------------------------
+        | Incubadoras
+        |--------------------------------------------------------------------------
+        */
 
-    /*
-    |--------------------------------------------------------------------------
-    | Seguimiento biológico
-    |--------------------------------------------------------------------------
-    */
+        Route::resource('incubadoras', SuperAdminIncubadoraController::class)
+            ->except(['create', 'show', 'edit']);
 
-    Route::resource('seguimientos-lote', SeguimientoLoteController::class)->parameters(['seguimientos-lote' => 'seguimientoLote'])->except(['create', 'show', 'edit']);
-    Route::resource('seguimientos-frasco', SeguimientoFrascoController::class)->parameters(['seguimientos-frasco' => 'seguimientoFrasco'])->except(['create', 'show', 'edit']);
-    Route::resource('evidencias-lote', EvidenciaLoteController::class)->parameters(['evidencias-lote' => 'evidenciaLote'])->except(['create', 'show', 'edit']);
-    Route::resource('registros-biologicos', RegistroBiologicoController::class)->parameters(['registros-biologicos' => 'registroBiologico'])->except(['create', 'show', 'edit']);
+        Route::resource('estados-incubadora', SuperAdminEstadoIncubadoraController::class)
+            ->parameters(['estados-incubadora' => 'estadoIncubadora'])
+            ->except(['create', 'show', 'edit']);
 
-    /*
-    |--------------------------------------------------------------------------
-    | Reportes
-    |--------------------------------------------------------------------------
-    */
+        Route::resource('posiciones-incubadora', PosicionIncubadoraController::class)
+            ->parameters(['posiciones-incubadora' => 'posicionIncubadora'])
+            ->except(['create', 'show', 'edit']);
 
-    Route::get('/reportes/microclima/pdf', [ReporteController::class, 'microclimaPdf'])->name('reportes.microclima.pdf');
-    Route::get('/reportes/biologico/pdf', [ReporteController::class, 'biologicoPdf'])->name('reportes.biologico.pdf');
-});
+        Route::resource('asignaciones-incubadora', AsignacionIncubadoraController::class)
+            ->parameters(['asignaciones-incubadora' => 'asignacionIncubadora'])
+            ->except(['create', 'show', 'edit']);
+
+        /*
+        |--------------------------------------------------------------------------
+        | Monitoreo y control
+        |--------------------------------------------------------------------------
+        */
+
+        Route::resource('lecturas-microclima', LecturaMicroclimaController::class)
+            ->parameters(['lecturas-microclima' => 'lecturaMicroclima'])
+            ->except(['create', 'show', 'edit']);
+
+        Route::resource('controles-incubadora', ControlIncubadoraController::class)
+            ->parameters(['controles-incubadora' => 'controlIncubadora'])
+            ->except(['create', 'show', 'edit']);
+
+        Route::resource('tipos-control-incubadora', TipoControlIncubadoraController::class)
+            ->parameters(['tipos-control-incubadora' => 'tipoControlIncubadora'])
+            ->except(['create', 'show', 'edit']);
+
+        Route::resource('modos-control-incubadora', ModoControlIncubadoraController::class)
+            ->parameters(['modos-control-incubadora' => 'modoControlIncubadora'])
+            ->except(['create', 'show', 'edit']);
+
+        /*
+        |--------------------------------------------------------------------------
+        | Germinación
+        |--------------------------------------------------------------------------
+        */
+
+        Route::resource('especies', EspecieController::class)
+            ->parameters(['especies' => 'especie'])
+            ->except(['create', 'show', 'edit']);
+
+        Route::resource('condiciones-optimas-especie', CondicionOptimaEspecieController::class)
+            ->parameters(['condiciones-optimas-especie' => 'condicionOptimaEspecie'])
+            ->except(['create', 'show', 'edit']);
+
+        Route::resource('lotes', LoteController::class)
+            ->except(['create', 'show', 'edit']);
+
+        Route::resource('estados-lote', EstadoLoteController::class)
+            ->parameters(['estados-lote' => 'estadoLote'])
+            ->except(['create', 'show', 'edit']);
+
+        Route::resource('frascos', FrascoController::class)
+            ->except(['create', 'show', 'edit']);
+
+        Route::resource('estados-frasco', EstadoFrascoController::class)
+            ->parameters(['estados-frasco' => 'estadoFrasco'])
+            ->except(['create', 'show', 'edit']);
+
+        Route::resource('etapas-desarrollo', EtapaDesarrolloController::class)
+            ->parameters(['etapas-desarrollo' => 'etapaDesarrollo'])
+            ->except(['create', 'show', 'edit']);
+
+        /*
+        |--------------------------------------------------------------------------
+        | Seguimiento biológico
+        |--------------------------------------------------------------------------
+        */
+
+        Route::resource('seguimientos-lote', SeguimientoLoteController::class)
+            ->parameters(['seguimientos-lote' => 'seguimientoLote'])
+            ->except(['create', 'show', 'edit']);
+
+        Route::resource('seguimientos-frasco', SeguimientoFrascoController::class)
+            ->parameters(['seguimientos-frasco' => 'seguimientoFrasco'])
+            ->except(['create', 'show', 'edit']);
+
+        Route::resource('evidencias-lote', EvidenciaLoteController::class)
+            ->parameters(['evidencias-lote' => 'evidenciaLote'])
+            ->except(['create', 'show', 'edit']);
+
+        Route::resource('registros-biologicos', RegistroBiologicoController::class)
+            ->parameters(['registros-biologicos' => 'registroBiologico'])
+            ->except(['create', 'show', 'edit']);
+
+        /*
+        |--------------------------------------------------------------------------
+        | Reportes
+        |--------------------------------------------------------------------------
+        */
+
+        Route::get('/reportes/microclima/pdf', [ReporteController::class, 'microclimaPdf'])
+            ->name('reportes.microclima.pdf');
+
+        Route::get('/reportes/biologico/pdf', [ReporteController::class, 'biologicoPdf'])
+            ->name('reportes.biologico.pdf');
+    });
 
 /*
 |--------------------------------------------------------------------------
@@ -163,73 +251,91 @@ Route::prefix('super-admin')->name('super_admin.')->middleware(['auth', 'check.r
 |--------------------------------------------------------------------------
 */
 
-Route::prefix('encargado')->name('encargado.')->middleware(['auth', 'check.role:encargado'])->group(function () {
+Route::prefix('encargado')
+    ->name('encargado.')
+    ->middleware(['auth', 'check.role:encargado'])
+    ->group(function () {
 
-    /*
-    |--------------------------------------------------------------------------
-    | Dashboard
-    |--------------------------------------------------------------------------
-    */
+        /*
+        |--------------------------------------------------------------------------
+        | Dashboard
+        |--------------------------------------------------------------------------
+        */
 
-    Route::get('/dashboard', [EncargadoDashboardController::class, 'index'])->name('dashboard');
+        Route::get('/dashboard', [EncargadoDashboardController::class, 'index'])
+            ->name('dashboard');
 
-    /*
-    |--------------------------------------------------------------------------
-    | Mis incubadoras
-    |--------------------------------------------------------------------------
-    */
+        /*
+        |--------------------------------------------------------------------------
+        | Mis incubadoras
+        |--------------------------------------------------------------------------
+        */
 
-    Route::get('/incubadoras', [EncargadoIncubadoraController::class, 'index'])->name('incubadoras.index');
-    Route::get('/incubadoras/{incubadora}', [EncargadoIncubadoraController::class, 'show'])->name('incubadoras.show');
+        Route::get('/incubadoras', [EncargadoIncubadoraController::class, 'index'])
+            ->name('incubadoras.index');
 
-    /*
-    |--------------------------------------------------------------------------
-    | Mis alertas
-    |--------------------------------------------------------------------------
-    */
+        Route::get('/incubadoras/{incubadora}', [EncargadoIncubadoraController::class, 'show'])
+            ->name('incubadoras.show');
 
-    Route::resource('alertas', EncargadoAlertaController::class)->only(['index', 'update']);
-    Route::patch('/alertas/{alerta}/atender', [AlertaController::class, 'atender'])->name('alertas.atender');
-    Route::patch('/alertas/{alerta}/resolver', [AlertaController::class, 'resolver'])->name('alertas.resolver');
-    /*
-    |--------------------------------------------------------------------------
-    | Mis lotes
-    |--------------------------------------------------------------------------
-    */
+        /*
+        |--------------------------------------------------------------------------
+        | Mis alertas
+        |--------------------------------------------------------------------------
+        */
 
-    Route::get('/lotes', [EncargadoLoteController::class, 'index'])->name('lotes.index');
+        Route::resource('alertas', EncargadoAlertaController::class)
+            ->only(['index', 'update']);
 
-    /*
-    |--------------------------------------------------------------------------
-    | Mis frascos
-    |--------------------------------------------------------------------------
-    */
+        Route::patch('/alertas/{alerta}/atender', [EncargadoAlertaController::class, 'atender'])
+            ->name('alertas.atender');
 
-    Route::get('/frascos', [EncargadoFrascoController::class, 'index'])->name('frascos.index');
+        Route::patch('/alertas/{alerta}/resolver', [EncargadoAlertaController::class, 'resolver'])
+            ->name('alertas.resolver');
 
-    /*
-    |--------------------------------------------------------------------------
-    | Seguimientos de frasco
-    |--------------------------------------------------------------------------
-    */
+        /*
+        |--------------------------------------------------------------------------
+        | Mis lotes
+        |--------------------------------------------------------------------------
+        */
 
-    Route::resource('seguimientos-frasco', EncargadoSeguimientoFrascoController::class)->only(['index', 'store']);
+        Route::get('/lotes', [EncargadoLoteController::class, 'index'])
+            ->name('lotes.index');
 
-    /*
-    |--------------------------------------------------------------------------
-    | Seguimientos de lote
-    |--------------------------------------------------------------------------
-    */
+        /*
+        |--------------------------------------------------------------------------
+        | Mis frascos
+        |--------------------------------------------------------------------------
+        */
 
-    Route::resource('seguimientos-lote', EncargadoSeguimientoLoteController::class)->only(['index', 'store']);
+        Route::get('/frascos', [EncargadoFrascoController::class, 'index'])
+            ->name('frascos.index');
 
-    /*
-    |--------------------------------------------------------------------------
-    | Evidencias de lote
-    |--------------------------------------------------------------------------
-    */
+        /*
+        |--------------------------------------------------------------------------
+        | Seguimientos de lote
+        |--------------------------------------------------------------------------
+        */
 
-    Route::resource('evidencias-lote', EncargadoEvidenciaLoteController::class)->only(['index', 'store']);
-});
+        Route::resource('seguimientos-lote', EncargadoSeguimientoLoteController::class)
+            ->only(['index', 'store']);
 
-require __DIR__ . '/auth.php';
+        /*
+        |--------------------------------------------------------------------------
+        | Seguimientos de frasco
+        |--------------------------------------------------------------------------
+        */
+
+        Route::resource('seguimientos-frasco', EncargadoSeguimientoFrascoController::class)
+            ->only(['index', 'store']);
+
+        /*
+        |--------------------------------------------------------------------------
+        | Evidencias
+        |--------------------------------------------------------------------------
+        */
+
+        Route::resource('evidencias-lote', EncargadoEvidenciaLoteController::class)
+            ->only(['index', 'store']);
+    });
+
+require __DIR__.'/auth.php';

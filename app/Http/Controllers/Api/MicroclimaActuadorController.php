@@ -59,7 +59,10 @@ class MicroclimaActuadorController extends Controller
 
         Storage::disk('local')->put(
             $this->archivo,
-            json_encode($estados, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE)
+            json_encode(
+                $estados,
+                JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE
+            )
         );
 
         return response()->json([
@@ -88,7 +91,10 @@ class MicroclimaActuadorController extends Controller
         if (!Storage::disk('local')->exists($this->archivo)) {
             Storage::disk('local')->put(
                 $this->archivo,
-                json_encode($default, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE)
+                json_encode(
+                    $default,
+                    JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE
+                )
             );
 
             return $default;
@@ -111,9 +117,11 @@ class MicroclimaActuadorController extends Controller
 
     private function tokenValido(Request $request): bool
     {
-        $token = $request->header('X-SENSOR-TOKEN');
-        $sensorToken = config('services.sensor.token');
+        $token = (string) $request->header('X-SENSOR-TOKEN');
+        $sensorToken = (string) config('services.sensor.token');
 
-        return !empty($token) && !empty($sensorToken) && $token === $sensorToken;
+        return $token !== ''
+            && $sensorToken !== ''
+            && hash_equals($sensorToken, $token);
     }
 }
