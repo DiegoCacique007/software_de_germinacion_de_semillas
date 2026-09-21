@@ -189,7 +189,8 @@ Route::prefix('encargado')->name('encargado.')->middleware(['auth', 'check.role:
     */
 
     Route::resource('alertas', EncargadoAlertaController::class)->only(['index', 'update']);
-
+    Route::patch('/alertas/{alerta}/atender', [AlertaController::class, 'atender'])->name('alertas.atender');
+    Route::patch('/alertas/{alerta}/resolver', [AlertaController::class, 'resolver'])->name('alertas.resolver');
     /*
     |--------------------------------------------------------------------------
     | Mis lotes

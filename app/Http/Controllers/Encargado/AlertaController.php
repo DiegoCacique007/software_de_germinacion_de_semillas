@@ -32,16 +32,12 @@ class AlertaController extends Controller
             ->orderBy('nombre')
             ->get();
 
-        return view(
-            'vistas_principales.encargado.alertas.index',
-            compact('alertas', 'estados')
-        );
+        return view('vistas_principales.encargado.alertas.index', compact('alertas', 'estados'));
     }
 
     public function update(Request $request, int $alerta): RedirectResponse
     {
         $user = auth()->user();
-
         $alerta = Alerta::deEncargado($user->id)->findOrFail($alerta);
 
         $data = $request->validate([
@@ -80,5 +76,67 @@ class AlertaController extends Controller
         return redirect()
             ->route('encargado.alertas.index')
             ->with('success', 'La alerta fue actualizada correctamente.');
+    }
+
+    public function atender(int $alerta): RedirectResponse
+    {
+        $user = auth()->user();
+
+        $alerta = Alerta::with('estado')
+            ->deEncargado($user->id)
+            ->findOrFail($alerta);
+
+        if ($alerta->estado?->clave === 'resuelta') {
+            return redirect()
+                ->route('encargado.alertas.index')
+                ->with('info', 'La alerta ya se encuentra resuelta.');
+        }
+
+        if ($alerta->estado?->clave === 'atendida') {
+            return redirect()
+                ->route('encargado.alertas.index')
+                ->with('info', 'La alerta ya fue marcada como atendida.');
+        }
+
+        $estado = EstadoAlerta::where('clave', 'atendida')->firstOrFail();
+
+        $alerta->update([
+            'estado_alerta_id' => $estado->id,
+            'atendida_por' => $user->id,
+            'fecha_atencion' => $alerta->fecha_atencion ?? now('America/Mexico_City'),
+            'fecha_resolucion' => null,
+        ]);
+
+        return redirect()
+            ->route('encargado.alertas.index')
+            ->with('success', 'La alerta fue marcada como atendida.');
+    }
+
+    public function resolver(int $alerta): RedirectResponse
+    {
+        $user = auth()->user();
+
+        $alerta = Alerta::with('estado')
+            ->deEncargado($user->id)
+            ->findOrFail($alerta);
+
+        if ($alerta->estado?->clave === 'resuelta') {
+            return redirect()
+                ->route('encargado.alertas.index')
+                ->with('info', 'La alerta ya se encuentra resuelta.');
+        }
+
+        $estado = EstadoAlerta::where('clave', 'resuelta')->firstOrFail();
+
+        $alerta->update([
+            'estado_alerta_id' => $estado->id,
+            'atendida_por' => $alerta->atendida_por ?? $user->id,
+            'fecha_atencion' => $alerta->fecha_atencion ?? now('America/Mexico_City'),
+            'fecha_resolucion' => now('America/Mexico_City'),
+        ]);
+
+        return redirect()
+            ->route('encargado.alertas.index')
+            ->with('success', 'La alerta fue resuelta correctamente.');
     }
 }
