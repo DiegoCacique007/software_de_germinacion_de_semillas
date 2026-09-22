@@ -247,11 +247,17 @@ Route::prefix('super-admin')
         |--------------------------------------------------------------------------
         */
 
-        Route::get('/reportes/microclima/pdf', [ReporteController::class, 'microclimaPdf'])
+        Route::get('/reportes/microclima/pdf',[ReporteController::class,'microclimaPdf'])
             ->name('reportes.microclima.pdf');
 
-        Route::get('/reportes/biologico/pdf', [ReporteController::class, 'biologicoPdf'])
+        Route::get('/reportes/microclima/csv',[ReporteController::class,'microclimaCsv'])
+            ->name('reportes.microclima.csv');
+
+        Route::get('/reportes/biologico/pdf',[ReporteController::class,'biologicoPdf'])
             ->name('reportes.biologico.pdf');
+
+        Route::get('/reportes/biologico/csv',[ReporteController::class,'biologicoCsv'])
+            ->name('reportes.biologico.csv');
     });
 
 /*
