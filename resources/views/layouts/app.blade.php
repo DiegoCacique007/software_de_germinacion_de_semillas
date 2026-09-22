@@ -386,7 +386,7 @@
     </style>
 </head>
 
-
+<x-chatbot />
 <body class="antialiased">
 
 <div
@@ -833,6 +833,6 @@
 
     });
 </script>
-
+<x-chatbot />
 </body>
 </html>

@@ -42,6 +42,7 @@ use App\Http\Controllers\SuperAdmin\SeguimientoLoteController;
 use App\Http\Controllers\SuperAdmin\TipoAlertaController;
 use App\Http\Controllers\SuperAdmin\TipoControlIncubadoraController;
 
+use App\Http\Controllers\ChatbotController;
 /*
 |--------------------------------------------------------------------------
 | INICIO
@@ -352,5 +353,13 @@ Route::prefix('encargado')
         Route::resource('evidencias-lote', EncargadoEvidenciaLoteController::class)
             ->only(['index', 'store']);
     });
+
+Route::post('/chatbot/mensaje',[ChatbotController::class,'mensaje'])
+    ->middleware([
+        'auth',
+        'verified',
+        'throttle:30,1'
+    ])
+    ->name('chatbot.mensaje');
 
 require __DIR__.'/auth.php';
