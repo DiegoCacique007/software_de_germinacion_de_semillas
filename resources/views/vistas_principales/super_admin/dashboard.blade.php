@@ -241,6 +241,7 @@
 
                                 <div>
                                     <span class="small text-secondary d-block">Temperatura</span>
+
                                     <div>
                                         <strong id="dht22Temp" class="sensor-live-number">--</strong>
                                         <span class="fw-bold text-secondary">°C</span>
@@ -255,6 +256,7 @@
 
                                 <div>
                                     <span class="small text-secondary d-block">Humedad relativa</span>
+
                                     <div>
                                         <strong id="dht22Hum" class="sensor-live-number">--</strong>
                                         <span class="fw-bold text-secondary">%</span>
@@ -344,10 +346,13 @@
                                                     <strong class="small">{{ \Carbon\Carbon::parse($lectura->fecha_hora)->format('d/m/Y H:i') }}</strong>
                                                 </div>
                                             @else
-                                                <div class="small text-secondary fst-italic mt-3">Sin lecturas registradas.</div>
+                                                <div class="small text-secondary fst-italic mt-3">
+                                                    Sin lecturas registradas.
+                                                </div>
                                             @endif
                                         </article>
                                     </div>
+
                                 @empty
                                     <div class="col-12">
                                         <div class="dashboard-empty-state">
@@ -363,13 +368,16 @@
 
                 <div class="col-12 col-xl-5">
                     <div class="card dashboard-panel h-100">
+
                         <div class="card-header dashboard-panel-header">
                             <div>
                                 <h5 class="fw-bold text-brand-dark mb-1">Control de microclima</h5>
-                                <span class="small text-secondary">Gestión manual de actuadores</span>
+                                <span class="small text-secondary">Gestión manual y automática de actuadores</span>
                             </div>
 
-                            <span id="modoBadge" class="badge bg-success-subtle text-success-emphasis rounded-pill">Automático</span>
+                            <span id="modoBadge" class="badge bg-success-subtle text-success-emphasis rounded-pill">
+                                Automático
+                            </span>
                         </div>
 
                         <div class="card-body p-4">
@@ -382,12 +390,20 @@
 
                                     <div>
                                         <strong class="d-block text-brand-dark">Modo de operación</strong>
-                                        <span id="modoLabel" class="small text-secondary">Modo automático activo</span>
+                                        <span id="modoLabel" class="small text-secondary">
+                                            Modo automático activo
+                                        </span>
                                     </div>
                                 </div>
 
                                 <div class="form-check form-switch m-0">
-                                    <input id="modoSwitch" class="form-check-input dashboard-switch" type="checkbox" role="switch" aria-label="Cambiar modo de operación">
+                                    <input
+                                        id="modoSwitch"
+                                        class="form-check-input dashboard-switch"
+                                        type="checkbox"
+                                        role="switch"
+                                        aria-label="Cambiar modo de operación"
+                                    >
                                 </div>
                             </div>
 
@@ -399,15 +415,28 @@
 
                                     <div>
                                         <strong class="d-block text-brand-dark">Generador de niebla</strong>
-                                        <span id="nieblaLabel" class="small text-secondary">Apagado</span>
+                                        <span id="nieblaLabel" class="small text-secondary">
+                                            Apagado
+                                        </span>
                                     </div>
                                 </div>
 
                                 <div class="d-flex align-items-center gap-3">
-                                    <span id="nieblaBadge" class="badge bg-secondary-subtle text-secondary-emphasis rounded-pill">Apagado</span>
+
+                                    <span id="nieblaBadge"
+                                          class="badge bg-secondary-subtle text-secondary-emphasis rounded-pill">
+                                        Apagado
+                                    </span>
 
                                     <div class="form-check form-switch m-0">
-                                        <input id="nieblaSwitch" class="form-check-input dashboard-switch" type="checkbox" role="switch" disabled aria-label="Controlar generador de niebla">
+                                        <input
+                                            id="nieblaSwitch"
+                                            class="form-check-input dashboard-switch"
+                                            type="checkbox"
+                                            role="switch"
+                                            disabled
+                                            aria-label="Controlar generador de niebla"
+                                        >
                                     </div>
                                 </div>
                             </div>
@@ -420,28 +449,45 @@
 
                                     <div>
                                         <strong class="d-block text-brand-dark">Iluminación</strong>
-                                        <span id="ledLabel" class="small text-secondary">Apagado</span>
+                                        <span id="ledLabel" class="small text-secondary">
+                                            Apagado
+                                        </span>
                                     </div>
                                 </div>
 
                                 <div class="d-flex align-items-center gap-3">
-                                    <span id="ledBadge" class="badge bg-secondary-subtle text-secondary-emphasis rounded-pill">Apagado</span>
+
+                                    <span id="ledBadge"
+                                          class="badge bg-secondary-subtle text-secondary-emphasis rounded-pill">
+                                        Apagado
+                                    </span>
 
                                     <div class="form-check form-switch m-0">
-                                        <input id="ledSwitch" class="form-check-input dashboard-switch" type="checkbox" role="switch" disabled aria-label="Controlar iluminación">
+                                        <input
+                                            id="ledSwitch"
+                                            class="form-check-input dashboard-switch"
+                                            type="checkbox"
+                                            role="switch"
+                                            disabled
+                                            aria-label="Controlar iluminación"
+                                        >
                                     </div>
                                 </div>
                             </div>
 
                             <div class="dashboard-control-info">
                                 <i class="bi bi-info-circle me-2"></i>
-                                En modo automático, los actuadores son administrados por el sistema. Activa el modo manual para controlarlos directamente.
+                                En modo automático, los actuadores son administrados por el sistema.
+                                Activa el modo manual para controlarlos directamente.
                             </div>
 
                             <div class="border-top mt-4 pt-3">
                                 <div class="d-flex justify-content-between align-items-center">
                                     <span class="small text-secondary">Nivel de acceso</span>
-                                    <span class="badge bg-dark-subtle text-dark-emphasis rounded-pill">{{ $rolNombre }}</span>
+
+                                    <span class="badge bg-dark-subtle text-dark-emphasis rounded-pill">
+                                        {{ $rolNombre }}
+                                    </span>
                                 </div>
                             </div>
 
@@ -454,14 +500,21 @@
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('DOMContentLoaded',()=>{
             const INCUBADORA_ID=@json($incubadoraTiempoRealId);
             const URL_TIEMPO_REAL_BASE=@json(route('super_admin.dashboard.tiempo-real'));
-            const URL_TIEMPO_REAL=INCUBADORA_ID?`${URL_TIEMPO_REAL_BASE}?incubadora_id=${encodeURIComponent(INCUBADORA_ID)}`:URL_TIEMPO_REAL_BASE;
+            const URL_TIEMPO_REAL=INCUBADORA_ID
+                ?`${URL_TIEMPO_REAL_BASE}?incubadora_id=${encodeURIComponent(INCUBADORA_ID)}`
+                :URL_TIEMPO_REAL_BASE;
 
             const URL_ACTUADORES={
                 niebla:@json(route('super_admin.microclima.actuadores.update','niebla')),
                 luz:@json(route('super_admin.microclima.actuadores.update','luz')),
+            };
+
+            const URL_ESTADOS_ACTUADORES={
+                niebla:@json(route('super_admin.microclima.actuadores.estado','niebla')),
+                luz:@json(route('super_admin.microclima.actuadores.estado','luz')),
             };
 
             const URL_MODO={
@@ -529,7 +582,12 @@
                 }
 
                 if(window.Swal){
-                    window.Swal.fire({icon:type,title,text:message,confirmButtonText:'Aceptar'});
+                    window.Swal.fire({
+                        icon:type,
+                        title,
+                        text:message,
+                        confirmButtonText:'Aceptar'
+                    });
                     return;
                 }
 
@@ -538,6 +596,7 @@
 
             function actualizarEstadoAlertas(totalAlertas){
                 const contenedor=document.getElementById('metricAlertasEstado');
+
                 if(!contenedor)return;
 
                 const total=Number(totalAlertas||0);
@@ -557,14 +616,40 @@
                     responsive:true,
                     maintainAspectRatio:false,
                     animation:false,
-                    interaction:{mode:'index',intersect:false},
+                    interaction:{
+                        mode:'index',
+                        intersect:false
+                    },
                     scales:{
-                        x:{grid:{display:false},ticks:{color:'#6c757d',maxTicksLimit:7,font:{size:10}}},
-                        y:{beginAtZero:false,grid:{color:'rgba(108,117,125,.12)'},ticks:{color:'#6c757d',font:{size:10}}}
+                        x:{
+                            grid:{display:false},
+                            ticks:{
+                                color:'#6c757d',
+                                maxTicksLimit:7,
+                                font:{size:10}
+                            }
+                        },
+                        y:{
+                            beginAtZero:false,
+                            grid:{
+                                color:'rgba(108,117,125,.12)'
+                            },
+                            ticks:{
+                                color:'#6c757d',
+                                font:{size:10}
+                            }
+                        }
                     },
                     plugins:{
-                        legend:{display:false},
-                        tooltip:{backgroundColor:'#144255',padding:10,cornerRadius:8,displayColors:false}
+                        legend:{
+                            display:false
+                        },
+                        tooltip:{
+                            backgroundColor:'#144255',
+                            padding:10,
+                            cornerRadius:8,
+                            displayColors:false
+                        }
                     }
                 };
 
@@ -573,6 +658,7 @@
                 if(canvasTemp){
                     const ctx=canvasTemp.getContext('2d');
                     const gradient=ctx.createLinearGradient(0,0,0,260);
+
                     gradient.addColorStop(0,'rgba(234,179,8,.30)');
                     gradient.addColorStop(1,'rgba(234,179,8,0)');
 
@@ -601,6 +687,7 @@
                 if(canvasHum){
                     const ctx=canvasHum.getContext('2d');
                     const gradient=ctx.createLinearGradient(0,0,0,260);
+
                     gradient.addColorStop(0,'rgba(59,180,156,.30)');
                     gradient.addColorStop(1,'rgba(59,180,156,0)');
 
@@ -645,17 +732,19 @@
 
             function renderResumenIncubadoras(items){
                 const contenedor=document.getElementById('resumenIncubadorasLive');
+
                 if(!contenedor)return;
 
                 if(!Array.isArray(items)||items.length===0){
                     contenedor.innerHTML=`
-                <div class="col-12">
-                    <div class="dashboard-empty-state">
-                        <i class="bi bi-inboxes fs-2 mb-2"></i>
-                        <span>No hay incubadoras registradas.</span>
-                    </div>
-                </div>
-            `;
+                        <div class="col-12">
+                            <div class="dashboard-empty-state">
+                                <i class="bi bi-inboxes fs-2 mb-2"></i>
+                                <span>No hay incubadoras registradas.</span>
+                            </div>
+                        </div>
+                    `;
+
                     return;
                 }
 
@@ -668,27 +757,51 @@
 
                     const lectura=item.temperatura!==null
                         ?`
-                    <div class="incubator-detail"><span>Temperatura</span><strong>${escapeHtml(item.temperatura)} °C</strong></div>
-                    <div class="incubator-detail"><span>Humedad</span><strong>${escapeHtml(item.humedad)} %</strong></div>
-                    <div class="incubator-detail"><span>Última lectura</span><strong class="small">${escapeHtml(item.fecha)}</strong></div>
-                `
+                            <div class="incubator-detail">
+                                <span>Temperatura</span>
+                                <strong>${escapeHtml(item.temperatura)} °C</strong>
+                            </div>
+
+                            <div class="incubator-detail">
+                                <span>Humedad</span>
+                                <strong>${escapeHtml(item.humedad)} %</strong>
+                            </div>
+
+                            <div class="incubator-detail">
+                                <span>Última lectura</span>
+                                <strong class="small">${escapeHtml(item.fecha)}</strong>
+                            </div>
+                        `
                         :'<div class="small text-secondary fst-italic mt-3">Sin lecturas registradas.</div>';
 
                     return `
-                <div class="col-12 col-md-6">
-                    <article class="incubator-summary h-100">
-                        <div class="d-flex justify-content-between align-items-start gap-3 mb-3">
-                            <div>
-                                <h6 class="fw-bold text-brand-dark mb-1">${escapeHtml(item.nombre)}</h6>
-                                <span class="small text-secondary">${escapeHtml(item.codigo)}</span>
-                            </div>
-                            ${badge}
+                        <div class="col-12 col-md-6">
+                            <article class="incubator-summary h-100">
+
+                                <div class="d-flex justify-content-between align-items-start gap-3 mb-3">
+                                    <div>
+                                        <h6 class="fw-bold text-brand-dark mb-1">
+                                            ${escapeHtml(item.nombre)}
+                                        </h6>
+
+                                        <span class="small text-secondary">
+                                            ${escapeHtml(item.codigo)}
+                                        </span>
+                                    </div>
+
+                                    ${badge}
+                                </div>
+
+                                <div class="incubator-detail">
+                                    <span>Estado</span>
+                                    <strong>${escapeHtml(item.estado)}</strong>
+                                </div>
+
+                                ${lectura}
+
+                            </article>
                         </div>
-                        <div class="incubator-detail"><span>Estado</span><strong>${escapeHtml(item.estado)}</strong></div>
-                        ${lectura}
-                    </article>
-                </div>
-            `;
+                    `;
                 }).join('');
             }
 
@@ -700,17 +813,27 @@
                 try{
                     const separator=URL_TIEMPO_REAL.includes('?')?'&':'?';
 
-                    const response=await fetch(`${URL_TIEMPO_REAL}${separator}t=${Date.now()}`,{
-                        method:'GET',
-                        headers:{'Accept':'application/json','Cache-Control':'no-cache'},
-                        cache:'no-store'
-                    });
+                    const response=await fetch(
+                        `${URL_TIEMPO_REAL}${separator}t=${Date.now()}`,
+                        {
+                            method:'GET',
+                            headers:{
+                                'Accept':'application/json',
+                                'Cache-Control':'no-cache'
+                            },
+                            cache:'no-store'
+                        }
+                    );
 
-                    if(!response.ok)throw new Error(`HTTP ${response.status}`);
+                    if(!response.ok){
+                        throw new Error(`HTTP ${response.status}`);
+                    }
 
                     const data=await response.json();
 
-                    if(!data.ok)throw new Error('El servidor no pudo actualizar el dashboard.');
+                    if(!data.ok){
+                        throw new Error('El servidor no pudo actualizar el dashboard.');
+                    }
 
                     setConnectionState(true);
 
@@ -727,9 +850,17 @@
                         const temperatura=Number(data.dht22.temperatura);
                         const humedad=Number(data.dht22.humedad);
 
-                        if(elementos.temperatura&&Number.isFinite(temperatura))elementos.temperatura.textContent=temperatura.toFixed(1);
-                        if(elementos.humedad&&Number.isFinite(humedad))elementos.humedad.textContent=humedad.toFixed(1);
-                        if(elementos.hora)elementos.hora.textContent=data.dht22.fecha_hora??'--:--:--';
+                        if(elementos.temperatura&&Number.isFinite(temperatura)){
+                            elementos.temperatura.textContent=temperatura.toFixed(1);
+                        }
+
+                        if(elementos.humedad&&Number.isFinite(humedad)){
+                            elementos.humedad.textContent=humedad.toFixed(1);
+                        }
+
+                        if(elementos.hora){
+                            elementos.hora.textContent=data.dht22.fecha_hora??'--:--:--';
+                        }
                     }
 
                     actualizarGraficas(data.grafica);
@@ -738,6 +869,7 @@
                 }catch(error){
                     setConnectionState(false);
                     console.error('Error al actualizar dashboard:',error);
+
                 }finally{
                     peticionActiva=false;
                 }
@@ -762,19 +894,83 @@
                     ledActivo=activo;
                 }
 
-                if(switchElement)switchElement.checked=activo;
-                if(labelElement)labelElement.textContent=activo?'Encendido':'Apagado';
+                if(switchElement){
+                    switchElement.checked=activo;
+                }
+
+                if(labelElement){
+                    labelElement.textContent=activo?'Encendido':'Apagado';
+                }
 
                 if(badgeElement){
                     badgeElement.textContent=activo?'Encendido':'Apagado';
+
                     badgeElement.className=activo
                         ?'badge bg-success-subtle text-success-emphasis rounded-pill'
                         :'badge bg-secondary-subtle text-secondary-emphasis rounded-pill';
                 }
             }
 
+            async function cargarEstadoActuadores(){
+                try{
+                    const marca=Date.now();
+
+                    const [nieblaResponse,luzResponse]=await Promise.all([
+                        fetch(`${URL_ESTADOS_ACTUADORES.niebla}?t=${marca}`,{
+                            method:'GET',
+                            headers:{
+                                'Accept':'application/json',
+                                'Cache-Control':'no-cache'
+                            },
+                            cache:'no-store'
+                        }),
+
+                        fetch(`${URL_ESTADOS_ACTUADORES.luz}?t=${marca}`,{
+                            method:'GET',
+                            headers:{
+                                'Accept':'application/json',
+                                'Cache-Control':'no-cache'
+                            },
+                            cache:'no-store'
+                        })
+                    ]);
+
+                    if(nieblaResponse.ok){
+                        const niebla=await nieblaResponse.json();
+
+                        if(niebla.ok){
+                            actualizarActuadorVisual(
+                                'niebla',
+                                niebla.comando==='encender'
+                            );
+                        }
+                    }
+
+                    if(luzResponse.ok){
+                        const luz=await luzResponse.json();
+
+                        if(luz.ok){
+                            actualizarActuadorVisual(
+                                'luz',
+                                luz.comando==='encender'
+                            );
+                        }
+                    }
+
+                    actualizarModoVisual();
+
+                }catch(error){
+                    console.error(
+                        'Error al sincronizar actuadores:',
+                        error
+                    );
+                }
+            }
+
             function actualizarModoVisual(){
-                if(elementos.modoSwitch)elementos.modoSwitch.checked=modoManual;
+                if(elementos.modoSwitch){
+                    elementos.modoSwitch.checked=modoManual;
+                }
 
                 if(elementos.modoLabel){
                     elementos.modoLabel.textContent=modoManual
@@ -783,42 +979,61 @@
                 }
 
                 if(elementos.modoBadge){
-                    elementos.modoBadge.textContent=modoManual?'Manual':'Automático';
+                    elementos.modoBadge.textContent=modoManual
+                        ?'Manual'
+                        :'Automático';
+
                     elementos.modoBadge.className=modoManual
                         ?'badge bg-warning-subtle text-warning-emphasis rounded-pill'
                         :'badge bg-success-subtle text-success-emphasis rounded-pill';
                 }
 
-                if(elementos.nieblaSwitch)elementos.nieblaSwitch.disabled=!modoManual;
-                if(elementos.ledSwitch)elementos.ledSwitch.disabled=!modoManual;
+                if(elementos.nieblaSwitch){
+                    elementos.nieblaSwitch.disabled=!modoManual;
+                }
+
+                if(elementos.ledSwitch){
+                    elementos.ledSwitch.disabled=!modoManual;
+                }
             }
 
             async function cargarModoPersistido(){
                 try{
-                    const response=await fetch(`${URL_MODO.show}?t=${Date.now()}`,{
-                        method:'GET',
-                        headers:{
-                            'Accept':'application/json',
-                            'Cache-Control':'no-cache'
-                        },
-                        cache:'no-store'
-                    });
+                    const response=await fetch(
+                        `${URL_MODO.show}?t=${Date.now()}`,
+                        {
+                            method:'GET',
+                            headers:{
+                                'Accept':'application/json',
+                                'Cache-Control':'no-cache'
+                            },
+                            cache:'no-store'
+                        }
+                    );
 
                     const data=await response.json();
 
                     if(!response.ok||!data.ok){
-                        throw new Error(data.message||'No se pudo obtener el modo de operación.');
+                        throw new Error(
+                            data.message||
+                            'No se pudo obtener el modo de operación.'
+                        );
                     }
 
                     modoManual=data.modo==='manual';
+
                     actualizarModoVisual();
 
                     return true;
 
                 }catch(error){
-                    console.error('Error al obtener modo de operación:',error);
+                    console.error(
+                        'Error al obtener modo de operación:',
+                        error
+                    );
 
                     modoManual=false;
+
                     actualizarModoVisual();
 
                     notify(
@@ -846,13 +1061,19 @@
                     const data=await response.json();
 
                     if(!response.ok||!data.ok){
-                        throw new Error(data.message||'No se pudo actualizar el modo de operación.');
+                        throw new Error(
+                            data.message||
+                            'No se pudo actualizar el modo de operación.'
+                        );
                     }
 
                     return true;
 
                 }catch(error){
-                    console.error('Error al guardar modo de operación:',error);
+                    console.error(
+                        'Error al guardar modo de operación:',
+                        error
+                    );
 
                     notify(
                         'error',
@@ -866,6 +1087,7 @@
 
             async function enviarOrdenActuador(actuador,accion){
                 const url=URL_ACTUADORES[actuador];
+
                 if(!url)return false;
 
                 try{
@@ -882,13 +1104,19 @@
                     const data=await response.json();
 
                     if(!response.ok||!data.ok){
-                        throw new Error(data.message||'No se pudo ejecutar la orden.');
+                        throw new Error(
+                            data.message||
+                            'No se pudo ejecutar la orden.'
+                        );
                     }
 
                     return true;
 
                 }catch(error){
-                    console.error('Error de actuador:',error);
+                    console.error(
+                        'Error de actuador:',
+                        error
+                    );
 
                     notify(
                         'error',
@@ -900,105 +1128,141 @@
                 }
             }
 
-            elementos.modoSwitch?.addEventListener('change',async event=>{
-                const modoAnterior=modoManual;
-                const nuevoModoManual=event.target.checked;
+            elementos.modoSwitch?.addEventListener(
+                'change',
+                async event=>{
+                    const modoAnterior=modoManual;
+                    const nuevoModoManual=event.target.checked;
 
-                event.target.disabled=true;
+                    event.target.disabled=true;
 
-                modoManual=nuevoModoManual;
-                actualizarModoVisual();
+                    modoManual=nuevoModoManual;
 
-                const guardado=await guardarModoPersistido(
-                    modoManual?'manual':'automatico'
-                );
-
-                if(!guardado){
-                    modoManual=modoAnterior;
                     actualizarModoVisual();
+
+                    const guardado=await guardarModoPersistido(
+                        modoManual?'manual':'automatico'
+                    );
+
+                    if(!guardado){
+                        modoManual=modoAnterior;
+
+                        actualizarModoVisual();
+
+                        event.target.disabled=false;
+
+                        return;
+                    }
+
+                    if(!modoManual){
+                        actualizarActuadorVisual(
+                            'niebla',
+                            false
+                        );
+
+                        actualizarActuadorVisual(
+                            'luz',
+                            false
+                        );
+
+                        await Promise.all([
+                            enviarOrdenActuador(
+                                'niebla',
+                                'apagar'
+                            ),
+                            enviarOrdenActuador(
+                                'luz',
+                                'apagar'
+                            )
+                        ]);
+
+                        await cargarEstadoActuadores();
+                    }
+
                     event.target.disabled=false;
-                    return;
+
+                    actualizarModoVisual();
                 }
+            );
 
-                if(!modoManual){
-                    actualizarActuadorVisual('niebla',false);
-                    actualizarActuadorVisual('luz',false);
+            elementos.nieblaSwitch?.addEventListener(
+                'change',
+                async event=>{
+                    if(!modoManual){
+                        event.target.checked=false;
+                        return;
+                    }
 
-                    await Promise.all([
-                        enviarOrdenActuador('niebla','apagar'),
-                        enviarOrdenActuador('luz','apagar')
-                    ]);
+                    const nuevoEstado=event.target.checked;
+
+                    event.target.disabled=true;
+
+                    const ok=await enviarOrdenActuador(
+                        'niebla',
+                        nuevoEstado?'encender':'apagar'
+                    );
+
+                    event.target.disabled=false;
+
+                    actualizarActuadorVisual(
+                        'niebla',
+                        ok?nuevoEstado:!nuevoEstado
+                    );
                 }
+            );
 
-                event.target.disabled=false;
-                actualizarModoVisual();
-            });
+            elementos.ledSwitch?.addEventListener(
+                'change',
+                async event=>{
+                    if(!modoManual){
+                        event.target.checked=false;
+                        return;
+                    }
 
-            elementos.nieblaSwitch?.addEventListener('change',async event=>{
-                if(!modoManual){
-                    event.target.checked=false;
-                    return;
+                    const nuevoEstado=event.target.checked;
+
+                    event.target.disabled=true;
+
+                    const ok=await enviarOrdenActuador(
+                        'luz',
+                        nuevoEstado?'encender':'apagar'
+                    );
+
+                    event.target.disabled=false;
+
+                    actualizarActuadorVisual(
+                        'luz',
+                        ok?nuevoEstado:!nuevoEstado
+                    );
                 }
-
-                const nuevoEstado=event.target.checked;
-                event.target.disabled=true;
-
-                const ok=await enviarOrdenActuador(
-                    'niebla',
-                    nuevoEstado?'encender':'apagar'
-                );
-
-                event.target.disabled=false;
-                actualizarActuadorVisual(
-                    'niebla',
-                    ok?nuevoEstado:!nuevoEstado
-                );
-            });
-
-            elementos.ledSwitch?.addEventListener('change',async event=>{
-                if(!modoManual){
-                    event.target.checked=false;
-                    return;
-                }
-
-                const nuevoEstado=event.target.checked;
-                event.target.disabled=true;
-
-                const ok=await enviarOrdenActuador(
-                    'luz',
-                    nuevoEstado?'encender':'apagar'
-                );
-
-                event.target.disabled=false;
-                actualizarActuadorVisual(
-                    'luz',
-                    ok?nuevoEstado:!nuevoEstado
-                );
-            });
+            );
 
             async function iniciarDashboard(){
                 iniciarGraficas();
 
-                actualizarActuadorVisual('niebla',false);
-                actualizarActuadorVisual('luz',false);
-
                 await cargarModoPersistido();
+                await cargarEstadoActuadores();
 
                 actualizarDashboardTiempoReal();
 
-                setInterval(
-                    actualizarDashboardTiempoReal,
-                    2000
-                );
+                setInterval(()=>{
+                    actualizarDashboardTiempoReal();
+                    cargarEstadoActuadores();
+                },2000);
             }
 
             iniciarDashboard();
 
-            document.addEventListener('visibilitychange',()=>{
-                if(!document.hidden){
-                    actualizarDashboardTiempoReal();
+            document.addEventListener(
+                'visibilitychange',
+                ()=>{
+                    if(!document.hidden){
+                        actualizarDashboardTiempoReal();
+                        cargarEstadoActuadores();
+                        cargarModoPersistido();
+                    }
                 }
-            });
+            );
         });
     </script>
 </x-app-layout>

@@ -102,6 +102,9 @@ Route::prefix('super-admin')
         Route::post('/microclima/actuadores/{actuador}', [MicroclimaActuadorController::class, 'update'])
             ->name('microclima.actuadores.update');
 
+        Route::get('/microclima/actuadores/{actuador}/estado', [MicroclimaActuadorController::class, 'estado'])
+            ->name('microclima.actuadores.estado');
+
         Route::get('/microclima/modo', [MicroclimaActuadorController::class, 'modo'])
             ->name('microclima.modo');
 
