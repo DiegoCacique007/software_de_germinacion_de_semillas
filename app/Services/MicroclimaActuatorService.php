@@ -52,7 +52,11 @@ class MicroclimaActuatorService
 
     public function actuadorValido(string $actuador): bool
     {
-        return in_array($actuador,['niebla','luz'],true);
+        return in_array(
+            $actuador,
+            ['niebla','luz','calefaccion','ventilacion'],
+            true
+        );
     }
 
     public function modoValido(string $modo): bool
@@ -78,6 +82,16 @@ class MicroclimaActuatorService
                 'actualizado_en'=>null,
                 'actualizado_por'=>null,
             ],
+            'calefaccion'=>[
+                'comando'=>'apagar',
+                'actualizado_en'=>null,
+                'actualizado_por'=>null,
+            ],
+            'ventilacion'=>[
+                'comando'=>'apagar',
+                'actualizado_en'=>null,
+                'actualizado_por'=>null,
+            ],
         ];
 
         if(!Storage::disk('local')->exists($this->archivo)){
@@ -88,16 +102,26 @@ class MicroclimaActuatorService
         $contenido=Storage::disk('local')->get($this->archivo);
         $estados=json_decode($contenido,true);
 
-        if(!is_array($estados)) return $default;
+        if(!is_array($estados)){
+            $this->guardarEstados($default);
+            return $default;
+        }
 
-        return array_replace_recursive($default,$estados);
+        $estados=array_replace_recursive($default,$estados);
+
+        $this->guardarEstados($estados);
+
+        return $estados;
     }
 
     private function guardarEstados(array $estados): void
     {
         Storage::disk('local')->put(
             $this->archivo,
-            json_encode($estados,JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE)
+            json_encode(
+                $estados,
+                JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE
+            )
         );
     }
 }
