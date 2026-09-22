@@ -102,6 +102,12 @@ Route::prefix('super-admin')
         Route::post('/microclima/actuadores/{actuador}', [MicroclimaActuadorController::class, 'update'])
             ->name('microclima.actuadores.update');
 
+        Route::get('/microclima/modo', [MicroclimaActuadorController::class, 'modo'])
+            ->name('microclima.modo');
+
+        Route::post('/microclima/modo', [MicroclimaActuadorController::class, 'updateModo'])
+            ->name('microclima.modo.update');
+
         Route::get('/incubadoras/{incubadora}/ultima-lectura', [SuperAdminDashboardController::class, 'getUltimaLectura'])
             ->name('incubadoras.ultima-lectura');
 

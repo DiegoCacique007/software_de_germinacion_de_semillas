@@ -3,125 +3,104 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Services\MicroclimaActuatorService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
 
 class MicroclimaActuadorController extends Controller
 {
-    private string $archivo = 'microseed_actuadores.json';
+    public function __construct(
+        private MicroclimaActuatorService $actuatorService
+    ){}
 
-    public function show(Request $request, string $actuador)
+    public function show(Request $request,string $actuador)
     {
-        if (!$this->tokenValido($request)) {
+        if(!$this->tokenValido($request)){
             return response()->json([
-                'ok' => false,
-                'message' => 'Token inválido.',
-            ], 401);
+                'ok'=>false,
+                'message'=>'Token inválido.',
+            ],401);
         }
 
-        if (!$this->actuadorValido($actuador)) {
+        if(!$this->actuatorService->actuadorValido($actuador)){
             return response()->json([
-                'ok' => false,
-                'message' => 'Actuador no válido.',
-            ], 404);
+                'ok'=>false,
+                'message'=>'Actuador no válido.',
+            ],404);
         }
 
-        $estados = $this->leerEstados();
+        $estado=$this->actuatorService->obtenerActuador($actuador);
 
         return response()->json([
-            'ok' => true,
-            'actuador' => $actuador,
-            'comando' => $estados[$actuador]['comando'] ?? 'apagar',
-            'actualizado_en' => $estados[$actuador]['actualizado_en'] ?? null,
+            'ok'=>true,
+            'actuador'=>$actuador,
+            'comando'=>$estado['comando'],
+            'actualizado_en'=>$estado['actualizado_en'],
         ]);
     }
 
-    public function update(Request $request, string $actuador)
+    public function update(Request $request,string $actuador)
     {
-        if (!$this->actuadorValido($actuador)) {
+        if(!$this->actuatorService->actuadorValido($actuador)){
             return response()->json([
-                'ok' => false,
-                'message' => 'Actuador no válido.',
-            ], 404);
+                'ok'=>false,
+                'message'=>'Actuador no válido.',
+            ],404);
         }
 
-        $validated = $request->validate([
-            'accion' => ['required', 'in:encender,apagar'],
+        $validated=$request->validate([
+            'accion'=>['required','in:encender,apagar'],
         ]);
 
-        $estados = $this->leerEstados();
-
-        $estados[$actuador] = [
-            'comando' => $validated['accion'],
-            'actualizado_en' => now('America/Mexico_City')->format('Y-m-d H:i:s'),
-            'actualizado_por' => auth()->id(),
-        ];
-
-        Storage::disk('local')->put(
-            $this->archivo,
-            json_encode(
-                $estados,
-                JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE
-            )
+        $estado=$this->actuatorService->actualizarActuador(
+            $actuador,
+            $validated['accion'],
+            auth()->id()
         );
 
         return response()->json([
-            'ok' => true,
-            'message' => 'Orden enviada correctamente.',
-            'actuador' => $actuador,
-            'comando' => $validated['accion'],
+            'ok'=>true,
+            'message'=>'Orden enviada correctamente.',
+            'actuador'=>$actuador,
+            'comando'=>$estado['comando'],
         ]);
     }
 
-    private function leerEstados(): array
+    public function modo()
     {
-        $default = [
-            'niebla' => [
-                'comando' => 'apagar',
-                'actualizado_en' => null,
-                'actualizado_por' => null,
-            ],
-            'luz' => [
-                'comando' => 'apagar',
-                'actualizado_en' => null,
-                'actualizado_por' => null,
-            ],
-        ];
+        $estado=$this->actuatorService->obtenerModo();
 
-        if (!Storage::disk('local')->exists($this->archivo)) {
-            Storage::disk('local')->put(
-                $this->archivo,
-                json_encode(
-                    $default,
-                    JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE
-                )
-            );
-
-            return $default;
-        }
-
-        $contenido = Storage::disk('local')->get($this->archivo);
-        $estados = json_decode($contenido, true);
-
-        if (!is_array($estados)) {
-            return $default;
-        }
-
-        return array_replace_recursive($default, $estados);
+        return response()->json([
+            'ok'=>true,
+            'modo'=>$estado['valor'],
+            'actualizado_en'=>$estado['actualizado_en'],
+        ]);
     }
 
-    private function actuadorValido(string $actuador): bool
+    public function updateModo(Request $request)
     {
-        return in_array($actuador, ['niebla', 'luz'], true);
+        $validated=$request->validate([
+            'modo'=>['required','in:automatico,manual'],
+        ]);
+
+        $estado=$this->actuatorService->actualizarModo(
+            $validated['modo'],
+            auth()->id()
+        );
+
+        return response()->json([
+            'ok'=>true,
+            'message'=>'Modo de operación actualizado correctamente.',
+            'modo'=>$estado['valor'],
+        ]);
     }
 
     private function tokenValido(Request $request): bool
     {
-        $token = (string) $request->header('X-SENSOR-TOKEN');
-        $sensorToken = (string) config('services.sensor.token');
+        $token=(string)$request->header('X-SENSOR-TOKEN');
+        $sensorToken=(string)config('services.sensor.token');
 
-        return $token !== ''
-            && $sensorToken !== ''
-            && hash_equals($sensorToken, $token);
+        return $token!=='' &&
+            $sensorToken!=='' &&
+            hash_equals($sensorToken,$token);
     }
 }

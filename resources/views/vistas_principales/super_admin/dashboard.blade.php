@@ -455,423 +455,549 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            const INCUBADORA_ID = @json($incubadoraTiempoRealId);
-            const URL_TIEMPO_REAL_BASE = @json(route('super_admin.dashboard.tiempo-real'));
-            const URL_TIEMPO_REAL = INCUBADORA_ID ? `${URL_TIEMPO_REAL_BASE}?incubadora_id=${encodeURIComponent(INCUBADORA_ID)}` : URL_TIEMPO_REAL_BASE;
+            const INCUBADORA_ID=@json($incubadoraTiempoRealId);
+            const URL_TIEMPO_REAL_BASE=@json(route('super_admin.dashboard.tiempo-real'));
+            const URL_TIEMPO_REAL=INCUBADORA_ID?`${URL_TIEMPO_REAL_BASE}?incubadora_id=${encodeURIComponent(INCUBADORA_ID)}`:URL_TIEMPO_REAL_BASE;
 
-            const URL_ACTUADORES = {
-                niebla: @json(route('super_admin.microclima.actuadores.update', 'niebla')),
-                luz: @json(route('super_admin.microclima.actuadores.update', 'luz')),
+            const URL_ACTUADORES={
+                niebla:@json(route('super_admin.microclima.actuadores.update','niebla')),
+                luz:@json(route('super_admin.microclima.actuadores.update','luz')),
             };
 
-            const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
-
-            const elementos = {
-                temperatura: document.getElementById('dht22Temp'),
-                humedad: document.getElementById('dht22Hum'),
-                hora: document.getElementById('dht22Time'),
-                modoSwitch: document.getElementById('modoSwitch'),
-                modoLabel: document.getElementById('modoLabel'),
-                modoBadge: document.getElementById('modoBadge'),
-                nieblaSwitch: document.getElementById('nieblaSwitch'),
-                nieblaLabel: document.getElementById('nieblaLabel'),
-                nieblaBadge: document.getElementById('nieblaBadge'),
-                ledSwitch: document.getElementById('ledSwitch'),
-                ledLabel: document.getElementById('ledLabel'),
-                ledBadge: document.getElementById('ledBadge'),
-                connectionBadge: document.getElementById('connectionBadge'),
+            const URL_MODO={
+                show:@json(route('super_admin.microclima.modo')),
+                update:@json(route('super_admin.microclima.modo.update')),
             };
 
-            let temperaturaChart = null;
-            let humedadChart = null;
-            let peticionActiva = false;
-            let modoManual = false;
-            let nieblaActiva = false;
-            let ledActivo = false;
+            const csrfToken=document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
 
-            function normalizarArray(valor) {
-                if (!valor) return [];
-                return Array.isArray(valor) ? valor : Object.values(valor);
+            const elementos={
+                temperatura:document.getElementById('dht22Temp'),
+                humedad:document.getElementById('dht22Hum'),
+                hora:document.getElementById('dht22Time'),
+                modoSwitch:document.getElementById('modoSwitch'),
+                modoLabel:document.getElementById('modoLabel'),
+                modoBadge:document.getElementById('modoBadge'),
+                nieblaSwitch:document.getElementById('nieblaSwitch'),
+                nieblaLabel:document.getElementById('nieblaLabel'),
+                nieblaBadge:document.getElementById('nieblaBadge'),
+                ledSwitch:document.getElementById('ledSwitch'),
+                ledLabel:document.getElementById('ledLabel'),
+                ledBadge:document.getElementById('ledBadge'),
+                connectionBadge:document.getElementById('connectionBadge'),
+            };
+
+            let temperaturaChart=null;
+            let humedadChart=null;
+            let peticionActiva=false;
+            let modoManual=false;
+            let nieblaActiva=false;
+            let ledActivo=false;
+
+            function normalizarArray(valor){
+                if(!valor)return[];
+                return Array.isArray(valor)?valor:Object.values(valor);
             }
 
-            function escapeHtml(valor) {
-                const div = document.createElement('div');
-                div.textContent = valor ?? '';
+            function escapeHtml(valor){
+                const div=document.createElement('div');
+                div.textContent=valor??'';
                 return div.innerHTML;
             }
 
-            function setText(id, valor) {
-                const elemento = document.getElementById(id);
-                if (elemento) elemento.textContent = valor ?? '—';
+            function setText(id,valor){
+                const elemento=document.getElementById(id);
+                if(elemento)elemento.textContent=valor??'—';
             }
 
-            function setConnectionState(online) {
-                if (!elementos.connectionBadge) return;
+            function setConnectionState(online){
+                if(!elementos.connectionBadge)return;
 
-                if (online) {
-                    elementos.connectionBadge.className = 'badge bg-success-subtle text-success-emphasis rounded-pill';
-                    elementos.connectionBadge.innerHTML = `<span class="status-dot status-dot-success me-1"></span>En línea`;
-                } else {
-                    elementos.connectionBadge.className = 'badge bg-danger-subtle text-danger-emphasis rounded-pill';
-                    elementos.connectionBadge.innerHTML = `<span class="status-dot status-dot-danger me-1"></span>Sin conexión`;
+                if(online){
+                    elementos.connectionBadge.className='badge bg-success-subtle text-success-emphasis rounded-pill';
+                    elementos.connectionBadge.innerHTML='<span class="status-dot status-dot-success me-1"></span>En línea';
+                }else{
+                    elementos.connectionBadge.className='badge bg-danger-subtle text-danger-emphasis rounded-pill';
+                    elementos.connectionBadge.innerHTML='<span class="status-dot status-dot-danger me-1"></span>Sin conexión';
                 }
             }
 
-            function notify(type, title, message) {
-                if (typeof window.microseedAlert === 'function') {
-                    window.microseedAlert(type, title, message);
+            function notify(type,title,message){
+                if(typeof window.microseedAlert==='function'){
+                    window.microseedAlert(type,title,message);
                     return;
                 }
 
-                if (window.Swal) {
-                    window.Swal.fire({icon: type, title, text: message, confirmButtonText: 'Aceptar'});
+                if(window.Swal){
+                    window.Swal.fire({icon:type,title,text:message,confirmButtonText:'Aceptar'});
                     return;
                 }
 
                 alert(message);
             }
 
-            function actualizarEstadoAlertas(totalAlertas) {
-                const contenedor = document.getElementById('metricAlertasEstado');
-                if (!contenedor) return;
+            function actualizarEstadoAlertas(totalAlertas){
+                const contenedor=document.getElementById('metricAlertasEstado');
+                if(!contenedor)return;
 
-                const total = Number(totalAlertas || 0);
+                const total=Number(totalAlertas||0);
 
-                contenedor.innerHTML = total > 0
-                    ? '<span class="text-danger fw-semibold">Requiere atención</span>'
-                    : '<span class="text-success fw-semibold">Sin incidencias</span>';
+                contenedor.innerHTML=total>0
+                    ?'<span class="text-danger fw-semibold">Requiere atención</span>'
+                    :'<span class="text-success fw-semibold">Sin incidencias</span>';
             }
 
-            function iniciarGraficas() {
-                if (!window.Chart) {
+            function iniciarGraficas(){
+                if(!window.Chart){
                     console.warn('Chart.js no está disponible.');
                     return;
                 }
 
-                const commonOptions = {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    animation: false,
-                    interaction: {mode: 'index', intersect: false},
-                    scales: {
-                        x: {
-                            grid: {display: false},
-                            ticks: {color: '#6c757d', maxTicksLimit: 7, font: {size: 10}}
-                        },
-                        y: {
-                            beginAtZero: false,
-                            grid: {color: 'rgba(108,117,125,.12)'},
-                            ticks: {color: '#6c757d', font: {size: 10}}
-                        }
+                const commonOptions={
+                    responsive:true,
+                    maintainAspectRatio:false,
+                    animation:false,
+                    interaction:{mode:'index',intersect:false},
+                    scales:{
+                        x:{grid:{display:false},ticks:{color:'#6c757d',maxTicksLimit:7,font:{size:10}}},
+                        y:{beginAtZero:false,grid:{color:'rgba(108,117,125,.12)'},ticks:{color:'#6c757d',font:{size:10}}}
                     },
-                    plugins: {
-                        legend: {display: false},
-                        tooltip: {backgroundColor: '#144255', padding: 10, cornerRadius: 8, displayColors: false}
+                    plugins:{
+                        legend:{display:false},
+                        tooltip:{backgroundColor:'#144255',padding:10,cornerRadius:8,displayColors:false}
                     }
                 };
 
-                const canvasTemp = document.getElementById('temperaturaChart');
+                const canvasTemp=document.getElementById('temperaturaChart');
 
-                if (canvasTemp) {
-                    const ctx = canvasTemp.getContext('2d');
-                    const gradient = ctx.createLinearGradient(0, 0, 0, 260);
-                    gradient.addColorStop(0, 'rgba(234,179,8,.30)');
-                    gradient.addColorStop(1, 'rgba(234,179,8,0)');
+                if(canvasTemp){
+                    const ctx=canvasTemp.getContext('2d');
+                    const gradient=ctx.createLinearGradient(0,0,0,260);
+                    gradient.addColorStop(0,'rgba(234,179,8,.30)');
+                    gradient.addColorStop(1,'rgba(234,179,8,0)');
 
-                    temperaturaChart = new window.Chart(ctx, {
-                        type: 'line',
-                        data: {
-                            labels: [],
-                            datasets: [{
-                                label: 'Temperatura (°C)',
-                                data: [],
-                                borderColor: '#eab308',
-                                backgroundColor: gradient,
-                                borderWidth: 2,
-                                pointRadius: 2,
-                                pointHoverRadius: 5,
-                                tension: .35,
-                                fill: true
+                    temperaturaChart=new window.Chart(ctx,{
+                        type:'line',
+                        data:{
+                            labels:[],
+                            datasets:[{
+                                label:'Temperatura (°C)',
+                                data:[],
+                                borderColor:'#eab308',
+                                backgroundColor:gradient,
+                                borderWidth:2,
+                                pointRadius:2,
+                                pointHoverRadius:5,
+                                tension:.35,
+                                fill:true
                             }]
                         },
-                        options: commonOptions
+                        options:commonOptions
                     });
                 }
 
-                const canvasHum = document.getElementById('humedadChart');
+                const canvasHum=document.getElementById('humedadChart');
 
-                if (canvasHum) {
-                    const ctx = canvasHum.getContext('2d');
-                    const gradient = ctx.createLinearGradient(0, 0, 0, 260);
-                    gradient.addColorStop(0, 'rgba(59,180,156,.30)');
-                    gradient.addColorStop(1, 'rgba(59,180,156,0)');
+                if(canvasHum){
+                    const ctx=canvasHum.getContext('2d');
+                    const gradient=ctx.createLinearGradient(0,0,0,260);
+                    gradient.addColorStop(0,'rgba(59,180,156,.30)');
+                    gradient.addColorStop(1,'rgba(59,180,156,0)');
 
-                    humedadChart = new window.Chart(ctx, {
-                        type: 'line',
-                        data: {
-                            labels: [],
-                            datasets: [{
-                                label: 'Humedad (%)',
-                                data: [],
-                                borderColor: '#3bb49c',
-                                backgroundColor: gradient,
-                                borderWidth: 2,
-                                pointRadius: 2,
-                                pointHoverRadius: 5,
-                                tension: .35,
-                                fill: true
+                    humedadChart=new window.Chart(ctx,{
+                        type:'line',
+                        data:{
+                            labels:[],
+                            datasets:[{
+                                label:'Humedad (%)',
+                                data:[],
+                                borderColor:'#3bb49c',
+                                backgroundColor:gradient,
+                                borderWidth:2,
+                                pointRadius:2,
+                                pointHoverRadius:5,
+                                tension:.35,
+                                fill:true
                             }]
                         },
-                        options: commonOptions
+                        options:commonOptions
                     });
                 }
             }
 
-            function actualizarGraficas(grafica) {
-                const labels = normalizarArray(grafica?.labels);
-                const temperaturas = normalizarArray(grafica?.temperaturas).map(Number);
-                const humedades = normalizarArray(grafica?.humedades).map(Number);
+            function actualizarGraficas(grafica){
+                const labels=normalizarArray(grafica?.labels);
+                const temperaturas=normalizarArray(grafica?.temperaturas).map(Number);
+                const humedades=normalizarArray(grafica?.humedades).map(Number);
 
-                if (temperaturaChart) {
-                    temperaturaChart.data.labels = labels;
-                    temperaturaChart.data.datasets[0].data = temperaturas;
+                if(temperaturaChart){
+                    temperaturaChart.data.labels=labels;
+                    temperaturaChart.data.datasets[0].data=temperaturas;
                     temperaturaChart.update('none');
                 }
 
-                if (humedadChart) {
-                    humedadChart.data.labels = labels;
-                    humedadChart.data.datasets[0].data = humedades;
+                if(humedadChart){
+                    humedadChart.data.labels=labels;
+                    humedadChart.data.datasets[0].data=humedades;
                     humedadChart.update('none');
                 }
             }
 
-            function renderResumenIncubadoras(items) {
-                const contenedor = document.getElementById('resumenIncubadorasLive');
-                if (!contenedor) return;
+            function renderResumenIncubadoras(items){
+                const contenedor=document.getElementById('resumenIncubadorasLive');
+                if(!contenedor)return;
 
-                if (!Array.isArray(items) || items.length === 0) {
-                    contenedor.innerHTML = `
-                        <div class="col-12">
-                            <div class="dashboard-empty-state">
-                                <i class="bi bi-inboxes fs-2 mb-2"></i>
-                                <span>No hay incubadoras registradas.</span>
-                            </div>
-                        </div>
-                    `;
+                if(!Array.isArray(items)||items.length===0){
+                    contenedor.innerHTML=`
+                <div class="col-12">
+                    <div class="dashboard-empty-state">
+                        <i class="bi bi-inboxes fs-2 mb-2"></i>
+                        <span>No hay incubadoras registradas.</span>
+                    </div>
+                </div>
+            `;
                     return;
                 }
 
-                contenedor.innerHTML = items.map(item => {
-                    const alertas = Number(item.alertas_abiertas || 0);
+                contenedor.innerHTML=items.map(item=>{
+                    const alertas=Number(item.alertas_abiertas||0);
 
-                    const badge = alertas > 0
-                        ? `<span class="badge bg-danger-subtle text-danger-emphasis rounded-pill">Alerta</span>`
-                        : `<span class="badge bg-success-subtle text-success-emphasis rounded-pill">Estable</span>`;
+                    const badge=alertas>0
+                        ?'<span class="badge bg-danger-subtle text-danger-emphasis rounded-pill">Alerta</span>'
+                        :'<span class="badge bg-success-subtle text-success-emphasis rounded-pill">Estable</span>';
 
-                    const lectura = item.temperatura !== null
-                        ? `
-                            <div class="incubator-detail"><span>Temperatura</span><strong>${escapeHtml(item.temperatura)} °C</strong></div>
-                            <div class="incubator-detail"><span>Humedad</span><strong>${escapeHtml(item.humedad)} %</strong></div>
-                            <div class="incubator-detail"><span>Última lectura</span><strong class="small">${escapeHtml(item.fecha)}</strong></div>
-                        `
-                        : `<div class="small text-secondary fst-italic mt-3">Sin lecturas registradas.</div>`;
+                    const lectura=item.temperatura!==null
+                        ?`
+                    <div class="incubator-detail"><span>Temperatura</span><strong>${escapeHtml(item.temperatura)} °C</strong></div>
+                    <div class="incubator-detail"><span>Humedad</span><strong>${escapeHtml(item.humedad)} %</strong></div>
+                    <div class="incubator-detail"><span>Última lectura</span><strong class="small">${escapeHtml(item.fecha)}</strong></div>
+                `
+                        :'<div class="small text-secondary fst-italic mt-3">Sin lecturas registradas.</div>';
 
                     return `
-                        <div class="col-12 col-md-6">
-                            <article class="incubator-summary h-100">
-                                <div class="d-flex justify-content-between align-items-start gap-3 mb-3">
-                                    <div>
-                                        <h6 class="fw-bold text-brand-dark mb-1">${escapeHtml(item.nombre)}</h6>
-                                        <span class="small text-secondary">${escapeHtml(item.codigo)}</span>
-                                    </div>
-                                    ${badge}
-                                </div>
-                                <div class="incubator-detail"><span>Estado</span><strong>${escapeHtml(item.estado)}</strong></div>
-                                ${lectura}
-                            </article>
+                <div class="col-12 col-md-6">
+                    <article class="incubator-summary h-100">
+                        <div class="d-flex justify-content-between align-items-start gap-3 mb-3">
+                            <div>
+                                <h6 class="fw-bold text-brand-dark mb-1">${escapeHtml(item.nombre)}</h6>
+                                <span class="small text-secondary">${escapeHtml(item.codigo)}</span>
+                            </div>
+                            ${badge}
                         </div>
-                    `;
+                        <div class="incubator-detail"><span>Estado</span><strong>${escapeHtml(item.estado)}</strong></div>
+                        ${lectura}
+                    </article>
+                </div>
+            `;
                 }).join('');
             }
 
-            async function actualizarDashboardTiempoReal() {
-                if (peticionActiva || document.hidden) return;
+            async function actualizarDashboardTiempoReal(){
+                if(peticionActiva||document.hidden)return;
 
-                peticionActiva = true;
+                peticionActiva=true;
 
-                try {
-                    const separator = URL_TIEMPO_REAL.includes('?') ? '&' : '?';
+                try{
+                    const separator=URL_TIEMPO_REAL.includes('?')?'&':'?';
 
-                    const response = await fetch(`${URL_TIEMPO_REAL}${separator}t=${Date.now()}`, {
-                        method: 'GET',
-                        headers: {'Accept': 'application/json', 'Cache-Control': 'no-cache'},
-                        cache: 'no-store'
+                    const response=await fetch(`${URL_TIEMPO_REAL}${separator}t=${Date.now()}`,{
+                        method:'GET',
+                        headers:{'Accept':'application/json','Cache-Control':'no-cache'},
+                        cache:'no-store'
                     });
 
-                    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                    if(!response.ok)throw new Error(`HTTP ${response.status}`);
 
-                    const data = await response.json();
+                    const data=await response.json();
 
-                    if (!data.ok) throw new Error('El servidor no pudo actualizar el dashboard.');
+                    if(!data.ok)throw new Error('El servidor no pudo actualizar el dashboard.');
 
                     setConnectionState(true);
 
-                    setText('metricUsuariosTotal', data.metricas?.usuarios_total);
-                    setText('metricIncubadorasTotal', data.metricas?.incubadoras_total);
-                    setText('metricLecturasHoy', data.metricas?.lecturas_hoy);
-                    setText('metricAlertasActivas', data.metricas?.alertas_activas);
-                    setText('metricLotesTotal', data.metricas?.lotes_total);
-                    setText('metricFrascosTotal', data.metricas?.frascos_total);
+                    setText('metricUsuariosTotal',data.metricas?.usuarios_total);
+                    setText('metricIncubadorasTotal',data.metricas?.incubadoras_total);
+                    setText('metricLecturasHoy',data.metricas?.lecturas_hoy);
+                    setText('metricAlertasActivas',data.metricas?.alertas_activas);
+                    setText('metricLotesTotal',data.metricas?.lotes_total);
+                    setText('metricFrascosTotal',data.metricas?.frascos_total);
 
                     actualizarEstadoAlertas(data.metricas?.alertas_activas);
 
-                    if (data.dht22 && data.dht22.temperatura !== null) {
-                        const temperatura = Number(data.dht22.temperatura);
-                        const humedad = Number(data.dht22.humedad);
+                    if(data.dht22&&data.dht22.temperatura!==null){
+                        const temperatura=Number(data.dht22.temperatura);
+                        const humedad=Number(data.dht22.humedad);
 
-                        if (elementos.temperatura && Number.isFinite(temperatura)) elementos.temperatura.textContent = temperatura.toFixed(1);
-                        if (elementos.humedad && Number.isFinite(humedad)) elementos.humedad.textContent = humedad.toFixed(1);
-                        if (elementos.hora) elementos.hora.textContent = data.dht22.fecha_hora ?? '--:--:--';
+                        if(elementos.temperatura&&Number.isFinite(temperatura))elementos.temperatura.textContent=temperatura.toFixed(1);
+                        if(elementos.humedad&&Number.isFinite(humedad))elementos.humedad.textContent=humedad.toFixed(1);
+                        if(elementos.hora)elementos.hora.textContent=data.dht22.fecha_hora??'--:--:--';
                     }
 
                     actualizarGraficas(data.grafica);
                     renderResumenIncubadoras(data.resumen_incubadoras);
 
-                } catch (error) {
+                }catch(error){
                     setConnectionState(false);
-                    console.error('Error al actualizar dashboard:', error);
-                } finally {
-                    peticionActiva = false;
+                    console.error('Error al actualizar dashboard:',error);
+                }finally{
+                    peticionActiva=false;
                 }
             }
 
-            function actualizarActuadorVisual(actuador, activo) {
+            function actualizarActuadorVisual(actuador,activo){
                 let switchElement;
                 let labelElement;
                 let badgeElement;
 
-                if (actuador === 'niebla') {
-                    switchElement = elementos.nieblaSwitch;
-                    labelElement = elementos.nieblaLabel;
-                    badgeElement = elementos.nieblaBadge;
-                    nieblaActiva = activo;
+                if(actuador==='niebla'){
+                    switchElement=elementos.nieblaSwitch;
+                    labelElement=elementos.nieblaLabel;
+                    badgeElement=elementos.nieblaBadge;
+                    nieblaActiva=activo;
                 }
 
-                if (actuador === 'luz') {
-                    switchElement = elementos.ledSwitch;
-                    labelElement = elementos.ledLabel;
-                    badgeElement = elementos.ledBadge;
-                    ledActivo = activo;
+                if(actuador==='luz'){
+                    switchElement=elementos.ledSwitch;
+                    labelElement=elementos.ledLabel;
+                    badgeElement=elementos.ledBadge;
+                    ledActivo=activo;
                 }
 
-                if (switchElement) switchElement.checked = activo;
-                if (labelElement) labelElement.textContent = activo ? 'Encendido' : 'Apagado';
+                if(switchElement)switchElement.checked=activo;
+                if(labelElement)labelElement.textContent=activo?'Encendido':'Apagado';
 
-                if (badgeElement) {
-                    badgeElement.textContent = activo ? 'Encendido' : 'Apagado';
-                    badgeElement.className = activo
-                        ? 'badge bg-success-subtle text-success-emphasis rounded-pill'
-                        : 'badge bg-secondary-subtle text-secondary-emphasis rounded-pill';
+                if(badgeElement){
+                    badgeElement.textContent=activo?'Encendido':'Apagado';
+                    badgeElement.className=activo
+                        ?'badge bg-success-subtle text-success-emphasis rounded-pill'
+                        :'badge bg-secondary-subtle text-secondary-emphasis rounded-pill';
                 }
             }
 
-            function actualizarModoVisual() {
-                if (elementos.modoSwitch) elementos.modoSwitch.checked = modoManual;
-                if (elementos.modoLabel) elementos.modoLabel.textContent = modoManual ? 'Modo manual activo' : 'Modo automático activo';
+            function actualizarModoVisual(){
+                if(elementos.modoSwitch)elementos.modoSwitch.checked=modoManual;
 
-                if (elementos.modoBadge) {
-                    elementos.modoBadge.textContent = modoManual ? 'Manual' : 'Automático';
-                    elementos.modoBadge.className = modoManual
-                        ? 'badge bg-warning-subtle text-warning-emphasis rounded-pill'
-                        : 'badge bg-success-subtle text-success-emphasis rounded-pill';
+                if(elementos.modoLabel){
+                    elementos.modoLabel.textContent=modoManual
+                        ?'Modo manual activo'
+                        :'Modo automático activo';
                 }
 
-                if (elementos.nieblaSwitch) elementos.nieblaSwitch.disabled = !modoManual;
-                if (elementos.ledSwitch) elementos.ledSwitch.disabled = !modoManual;
+                if(elementos.modoBadge){
+                    elementos.modoBadge.textContent=modoManual?'Manual':'Automático';
+                    elementos.modoBadge.className=modoManual
+                        ?'badge bg-warning-subtle text-warning-emphasis rounded-pill'
+                        :'badge bg-success-subtle text-success-emphasis rounded-pill';
+                }
+
+                if(elementos.nieblaSwitch)elementos.nieblaSwitch.disabled=!modoManual;
+                if(elementos.ledSwitch)elementos.ledSwitch.disabled=!modoManual;
             }
 
-            async function enviarOrdenActuador(actuador, accion) {
-                const url = URL_ACTUADORES[actuador];
-                if (!url) return false;
-
-                try {
-                    const response = await fetch(url, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Accept': 'application/json',
-                            'X-CSRF-TOKEN': csrfToken
+            async function cargarModoPersistido(){
+                try{
+                    const response=await fetch(`${URL_MODO.show}?t=${Date.now()}`,{
+                        method:'GET',
+                        headers:{
+                            'Accept':'application/json',
+                            'Cache-Control':'no-cache'
                         },
-                        body: JSON.stringify({accion})
+                        cache:'no-store'
                     });
 
-                    const data = await response.json();
+                    const data=await response.json();
 
-                    if (!response.ok || !data.ok) throw new Error(data.message || 'No se pudo ejecutar la orden.');
+                    if(!response.ok||!data.ok){
+                        throw new Error(data.message||'No se pudo obtener el modo de operación.');
+                    }
+
+                    modoManual=data.modo==='manual';
+                    actualizarModoVisual();
 
                     return true;
-                } catch (error) {
-                    console.error('Error de actuador:', error);
-                    notify('error', 'No se pudo ejecutar la acción', 'Verifica la conexión con el dispositivo.');
+
+                }catch(error){
+                    console.error('Error al obtener modo de operación:',error);
+
+                    modoManual=false;
+                    actualizarModoVisual();
+
+                    notify(
+                        'warning',
+                        'Modo de operación',
+                        'No fue posible recuperar el modo guardado. Se utilizará el modo automático de forma visual.'
+                    );
+
                     return false;
                 }
             }
 
-            elementos.modoSwitch?.addEventListener('change', async event => {
-                modoManual = event.target.checked;
+            async function guardarModoPersistido(modo){
+                try{
+                    const response=await fetch(URL_MODO.update,{
+                        method:'POST',
+                        headers:{
+                            'Content-Type':'application/json',
+                            'Accept':'application/json',
+                            'X-CSRF-TOKEN':csrfToken
+                        },
+                        body:JSON.stringify({modo})
+                    });
+
+                    const data=await response.json();
+
+                    if(!response.ok||!data.ok){
+                        throw new Error(data.message||'No se pudo actualizar el modo de operación.');
+                    }
+
+                    return true;
+
+                }catch(error){
+                    console.error('Error al guardar modo de operación:',error);
+
+                    notify(
+                        'error',
+                        'No se pudo cambiar el modo',
+                        'El modo de operación anterior se conservará.'
+                    );
+
+                    return false;
+                }
+            }
+
+            async function enviarOrdenActuador(actuador,accion){
+                const url=URL_ACTUADORES[actuador];
+                if(!url)return false;
+
+                try{
+                    const response=await fetch(url,{
+                        method:'POST',
+                        headers:{
+                            'Content-Type':'application/json',
+                            'Accept':'application/json',
+                            'X-CSRF-TOKEN':csrfToken
+                        },
+                        body:JSON.stringify({accion})
+                    });
+
+                    const data=await response.json();
+
+                    if(!response.ok||!data.ok){
+                        throw new Error(data.message||'No se pudo ejecutar la orden.');
+                    }
+
+                    return true;
+
+                }catch(error){
+                    console.error('Error de actuador:',error);
+
+                    notify(
+                        'error',
+                        'No se pudo ejecutar la acción',
+                        'Verifica la conexión con el dispositivo.'
+                    );
+
+                    return false;
+                }
+            }
+
+            elementos.modoSwitch?.addEventListener('change',async event=>{
+                const modoAnterior=modoManual;
+                const nuevoModoManual=event.target.checked;
+
+                event.target.disabled=true;
+
+                modoManual=nuevoModoManual;
                 actualizarModoVisual();
 
-                if (!modoManual) {
-                    actualizarActuadorVisual('niebla', false);
-                    actualizarActuadorVisual('luz', false);
+                const guardado=await guardarModoPersistido(
+                    modoManual?'manual':'automatico'
+                );
+
+                if(!guardado){
+                    modoManual=modoAnterior;
+                    actualizarModoVisual();
+                    event.target.disabled=false;
+                    return;
+                }
+
+                if(!modoManual){
+                    actualizarActuadorVisual('niebla',false);
+                    actualizarActuadorVisual('luz',false);
 
                     await Promise.all([
-                        enviarOrdenActuador('niebla', 'apagar'),
-                        enviarOrdenActuador('luz', 'apagar')
+                        enviarOrdenActuador('niebla','apagar'),
+                        enviarOrdenActuador('luz','apagar')
                     ]);
                 }
+
+                event.target.disabled=false;
+                actualizarModoVisual();
             });
 
-            elementos.nieblaSwitch?.addEventListener('change', async event => {
-                if (!modoManual) {
-                    event.target.checked = false;
+            elementos.nieblaSwitch?.addEventListener('change',async event=>{
+                if(!modoManual){
+                    event.target.checked=false;
                     return;
                 }
 
-                const nuevoEstado = event.target.checked;
-                event.target.disabled = true;
+                const nuevoEstado=event.target.checked;
+                event.target.disabled=true;
 
-                const ok = await enviarOrdenActuador('niebla', nuevoEstado ? 'encender' : 'apagar');
+                const ok=await enviarOrdenActuador(
+                    'niebla',
+                    nuevoEstado?'encender':'apagar'
+                );
 
-                event.target.disabled = false;
-                actualizarActuadorVisual('niebla', ok ? nuevoEstado : !nuevoEstado);
+                event.target.disabled=false;
+                actualizarActuadorVisual(
+                    'niebla',
+                    ok?nuevoEstado:!nuevoEstado
+                );
             });
 
-            elementos.ledSwitch?.addEventListener('change', async event => {
-                if (!modoManual) {
-                    event.target.checked = false;
+            elementos.ledSwitch?.addEventListener('change',async event=>{
+                if(!modoManual){
+                    event.target.checked=false;
                     return;
                 }
 
-                const nuevoEstado = event.target.checked;
-                event.target.disabled = true;
+                const nuevoEstado=event.target.checked;
+                event.target.disabled=true;
 
-                const ok = await enviarOrdenActuador('luz', nuevoEstado ? 'encender' : 'apagar');
+                const ok=await enviarOrdenActuador(
+                    'luz',
+                    nuevoEstado?'encender':'apagar'
+                );
 
-                event.target.disabled = false;
-                actualizarActuadorVisual('luz', ok ? nuevoEstado : !nuevoEstado);
+                event.target.disabled=false;
+                actualizarActuadorVisual(
+                    'luz',
+                    ok?nuevoEstado:!nuevoEstado
+                );
             });
 
-            iniciarGraficas();
-            actualizarModoVisual();
-            actualizarActuadorVisual('niebla', false);
-            actualizarActuadorVisual('luz', false);
-            actualizarDashboardTiempoReal();
+            async function iniciarDashboard(){
+                iniciarGraficas();
 
-            setInterval(actualizarDashboardTiempoReal, 2000);
+                actualizarActuadorVisual('niebla',false);
+                actualizarActuadorVisual('luz',false);
 
-            document.addEventListener('visibilitychange', () => {
-                if (!document.hidden) actualizarDashboardTiempoReal();
+                await cargarModoPersistido();
+
+                actualizarDashboardTiempoReal();
+
+                setInterval(
+                    actualizarDashboardTiempoReal,
+                    2000
+                );
+            }
+
+            iniciarDashboard();
+
+            document.addEventListener('visibilitychange',()=>{
+                if(!document.hidden){
+                    actualizarDashboardTiempoReal();
+                }
             });
         });
     </script>
