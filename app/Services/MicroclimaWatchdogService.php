@@ -8,28 +8,19 @@ use Illuminate\Support\Facades\Log;
 class MicroclimaWatchdogService
 {
     private int $minutosMaximosSinLectura=2;
+    private array $actuadoresAmbientales=['niebla','calefaccion','ventilacion'];
 
     public function __construct(private MicroclimaActuatorService $actuatorService){}
 
     public function verificar(): array
     {
-        $modo=$this->actuatorService->obtenerModo();
+        $activos=$this->actuadoresActivos();
 
-        if(($modo['valor']??'automatico')!=='automatico'){
+        if(empty($activos)){
             return [
                 'ok'=>true,
                 'accion'=>null,
-                'motivo'=>'Modo manual activo.',
-            ];
-        }
-
-        $estadoNiebla=$this->actuatorService->obtenerActuador('niebla');
-
-        if(($estadoNiebla['comando']??'apagar')!=='encender'){
-            return [
-                'ok'=>true,
-                'accion'=>null,
-                'motivo'=>'La niebla ya está apagada.',
+                'motivo'=>'Los actuadores ambientales ya están apagados.'
             ];
         }
 
@@ -37,7 +28,8 @@ class MicroclimaWatchdogService
 
         if(!$ultimaLectura){
             return $this->apagarPorSeguridad(
-                'No existen lecturas de microclima registradas.'
+                'No existen lecturas de microclima registradas.',
+                $activos
             );
         }
 
@@ -45,7 +37,8 @@ class MicroclimaWatchdogService
 
         if($ultimaLectura->fecha_hora->lt($limite)){
             return $this->apagarPorSeguridad(
-                'No se han recibido lecturas recientes del sensor.'
+                'No se han recibido lecturas recientes del sensor.',
+                $activos
             );
         }
 
@@ -53,24 +46,48 @@ class MicroclimaWatchdogService
             'ok'=>true,
             'accion'=>null,
             'motivo'=>'Sensor comunicándose correctamente.',
-            'ultima_lectura'=>$ultimaLectura->fecha_hora->format('Y-m-d H:i:s'),
+            'actuadores_activos'=>$activos,
+            'ultima_lectura'=>$ultimaLectura->fecha_hora->format('Y-m-d H:i:s')
         ];
     }
 
-    private function apagarPorSeguridad(string $motivo): array
+    private function actuadoresActivos(): array
     {
-        $this->actuatorService->actualizarActuador('niebla','apagar');
+        $activos=[];
+
+        foreach($this->actuadoresAmbientales as $actuador){
+            $estado=$this->actuatorService->obtenerActuador($actuador);
+
+            if(($estado['comando']??'apagar')==='encender'){
+                $activos[]=$actuador;
+            }
+        }
+
+        return $activos;
+    }
+
+    private function apagarPorSeguridad(string $motivo,array $activos): array
+    {
+        foreach($this->actuadoresAmbientales as $actuador){
+            $estado=$this->actuatorService->obtenerActuador($actuador);
+
+            if(($estado['comando']??'apagar')!=='apagar'){
+                $this->actuatorService->actualizarActuador($actuador,'apagar');
+            }
+        }
 
         Log::warning('Watchdog de microclima activado',[
-            'accion'=>'apagar_niebla',
-            'motivo'=>$motivo,
+            'accion'=>'estado_seguro',
+            'actuadores_apagados'=>$activos,
+            'motivo'=>$motivo
         ]);
 
         return [
             'ok'=>true,
             'accion'=>'apagar',
             'seguridad'=>true,
-            'motivo'=>$motivo,
+            'actuadores_apagados'=>$activos,
+            'motivo'=>$motivo
         ];
     }
 }
