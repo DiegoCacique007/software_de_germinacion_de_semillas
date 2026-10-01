@@ -17,6 +17,7 @@ class ChatbotController extends Controller
 
         abort_unless(
             $user
+            &&$user->activo
             &&(
                 $user->isSuperAdmin()
                 ||$user->isEncargado()
@@ -29,13 +30,18 @@ class ChatbotController extends Controller
                 'required',
                 'string',
                 'max:500'
+            ],
+            'chat_id'=>[
+                'required',
+                'uuid'
             ]
         ]);
 
         try{
             $resultado=$chatbot->responder(
                 $validated['mensaje'],
-                $user
+                $user,
+                $validated['chat_id']
             );
 
             return response()->json([

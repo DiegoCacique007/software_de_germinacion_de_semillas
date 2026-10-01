@@ -9,10 +9,15 @@
     <title>{{ config('app.name', 'Microseed Control') }}</title>
 
     <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600,700,800&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600,700,800&display=swap"
+        rel="stylesheet"
+    >
 
-    {{-- Assets compilados mediante Vite (Bootstrap 5, Bootstrap Icons, Alpine.js, SweetAlert2, Chart.js) --}}
-    @vite(['resources/scss/app.scss', 'resources/js/app.js'])
+    @vite([
+        'resources/scss/app.scss',
+        'resources/js/app.js'
+    ])
 
     <style>
         html,
@@ -24,7 +29,14 @@
             overflow: hidden;
             color: #334155;
             background: #eef7f5;
-            font-family: 'Instrument Sans', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            font-family:
+                'Instrument Sans',
+                ui-sans-serif,
+                system-ui,
+                -apple-system,
+                BlinkMacSystemFont,
+                'Segoe UI',
+                sans-serif;
         }
 
         *,
@@ -59,8 +71,17 @@
             z-index: 0;
             pointer-events: none;
             background:
-                radial-gradient(circle at 90% 15%, rgba(59, 180, 156, 0.16), transparent 34%),
-                linear-gradient(180deg, #f8fafc 0%, #eef7f5 55%, #e4f4ef 100%);
+                radial-gradient(
+                    circle at 90% 15%,
+                    rgba(59, 180, 156, 0.16),
+                    transparent 34%
+                ),
+                linear-gradient(
+                    180deg,
+                    #f8fafc 0%,
+                    #eef7f5 55%,
+                    #e4f4ef 100%
+                );
         }
 
         .microseed-auth-shell {
@@ -126,7 +147,9 @@
 
         .system-scrollbar {
             scrollbar-width: thin;
-            scrollbar-color: rgba(100, 116, 139, 0.28) transparent;
+            scrollbar-color:
+                rgba(100, 116, 139, 0.28)
+                transparent;
         }
 
         .system-scrollbar::-webkit-scrollbar {
@@ -147,19 +170,18 @@
             background: rgba(100, 116, 139, 0.42);
         }
 
-
-        /* =========================================================
-           ALERTAS GLOBALES MICROSEED CONTROL
-        ========================================================== */
-
         .msc-alert-popup {
             width: 365px !important;
             max-width: calc(100% - 32px) !important;
             padding: 26px 28px 24px !important;
-            border: 1px solid rgba(59, 180, 156, .20) !important;
+            border:
+                1px solid
+                rgba(59, 180, 156, .20) !important;
             border-radius: 24px !important;
             background: #ffffff !important;
-            box-shadow: 0 25px 65px rgba(20, 43, 57, .23) !important;
+            box-shadow:
+                0 25px 65px
+                rgba(20, 43, 57, .23) !important;
             font-family: inherit !important;
         }
 
@@ -183,60 +205,72 @@
             height: 25px;
         }
 
-        /* ÉXITO */
         .msc-alert-custom-icon.success {
             color: #1c607a;
-            border: 1px solid rgba(59, 180, 156, .28);
-            background: linear-gradient(145deg, #f0fafa, #e5f5f2);
+            border:
+                1px solid
+                rgba(59, 180, 156, .28);
+            background:
+                linear-gradient(
+                    145deg,
+                    #f0fafa,
+                    #e5f5f2
+                );
         }
 
-        /* ERROR */
         .msc-alert-custom-icon.error {
             color: #b45353;
-            border: 1px solid rgba(185, 75, 75, .18);
-            background: linear-gradient(145deg, #fff7f7, #fceeee);
+            border:
+                1px solid
+                rgba(185, 75, 75, .18);
+            background:
+                linear-gradient(
+                    145deg,
+                    #fff7f7,
+                    #fceeee
+                );
         }
 
-        /* ADVERTENCIA */
         .msc-alert-custom-icon.warning {
             color: #9a6700;
-            border: 1px solid rgba(217, 164, 65, .25);
-            background: linear-gradient(145deg, #fffdf5, #fbf3dd);
+            border:
+                1px solid
+                rgba(217, 164, 65, .25);
+            background:
+                linear-gradient(
+                    145deg,
+                    #fffdf5,
+                    #fbf3dd
+                );
         }
 
-        /* INFORMACIÓN */
         .msc-alert-custom-icon.info {
             color: #1c607a;
-            border: 1px solid rgba(28, 96, 122, .18);
-            background: linear-gradient(145deg, #f2f8fa, #e7f2f5);
+            border:
+                1px solid
+                rgba(28, 96, 122, .18);
+            background:
+                linear-gradient(
+                    145deg,
+                    #f2f8fa,
+                    #e7f2f5
+                );
         }
 
-        /* PREGUNTA */
-        .msc-alert-custom-icon.question {
-            color: #1c607a;
-            border: 1px solid rgba(59, 180, 156, .28);
-            background: linear-gradient(145deg, #f0fafa, #e5f5f2);
-        }
-
-        /* ELIMINAR */
-        .msc-alert-custom-icon.delete {
-            color: #1c607a;
-            border: 1px solid rgba(59, 180, 156, .28);
-            background: linear-gradient(145deg, #f0fafa, #e5f5f2);
-        }
-
-        /* EDITAR */
-        .msc-alert-custom-icon.edit {
-            color: #1c607a;
-            border: 1px solid rgba(59, 180, 156, .28);
-            background: linear-gradient(145deg, #f0fafa, #e5f5f2);
-        }
-
-        /* CREAR */
+        .msc-alert-custom-icon.question,
+        .msc-alert-custom-icon.delete,
+        .msc-alert-custom-icon.edit,
         .msc-alert-custom-icon.create {
             color: #1c607a;
-            border: 1px solid rgba(59, 180, 156, .28);
-            background: linear-gradient(145deg, #f0fafa, #e5f5f2);
+            border:
+                1px solid
+                rgba(59, 180, 156, .28);
+            background:
+                linear-gradient(
+                    145deg,
+                    #f0fafa,
+                    #e5f5f2
+                );
         }
 
         .msc-alert-custom-title {
@@ -265,7 +299,6 @@
             gap: 14px !important;
         }
 
-        /* BOTÓN CONFIRMAR */
         .msc-alert-confirm {
             min-width: 135px !important;
             margin: 0 !important;
@@ -277,24 +310,32 @@
             font-family: inherit !important;
             font-size: 14px !important;
             font-weight: 600 !important;
-            box-shadow: 0 9px 28px rgba(28, 96, 122, .14) !important;
-            transition: transform .18s ease, box-shadow .18s ease, color .18s ease !important;
+            box-shadow:
+                0 9px 28px
+                rgba(28, 96, 122, .14) !important;
+            transition:
+                transform .18s ease,
+                box-shadow .18s ease,
+                color .18s ease !important;
         }
 
         .msc-alert-confirm:hover {
             transform: translateY(-1px) !important;
             color: #1c607a !important;
-            box-shadow: 0 12px 30px rgba(28, 96, 122, .19) !important;
+            box-shadow:
+                0 12px 30px
+                rgba(28, 96, 122, .19) !important;
         }
 
         .msc-alert-confirm:focus {
             outline: none !important;
             box-shadow:
-                0 0 0 4px rgba(59, 180, 156, .12),
-                0 9px 28px rgba(28, 96, 122, .14) !important;
+                0 0 0 4px
+                rgba(59, 180, 156, .12),
+                0 9px 28px
+                rgba(28, 96, 122, .14) !important;
         }
 
-        /* BOTÓN CANCELAR */
         .msc-alert-cancel {
             min-width: 120px !important;
             margin: 0 !important;
@@ -306,7 +347,9 @@
             font-family: inherit !important;
             font-size: 14px !important;
             font-weight: 500 !important;
-            transition: background .18s ease, color .18s ease !important;
+            transition:
+                background .18s ease,
+                color .18s ease !important;
         }
 
         .msc-alert-cancel:hover {
@@ -314,7 +357,6 @@
             color: #475569 !important;
         }
 
-        /* ERRORES DE VALIDACIÓN */
         .msc-validation-list {
             max-width: 290px;
             margin: 12px auto 0;
@@ -333,13 +375,19 @@
             margin-bottom: 0;
         }
 
-        /* ANIMACIÓN PEQUEÑA COMO CERRAR SESIÓN */
         .msc-alert-show {
-            animation: mscAlertShow .20s ease-out;
+            animation:
+                mscAlertShow
+                .20s
+                ease-out;
         }
 
         .msc-alert-hide {
-            animation: mscAlertHide .15s ease-in forwards;
+            animation:
+                mscAlertHide
+                .15s
+                ease-in
+                forwards;
         }
 
         @keyframes mscAlertShow {
@@ -386,7 +434,6 @@
     </style>
 </head>
 
-<x-chatbot />
 <body class="antialiased">
 
 <div
@@ -395,13 +442,13 @@
         showMicroclimaModal: false,
         showBiologicoModal: false
     }"
-    @open-microclima-modal.window="showMicroclimaModal = true"
-    @open-biologico-modal.window="showBiologicoModal = true"
+    @open-microclima-modal.window="
+        showMicroclimaModal = true
+    "
+    @open-biologico-modal.window="
+        showBiologicoModal = true
+    "
 >
-
-    {{-- =========================================================
-        USUARIO AUTENTICADO
-    ========================================================== --}}
 
     @auth
 
@@ -413,14 +460,30 @@
 
                 @include('layouts.navigation')
 
-                <div class="system-main-content system-scrollbar">
+                <div
+                    class="
+                        system-main-content
+                        system-scrollbar
+                    "
+                >
 
                     @isset($header)
+
                         <header class="system-page-header">
-                            <div class="w-100 px-4 py-3 px-lg-4">
+
+                            <div
+                                class="
+                                    w-100
+                                    px-4
+                                    py-3
+                                    px-lg-4
+                                "
+                            >
                                 {{ $header }}
                             </div>
+
                         </header>
+
                     @endisset
 
                     <main class="system-page-main">
@@ -433,23 +496,18 @@
 
         </div>
 
-
-        {{-- =========================================================
-            INVITADO / LOGIN
-        ========================================================== --}}
-
     @else
 
-        <main class="microseed-guest-shell system-scrollbar">
+        <main
+            class="
+                microseed-guest-shell
+                system-scrollbar
+            "
+        >
             {{ $slot }}
         </main>
 
     @endauth
-
-
-    {{-- =========================================================
-        MODALES DE REPORTES
-    ========================================================== --}}
 
     <div class="microseed-reportes-layer">
         @includeIf('layouts.reportes-modales')
@@ -457,12 +515,7 @@
 
 </div>
 
-
 <script>
-    /* =============================================================
-       ESCAPAR HTML
-    ============================================================== */
-
     function escapeHtml(value) {
         return String(value ?? '')
             .replace(/&/g, '&amp;')
@@ -472,66 +525,209 @@
             .replace(/'/g, '&#039;');
     }
 
-
-    /* =============================================================
-       ICONOS GLOBALES
-    ============================================================== */
-
     function microseedIcon(type) {
         const icons = {
-
             success: `
-                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.3" d="M5 13l4 4L19 7"/>
+                <svg
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                >
+                    <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2.3"
+                        d="M5 13l4 4L19 7"
+                    />
                 </svg>
             `,
 
             error: `
-                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M6 18L18 6M6 6l12 12"/>
+                <svg
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                >
+                    <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2.2"
+                        d="M6 18L18 6M6 6l12 12"
+                    />
                 </svg>
             `,
 
             warning: `
-                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v4m0 4h.01"/>
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.3 3.6L2.6 17a2 2 0 001.7 3h15.4a2 2 0 001.7-3L13.7 3.6a2 2 0 00-3.4 0z"/>
+                <svg
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                >
+                    <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M12 9v4m0 4h.01"
+                    />
+                    <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="
+                            M10.3 3.6
+                            L2.6 17
+                            a2 2 0 001.7 3
+                            h15.4
+                            a2 2 0 001.7-3
+                            L13.7 3.6
+                            a2 2 0 00-3.4 0z
+                        "
+                    />
                 </svg>
             `,
 
             info: `
-                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <circle cx="12" cy="12" r="9" stroke-width="2"/>
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11v5m0-8h.01"/>
+                <svg
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                >
+                    <circle
+                        cx="12"
+                        cy="12"
+                        r="9"
+                        stroke-width="2"
+                    />
+                    <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M12 11v5m0-8h.01"
+                    />
                 </svg>
             `,
 
             question: `
-                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.1 9a3 3 0 115.7 1.3c-.8 1.1-2.8 1.4-2.8 3.2"/>
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 17h.01"/>
+                <svg
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                >
+                    <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="
+                            M9.1 9
+                            a3 3 0 115.7 1.3
+                            c-.8 1.1-2.8 1.4-2.8 3.2
+                        "
+                    />
+                    <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M12 17h.01"
+                    />
                 </svg>
             `,
 
             delete: `
-                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7"/>
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 11v6m4-6v6"/>
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7V4a1 1 0 011-1h4a1 1 0 011 1v3"/>
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7h16"/>
+                <svg
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                >
+                    <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="
+                            M19 7
+                            l-.867 12.142
+                            A2 2 0 0116.138 21
+                            H7.862
+                            a2 2 0 01-1.995-1.858
+                            L5 7
+                        "
+                    />
+                    <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M10 11v6m4-6v6"
+                    />
+                    <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="
+                            M9 7
+                            V4
+                            a1 1 0 011-1
+                            h4
+                            a1 1 0 011 1
+                            v3
+                        "
+                    />
+                    <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M4 7h16"
+                    />
                 </svg>
             `,
 
             edit: `
-                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5"/>
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                <svg
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                >
+                    <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="
+                            M11 5
+                            H6
+                            a2 2 0 00-2 2
+                            v11
+                            a2 2 0 002 2
+                            h11
+                            a2 2 0 002-2
+                            v-5
+                        "
+                    />
+                    <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="
+                            M18.5 2.5
+                            a2.121 2.121 0 013 3
+                            L12 15
+                            l-4 1
+                            1-4
+                            9.5-9.5z
+                        "
+                    />
                 </svg>
             `,
 
             create: `
-                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                <svg
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                >
+                    <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M12 4v16m8-8H4"
+                    />
                 </svg>
             `
         };
@@ -539,22 +735,28 @@
         return icons[type] ?? icons.info;
     }
 
-
-    /* =============================================================
-       ALERTA GLOBAL MICROSEED
-    ============================================================== */
-
-    window.microseedAlert = function(type, title, message) {
+    window.microseedAlert = function(
+        type,
+        title,
+        message
+    ) {
         if (typeof Swal === 'undefined') {
-            console.warn('SweetAlert2 aún no está disponible.');
+            console.warn(
+                'SweetAlert2 aún no está disponible.'
+            );
+
             return;
         }
 
         return Swal.fire({
-
             html: `
                 <div>
-                    <div class="msc-alert-custom-icon ${type}">
+                    <div
+                        class="
+                            msc-alert-custom-icon
+                            ${type}
+                        "
+                    >
                         ${microseedIcon(type)}
                     </div>
 
@@ -571,67 +773,87 @@
             showConfirmButton: true,
             showCancelButton: false,
 
-            confirmButtonText: 'Aceptar',
+            confirmButtonText:
+                'Aceptar',
 
-            buttonsStyling: false,
+            buttonsStyling:
+                false,
 
-            backdrop: 'rgba(39, 52, 65, .46)',
+            backdrop:
+                'rgba(39, 52, 65, .46)',
 
-            allowOutsideClick: true,
-            allowEscapeKey: true,
+            allowOutsideClick:
+                true,
+
+            allowEscapeKey:
+                true,
 
             customClass: {
-                popup: 'msc-alert-popup',
-                htmlContainer: 'msc-alert-content',
-                actions: 'msc-alert-actions',
-                confirmButton: 'msc-alert-confirm'
+                popup:
+                    'msc-alert-popup',
+
+                htmlContainer:
+                    'msc-alert-content',
+
+                actions:
+                    'msc-alert-actions',
+
+                confirmButton:
+                    'msc-alert-confirm'
             },
 
             showClass: {
-                popup: 'msc-alert-show'
+                popup:
+                    'msc-alert-show'
             },
 
             hideClass: {
-                popup: 'msc-alert-hide'
+                popup:
+                    'msc-alert-hide'
             }
         });
     };
 
-
-    /* =============================================================
-       CONFIRMACIÓN GLOBAL MICROSEED
-    ============================================================== */
-
-    window.microseedConfirm = function(options = {}) {
+    window.microseedConfirm = function(
+        options = {}
+    ) {
         if (typeof Swal === 'undefined') {
-            console.warn('SweetAlert2 aún no está disponible.');
+            console.warn(
+                'SweetAlert2 aún no está disponible.'
+            );
+
             return;
         }
 
-        const type = options.type ?? 'question';
+        const type =
+            options.type
+            ?? 'question';
 
         const title =
-            options.title ??
-            '¿Deseas continuar?';
+            options.title
+            ?? '¿Deseas continuar?';
 
         const message =
-            options.message ??
-            'Confirma que deseas realizar esta acción.';
+            options.message
+            ?? 'Confirma que deseas realizar esta acción.';
 
         const confirmText =
-            options.confirmText ??
-            'Sí, continuar';
+            options.confirmText
+            ?? 'Sí, continuar';
 
         const cancelText =
-            options.cancelText ??
-            'No, cancelar';
-
+            options.cancelText
+            ?? 'No, cancelar';
 
         return Swal.fire({
-
             html: `
                 <div>
-                    <div class="msc-alert-custom-icon ${type}">
+                    <div
+                        class="
+                            msc-alert-custom-icon
+                            ${type}
+                        "
+                    >
                         ${microseedIcon(type)}
                     </div>
 
@@ -645,194 +867,285 @@
                 </div>
             `,
 
-            showConfirmButton: true,
-            showCancelButton: true,
+            showConfirmButton:
+                true,
 
-            confirmButtonText: confirmText,
-            cancelButtonText: cancelText,
+            showCancelButton:
+                true,
 
-            buttonsStyling: false,
+            confirmButtonText:
+            confirmText,
 
-            backdrop: 'rgba(39, 52, 65, .46)',
+            cancelButtonText:
+            cancelText,
 
-            allowOutsideClick: true,
-            allowEscapeKey: true,
+            buttonsStyling:
+                false,
 
-            reverseButtons: false,
+            backdrop:
+                'rgba(39, 52, 65, .46)',
+
+            allowOutsideClick:
+                true,
+
+            allowEscapeKey:
+                true,
+
+            reverseButtons:
+                false,
 
             customClass: {
-                popup: 'msc-alert-popup',
-                htmlContainer: 'msc-alert-content',
-                actions: 'msc-alert-actions',
-                confirmButton: 'msc-alert-confirm',
-                cancelButton: 'msc-alert-cancel'
+                popup:
+                    'msc-alert-popup',
+
+                htmlContainer:
+                    'msc-alert-content',
+
+                actions:
+                    'msc-alert-actions',
+
+                confirmButton:
+                    'msc-alert-confirm',
+
+                cancelButton:
+                    'msc-alert-cancel'
             },
 
             showClass: {
-                popup: 'msc-alert-show'
+                popup:
+                    'msc-alert-show'
             },
 
             hideClass: {
-                popup: 'msc-alert-hide'
+                popup:
+                    'msc-alert-hide'
             }
         });
     };
 
-
-    /* =============================================================
-       CONFIRMACIÓN CREAR
-    ============================================================== */
-
-    window.microseedConfirmCreate = function(message = 'Se guardará la información ingresada en el sistema.') {
+    window.microseedConfirmCreate = function(
+        message =
+        'Se guardará la información ingresada en el sistema.'
+    ) {
         return microseedConfirm({
-            type: 'create',
-            title: '¿Deseas registrar este elemento?',
-            message: message,
-            confirmText: 'Sí, registrar',
-            cancelText: 'No, cancelar'
+            type:
+                'create',
+
+            title:
+                '¿Deseas registrar este elemento?',
+
+            message:
+            message,
+
+            confirmText:
+                'Sí, registrar',
+
+            cancelText:
+                'No, cancelar'
         });
     };
 
-
-    /* =============================================================
-       CONFIRMACIÓN EDITAR
-    ============================================================== */
-
-    window.microseedConfirmEdit = function(message = 'Se actualizará la información de este registro.') {
+    window.microseedConfirmEdit = function(
+        message =
+        'Se actualizará la información de este registro.'
+    ) {
         return microseedConfirm({
-            type: 'edit',
-            title: '¿Deseas guardar los cambios?',
-            message: message,
-            confirmText: 'Sí, actualizar',
-            cancelText: 'No, cancelar'
+            type:
+                'edit',
+
+            title:
+                '¿Deseas guardar los cambios?',
+
+            message:
+            message,
+
+            confirmText:
+                'Sí, actualizar',
+
+            cancelText:
+                'No, cancelar'
         });
     };
 
-
-    /* =============================================================
-       CONFIRMACIÓN ELIMINAR
-    ============================================================== */
-
-    window.microseedConfirmDelete = function(message = 'Esta acción eliminará permanentemente la información y no podrá deshacerse.') {
+    window.microseedConfirmDelete = function(
+        message =
+        'Esta acción eliminará permanentemente la información y no podrá deshacerse.'
+    ) {
         return microseedConfirm({
-            type: 'delete',
-            title: '¿Deseas eliminar este registro?',
-            message: message,
-            confirmText: 'Sí, eliminar',
-            cancelText: 'No, cancelar'
+            type:
+                'delete',
+
+            title:
+                '¿Deseas eliminar este registro?',
+
+            message:
+            message,
+
+            confirmText:
+                'Sí, eliminar',
+
+            cancelText:
+                'No, cancelar'
         });
     };
 
+    document.addEventListener(
+        'DOMContentLoaded',
+        function() {
 
-    /* =============================================================
-       EVENTOS DE SESIÓN Y VALIDACIONES DE LARAVEL
-    ============================================================== */
+            @if(session('success'))
 
-    document.addEventListener('DOMContentLoaded', function() {
+            microseedAlert(
+                'success',
+                '¡Operación completada!',
+                @json(session('success'))
+            );
 
-        @if(session('success'))
-        microseedAlert(
-            'success',
-            '¡Operación completada!',
-            @json(session('success'))
-        );
-        @endif
+            @endif
 
-        @if(session('error'))
-        microseedAlert(
-            'error',
-            'Ocurrió un problema',
-            @json(session('error'))
-        );
-        @endif
+            @if(session('error'))
 
-        @if(session('warning'))
-        microseedAlert(
-            'warning',
-            'Atención',
-            @json(session('warning'))
-        );
-        @endif
+            microseedAlert(
+                'error',
+                'Ocurrió un problema',
+                @json(session('error'))
+            );
 
-        @if(session('info'))
-        microseedAlert(
-            'info',
-            'Información',
-            @json(session('info'))
-        );
-        @endif
+            @endif
 
-        @if(session('status'))
-        microseedAlert(
-            'info',
-            'Información',
-            @json(session('status'))
-        );
-        @endif
+            @if(session('warning'))
 
-        @if($errors->any())
-        const validationErrors = @json($errors->all());
+            microseedAlert(
+                'warning',
+                'Atención',
+                @json(session('warning'))
+            );
 
-        const validationItems = validationErrors
-            .map(function(error) {
-                return `<li>${escapeHtml(error)}</li>`;
-            })
-            .join('');
+            @endif
 
-        if (typeof Swal !== 'undefined') {
-            Swal.fire({
-                html: `
-                    <div>
-                        <div class="msc-alert-custom-icon warning">
-                            ${microseedIcon('warning')}
-                        </div>
+            @if(session('info'))
 
-                        <h3 class="msc-alert-custom-title">
-                            Revisa la información
-                        </h3>
+            microseedAlert(
+                'info',
+                'Información',
+                @json(session('info'))
+            );
 
-                        <p class="msc-alert-custom-text">
-                            Corrige los siguientes campos para continuar.
-                        </p>
+            @endif
 
-                        <ul class="msc-validation-list">
-                            ${validationItems}
-                        </ul>
-                    </div>
-                `,
+            @if(session('status'))
 
-                showConfirmButton: true,
-                showCancelButton: false,
+            microseedAlert(
+                'info',
+                'Información',
+                @json(session('status'))
+            );
 
-                confirmButtonText: 'Aceptar',
+            @endif
 
-                buttonsStyling: false,
+            @if($errors->any())
 
-                backdrop: 'rgba(39, 52, 65, .46)',
+            const validationErrors =
+                @json($errors->all());
 
-                allowOutsideClick: true,
-                allowEscapeKey: true,
+            const validationItems =
+                validationErrors
+                    .map(
+                        function(error) {
+                            return `
+                                    <li>
+                                        ${escapeHtml(error)}
+                                    </li>
+                                `;
+                        }
+                    )
+                    .join('');
 
-                customClass: {
-                    popup: 'msc-alert-popup',
-                    htmlContainer: 'msc-alert-content',
-                    actions: 'msc-alert-actions',
-                    confirmButton: 'msc-alert-confirm'
-                },
+            if (
+                typeof Swal
+                !== 'undefined'
+            ) {
+                Swal.fire({
+                    html: `
+                            <div>
 
-                showClass: {
-                    popup: 'msc-alert-show'
-                },
+                                <div
+                                    class="
+                                        msc-alert-custom-icon
+                                        warning
+                                    "
+                                >
+                                    ${microseedIcon('warning')}
+                                </div>
 
-                hideClass: {
-                    popup: 'msc-alert-hide'
-                }
-            });
+                                <h3 class="msc-alert-custom-title">
+                                    Revisa la información
+                                </h3>
+
+                                <p class="msc-alert-custom-text">
+                                    Corrige los siguientes campos para continuar.
+                                </p>
+
+                                <ul class="msc-validation-list">
+                                    ${validationItems}
+                                </ul>
+
+                            </div>
+                        `,
+
+                    showConfirmButton:
+                        true,
+
+                    showCancelButton:
+                        false,
+
+                    confirmButtonText:
+                        'Aceptar',
+
+                    buttonsStyling:
+                        false,
+
+                    backdrop:
+                        'rgba(39, 52, 65, .46)',
+
+                    allowOutsideClick:
+                        true,
+
+                    allowEscapeKey:
+                        true,
+
+                    customClass: {
+                        popup:
+                            'msc-alert-popup',
+
+                        htmlContainer:
+                            'msc-alert-content',
+
+                        actions:
+                            'msc-alert-actions',
+
+                        confirmButton:
+                            'msc-alert-confirm'
+                    },
+
+                    showClass: {
+                        popup:
+                            'msc-alert-show'
+                    },
+
+                    hideClass: {
+                        popup:
+                            'msc-alert-hide'
+                    }
+                });
+            }
+
+            @endif
         }
-        @endif
-
-    });
+    );
 </script>
+
 <x-chatbot />
+
 </body>
 </html>

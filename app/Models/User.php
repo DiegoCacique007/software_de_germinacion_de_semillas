@@ -91,8 +91,4 @@ class User extends Authenticatable
         return $this->hasMany(SeguimientoFrasco::class);
     }
 
-    public function registrosBiologicos(): HasMany
-    {
-        return $this->hasMany(RegistroBiologico::class);
-    }
 }

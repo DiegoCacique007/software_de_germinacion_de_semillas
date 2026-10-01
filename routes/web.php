@@ -36,7 +36,6 @@ use App\Http\Controllers\SuperAdmin\ModoControlIncubadoraController;
 use App\Http\Controllers\SuperAdmin\NivelAlertaController;
 use App\Http\Controllers\SuperAdmin\PerfilFotoController;
 use App\Http\Controllers\SuperAdmin\PosicionIncubadoraController;
-use App\Http\Controllers\SuperAdmin\RegistroBiologicoController;
 use App\Http\Controllers\SuperAdmin\SeguimientoFrascoController;
 use App\Http\Controllers\SuperAdmin\SeguimientoLoteController;
 use App\Http\Controllers\SuperAdmin\TipoAlertaController;
@@ -238,10 +237,6 @@ Route::prefix('super-admin')
             ->parameters(['evidencias-lote' => 'evidenciaLote'])
             ->except(['create', 'show', 'edit']);
 
-        Route::resource('registros-biologicos', RegistroBiologicoController::class)
-            ->parameters(['registros-biologicos' => 'registroBiologico'])
-            ->except(['create', 'show', 'edit']);
-
         /*
         |--------------------------------------------------------------------------
         | Reportes
@@ -358,6 +353,7 @@ Route::post('/chatbot/mensaje',[ChatbotController::class,'mensaje'])
     ->middleware([
         'auth',
         'verified',
+        'check.active',
         'throttle:30,1'
     ])
     ->name('chatbot.mensaje');

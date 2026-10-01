@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Incubadora;
 use App\Models\LecturaMicroclima;
 use App\Models\Lote;
-use App\Models\RegistroBiologico;
+use App\Models\SeguimientoLote;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -146,12 +146,11 @@ class ReporteController extends Controller
             ->selectRaw('
                 COUNT(*) as total,
                 COUNT(DISTINCT lote_id) as lotes,
-                AVG(tasa_germinacion) as germinacion_promedio,
-                MIN(tasa_germinacion) as germinacion_min,
-                MAX(tasa_germinacion) as germinacion_max,
-                AVG(dias_estratificacion) as estratificacion_promedio,
-                MIN(fecha_registro) as primer_registro,
-                MAX(fecha_registro) as ultimo_registro
+                AVG(porcentaje_germinacion) as germinacion_promedio,
+                MIN(porcentaje_germinacion) as germinacion_min,
+                MAX(porcentaje_germinacion) as germinacion_max,
+                MIN(fecha_revision) as primer_registro,
+                MAX(fecha_revision) as ultimo_registro
             ')
             ->first();
 
@@ -161,7 +160,6 @@ class ReporteController extends Controller
             'germinacion_promedio'=>$estadisticas->germinacion_promedio!==null?(float)$estadisticas->germinacion_promedio:null,
             'germinacion_min'=>$estadisticas->germinacion_min!==null?(float)$estadisticas->germinacion_min:null,
             'germinacion_max'=>$estadisticas->germinacion_max!==null?(float)$estadisticas->germinacion_max:null,
-            'estratificacion_promedio'=>$estadisticas->estratificacion_promedio!==null?(float)$estadisticas->estratificacion_promedio:null,
             'primer_registro'=>$estadisticas->primer_registro,
             'ultimo_registro'=>$estadisticas->ultimo_registro,
         ];
@@ -172,7 +170,7 @@ class ReporteController extends Controller
                 'lote.especie:id,nombre_comun,nombre_cientifico',
                 'usuario:id,name'
             ])
-            ->orderByDesc('fecha_registro')
+            ->orderByDesc('fecha_revision')
             ->orderByDesc('id')
             ->limit($this->limiteDetalle)
             ->get();
@@ -229,9 +227,8 @@ class ReporteController extends Controller
                 'Lote',
                 'Especie',
                 'Nombre científico',
-                'Fecha de registro',
-                'Días de estratificación',
-                'Tasa de germinación (%)',
+                'Fecha de revisión',
+                'Porcentaje de germinación (%)',
                 'Responsable',
                 'Observaciones',
             ],';');
@@ -249,9 +246,8 @@ class ReporteController extends Controller
                             $this->csvSeguro($registro->lote?->codigo_lote??''),
                             $this->csvSeguro($registro->lote?->especie?->nombre_comun??''),
                             $this->csvSeguro($registro->lote?->especie?->nombre_cientifico??''),
-                            $registro->fecha_registro,
-                            $registro->dias_estratificacion,
-                            $registro->tasa_germinacion,
+                            $registro->fecha_revision,
+                            $registro->porcentaje_germinacion,
                             $this->csvSeguro($registro->usuario?->name??''),
                             $this->csvSeguro($registro->observaciones??''),
                         ],';');
@@ -308,14 +304,14 @@ class ReporteController extends Controller
 
     private function queryBiologico(array $validated)
     {
-        $query=RegistroBiologico::query();
+        $query=SeguimientoLote::query();
 
         if(!empty($validated['fecha_inicio'])){
-            $query->whereDate('fecha_registro','>=',$validated['fecha_inicio']);
+            $query->whereDate('fecha_revision','>=',$validated['fecha_inicio']);
         }
 
         if(!empty($validated['fecha_fin'])){
-            $query->whereDate('fecha_registro','<=',$validated['fecha_fin']);
+            $query->whereDate('fecha_revision','<=',$validated['fecha_fin']);
         }
 
         if(!empty($validated['lote_id'])){

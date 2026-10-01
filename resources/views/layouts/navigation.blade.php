@@ -40,7 +40,6 @@
             ['Seguimientos lote','Control biológico','super_admin.seguimientos-lote.index'],
             ['Seguimientos frasco','Control de frascos','super_admin.seguimientos-frasco.index'],
             ['Evidencias lote','Fotografías y archivos','super_admin.evidencias-lote.index'],
-            ['Registros biológicos','Observaciones del cultivo','super_admin.registros-biologicos.index'],
         ];
     }
 

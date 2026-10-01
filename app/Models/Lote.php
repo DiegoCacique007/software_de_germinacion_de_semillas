@@ -59,10 +59,6 @@ class Lote extends Model
         return $this->hasMany(SeguimientoLote::class);
     }
 
-    public function registrosBiologicos(): HasMany
-    {
-        return $this->hasMany(RegistroBiologico::class);
-    }
 
     public function scopeDeEncargado(Builder $query, int $userId): Builder
     {

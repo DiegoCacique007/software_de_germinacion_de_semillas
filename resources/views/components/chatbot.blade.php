@@ -1,18 +1,13 @@
 @php
-    $usuario=auth()->user();
+    $usuario = auth()->user();
 
-    $mostrarChatbot=$usuario
-        &&(
-            $usuario->isSuperAdmin()
-            ||$usuario->isEncargado()
-        );
+    $mostrarChatbot = $usuario
+        && ($usuario->isSuperAdmin() || $usuario->isEncargado());
 @endphp
 
 @if($mostrarChatbot)
 
     <style>
-        [x-cloak]{display:none!important}
-
         .microseed-chat-wrapper{
             position:fixed;
             right:24px;
@@ -61,10 +56,20 @@
             box-shadow:0 25px 70px rgba(15,23,42,.28);
         }
 
+        .microseed-chat-panel[hidden]{
+            display:none!important;
+        }
+
         .microseed-chat-header{
+            flex:0 0 auto;
             padding:18px 19px;
             color:#fff;
-            background:linear-gradient(135deg,#144255 0%,#216a73 52%,#3bb49c 100%);
+            background:linear-gradient(
+                135deg,
+                #144255 0%,
+                #216a73 52%,
+                #3bb49c 100%
+            );
         }
 
         .microseed-chat-header-row{
@@ -120,6 +125,9 @@
             width:34px;
             height:34px;
             flex:0 0 34px;
+            display:flex;
+            align-items:center;
+            justify-content:center;
             border:0;
             border-radius:10px;
             color:#fff;
@@ -132,6 +140,7 @@
         }
 
         .microseed-chat-context{
+            flex:0 0 auto;
             padding:9px 18px;
             color:#64748b;
             background:#f8fafc;
@@ -140,11 +149,28 @@
         }
 
         .microseed-chat-messages{
-            flex:1;
+            flex:1 1 auto;
+            min-height:0;
             overflow-y:auto;
             padding:17px;
             background:#f8fafc;
             scroll-behavior:smooth;
+            overscroll-behavior:contain;
+            scrollbar-width:thin;
+            scrollbar-color:#9bc8c4 #edf3f3;
+        }
+
+        .microseed-chat-messages::-webkit-scrollbar{
+            width:7px;
+        }
+
+        .microseed-chat-messages::-webkit-scrollbar-track{
+            background:#edf3f3;
+        }
+
+        .microseed-chat-messages::-webkit-scrollbar-thumb{
+            background:#9bc8c4;
+            border-radius:999px;
         }
 
         .microseed-chat-row{
@@ -167,6 +193,10 @@
             font-size:12px;
             line-height:1.55;
             word-break:break-word;
+        }
+
+        .microseed-chat-message-text{
+            white-space:pre-wrap;
         }
 
         .microseed-chat-row.bot .microseed-chat-message{
@@ -205,6 +235,7 @@
             font-size:9px;
             font-weight:700;
             cursor:pointer;
+            transition:.18s ease;
         }
 
         .microseed-chat-suggestion:hover{
@@ -242,11 +273,19 @@
         }
 
         @keyframes microseedTyping{
-            0%,60%,100%{transform:translateY(0);opacity:.45}
-            30%{transform:translateY(-4px);opacity:1}
+            0%,60%,100%{
+                transform:translateY(0);
+                opacity:.45;
+            }
+
+            30%{
+                transform:translateY(-4px);
+                opacity:1;
+            }
         }
 
         .microseed-chat-footer{
+            flex:0 0 auto;
             padding:12px;
             background:#fff;
             border-top:1px solid #e8eef1;
@@ -276,6 +315,11 @@
         .microseed-chat-input:focus{
             border-color:#3bb49c;
             box-shadow:0 0 0 3px rgba(59,180,156,.12);
+        }
+
+        .microseed-chat-input:disabled{
+            background:#f8fafc;
+            cursor:not-allowed;
         }
 
         .microseed-chat-send{
@@ -330,20 +374,22 @@
     </style>
 
     <div
+        id="microseed-chatbot"
         class="microseed-chat-wrapper"
-        x-data="microseedChatbot()"
-        x-cloak
-        @keydown.escape.window="abierto=false">
+    >
 
         <div
-            x-show="abierto"
-            x-transition.opacity.duration.180ms
-            class="microseed-chat-panel">
+            id="microseed-chat-panel"
+            class="microseed-chat-panel"
+            hidden
+        >
 
             <div class="microseed-chat-header">
+
                 <div class="microseed-chat-header-row">
 
                     <div class="microseed-chat-identity">
+
                         <div class="microseed-chat-avatar">
                             <i class="bi bi-flower1"></i>
                         </div>
@@ -358,17 +404,20 @@
                                 Asistente del sistema
                             </div>
                         </div>
+
                     </div>
 
                     <button
+                        id="microseed-chat-close"
                         type="button"
                         class="microseed-chat-close"
-                        @click="abierto=false"
-                        aria-label="Cerrar chatbot">
+                        aria-label="Cerrar chatbot"
+                    >
                         <i class="bi bi-x-lg"></i>
                     </button>
 
                 </div>
+
             </div>
 
             <div class="microseed-chat-context">
@@ -379,103 +428,31 @@
             </div>
 
             <div
-                x-ref="mensajes"
-                class="microseed-chat-messages">
-
-                <template
-                    x-for="(mensaje,index) in mensajes"
-                    :key="index">
-
-                    <div>
-                        <div
-                            class="microseed-chat-row"
-                            :class="mensaje.tipo">
-
-                            <div class="microseed-chat-message">
-
-                                <div x-text="mensaje.texto"></div>
-
-                                <div
-                                    class="microseed-chat-time"
-                                    x-text="mensaje.hora">
-                                </div>
-
-                                <template
-                                    x-if="
-                                    mensaje.tipo==='bot'
-                                    && mensaje.sugerencias
-                                    && mensaje.sugerencias.length
-                                ">
-
-                                    <div class="microseed-chat-suggestions">
-
-                                        <template
-                                            x-for="sugerencia in mensaje.sugerencias"
-                                            :key="sugerencia">
-
-                                            <button
-                                                type="button"
-                                                class="microseed-chat-suggestion"
-                                                @click="usarSugerencia(sugerencia)"
-                                                x-text="sugerencia">
-                                            </button>
-
-                                        </template>
-
-                                    </div>
-                                </template>
-
-                            </div>
-                        </div>
-                    </div>
-
-                </template>
-
-                <div
-                    x-show="cargando"
-                    class="microseed-chat-row bot">
-
-                    <div class="microseed-chat-typing">
-                        <span></span>
-                        <span></span>
-                        <span></span>
-                    </div>
-
-                </div>
-
-            </div>
+                id="microseed-chat-messages"
+                class="microseed-chat-messages"
+            ></div>
 
             <div class="microseed-chat-footer">
 
-                <form
-                    @submit.prevent="enviar()">
+                <form id="microseed-chat-form">
 
                     <div class="microseed-chat-input-group">
 
                     <textarea
-                        x-model="mensaje"
-                        x-ref="input"
+                        id="microseed-chat-input"
                         class="microseed-chat-input"
                         rows="1"
                         maxlength="500"
                         placeholder="Pregunta sobre MicroSeed Control..."
-                        :disabled="cargando"
-                        @keydown.enter="
-                            if(!$event.shiftKey){
-                                $event.preventDefault();
-                                enviar();
-                            }
-                        ">
-                    </textarea>
+                    ></textarea>
 
                         <button
+                            id="microseed-chat-send"
                             type="submit"
                             class="microseed-chat-send"
-                            :disabled="cargando || !mensaje.trim()"
-                            aria-label="Enviar mensaje">
-
+                            aria-label="Enviar mensaje"
+                        >
                             <i class="bi bi-send-fill"></i>
-
                         </button>
 
                     </div>
@@ -491,169 +468,503 @@
         </div>
 
         <button
+            id="microseed-chat-toggle"
             type="button"
             class="microseed-chat-button"
-            @click="toggle()"
-            :aria-label="abierto ? 'Cerrar asistente' : 'Abrir asistente'">
-
+            aria-label="Abrir asistente"
+        >
             <i
-                class="bi"
-                :class="abierto ? 'bi-x-lg' : 'bi-chat-dots-fill'">
-            </i>
-
+                id="microseed-chat-toggle-icon"
+                class="bi bi-chat-dots-fill"
+            ></i>
         </button>
 
     </div>
 
     <script>
-        function microseedChatbot(){
-            return {
-                abierto:false,
-                mensaje:'',
-                cargando:false,
+        (function() {
+            const wrapper =
+                document.getElementById('microseed-chatbot');
 
-                mensajes:[
+            if (!wrapper) {
+                return;
+            }
+
+            if (wrapper.dataset.initialized === '1') {
+                return;
+            }
+
+            wrapper.dataset.initialized = '1';
+
+            const panel =
+                document.getElementById('microseed-chat-panel');
+
+            const toggle =
+                document.getElementById('microseed-chat-toggle');
+
+            const toggleIcon =
+                document.getElementById('microseed-chat-toggle-icon');
+
+            const closeButton =
+                document.getElementById('microseed-chat-close');
+
+            const messages =
+                document.getElementById('microseed-chat-messages');
+
+            const form =
+                document.getElementById('microseed-chat-form');
+
+            const input =
+                document.getElementById('microseed-chat-input');
+
+            const sendButton =
+                document.getElementById('microseed-chat-send');
+
+            const endpoint =
+                @json(route('chatbot.mensaje'));
+
+            const csrf =
+                @json(csrf_token());
+
+            const chatId=crypto.randomUUID();
+
+            let abierto = false;
+            let enviando = false;
+            let typingElement = null;
+
+            const horaActual = () => {
+                return new Date().toLocaleTimeString(
+                    'es-MX',
                     {
-                        tipo:'bot',
-                        texto:'Hola {{ addslashes($usuario->name) }}. Soy el asistente de MicroSeed Control. Puedo consultar información real del sistema. ¿En qué puedo ayudarte?',
-                        hora:thisHora(),
-                        sugerencias:[
-                            'Estado de mi incubadora',
-                            'Última lectura',
-                            'Alertas activas',
-                            'Lotes activos',
-                            '¿Qué puedes hacer?'
-                        ]
+                        hour:'2-digit',
+                        minute:'2-digit'
                     }
-                ],
+                );
+            };
 
-                toggle(){
-                    this.abierto=!this.abierto;
-
-                    if(this.abierto){
-                        this.$nextTick(()=>{
-                            this.scrollAbajo();
-                            this.$refs.input?.focus();
-                        });
-                    }
-                },
-
-                usarSugerencia(texto){
-                    if(this.cargando){
-                        return;
-                    }
-
-                    this.mensaje=texto;
-                    this.enviar();
-                },
-
-                async enviar(){
-                    const texto=this.mensaje.trim();
-
-                    if(!texto || this.cargando){
-                        return;
-                    }
-
-                    this.mensajes.push({
-                        tipo:'user',
-                        texto:texto,
-                        hora:this.horaActual(),
-                        sugerencias:[]
+            const scrollAbajo = (suave = true) => {
+                requestAnimationFrame(() => {
+                    messages.scrollTo({
+                        top:messages.scrollHeight,
+                        behavior:suave ? 'smooth' : 'auto'
                     });
+                });
+            };
 
-                    this.mensaje='';
-                    this.cargando=true;
+            const actualizarEstadoBoton = () => {
+                const sinTexto =
+                    input.value.trim().length === 0;
 
-                    this.$nextTick(()=>{
-                        this.scrollAbajo();
-                    });
+                sendButton.disabled =
+                    enviando || sinTexto;
 
-                    try{
-                        const response=await fetch(
-                            @json(route('chatbot.mensaje')),
+                input.disabled =
+                    enviando;
+            };
+
+            const abrirChat = () => {
+                abierto = true;
+
+                panel.hidden = false;
+
+                toggle.setAttribute(
+                    'aria-label',
+                    'Cerrar asistente'
+                );
+
+                toggleIcon.className =
+                    'bi bi-x-lg';
+
+                scrollAbajo(false);
+
+                setTimeout(() => {
+                    input.focus();
+                },50);
+            };
+
+            const cerrarChat = () => {
+                abierto = false;
+
+                panel.hidden = true;
+
+                toggle.setAttribute(
+                    'aria-label',
+                    'Abrir asistente'
+                );
+
+                toggleIcon.className =
+                    'bi bi-chat-dots-fill';
+            };
+
+            const alternarChat = () => {
+                if(abierto){
+                    cerrarChat();
+                }else{
+                    abrirChat();
+                }
+            };
+
+            const crearSugerencias = (
+                contenedor,
+                sugerencias
+            ) => {
+                if(
+                    !Array.isArray(sugerencias)
+                    || sugerencias.length === 0
+                ){
+                    return;
+                }
+
+                const suggestions =
+                    document.createElement('div');
+
+                suggestions.className =
+                    'microseed-chat-suggestions';
+
+                sugerencias.forEach((texto) => {
+                    const button =
+                        document.createElement('button');
+
+                    button.type =
+                        'button';
+
+                    button.className =
+                        'microseed-chat-suggestion';
+
+                    button.textContent =
+                        texto;
+
+                    button.addEventListener(
+                        'click',
+                        () => {
+                            if(enviando){
+                                return;
+                            }
+
+                            input.value =
+                                texto;
+
+                            actualizarEstadoBoton();
+
+                            enviarMensaje();
+                        }
+                    );
+
+                    suggestions.appendChild(
+                        button
+                    );
+                });
+
+                contenedor.appendChild(
+                    suggestions
+                );
+            };
+
+            const agregarMensaje = (
+                tipo,
+                texto,
+                sugerencias = []
+            ) => {
+                const row =
+                    document.createElement('div');
+
+                row.className =
+                    `microseed-chat-row ${tipo}`;
+
+                const bubble =
+                    document.createElement('div');
+
+                bubble.className =
+                    'microseed-chat-message';
+
+                const textoElement =
+                    document.createElement('div');
+
+                textoElement.className =
+                    'microseed-chat-message-text';
+
+                textoElement.textContent =
+                    String(texto ?? '');
+
+                const time =
+                    document.createElement('div');
+
+                time.className =
+                    'microseed-chat-time';
+
+                time.textContent =
+                    horaActual();
+
+                bubble.appendChild(
+                    textoElement
+                );
+
+                bubble.appendChild(
+                    time
+                );
+
+                if(tipo === 'bot'){
+                    crearSugerencias(
+                        bubble,
+                        sugerencias
+                    );
+                }
+
+                row.appendChild(
+                    bubble
+                );
+
+                messages.appendChild(
+                    row
+                );
+
+                scrollAbajo();
+
+                return row;
+            };
+
+            const mostrarEscribiendo = () => {
+                quitarEscribiendo();
+
+                const row =
+                    document.createElement('div');
+
+                row.className =
+                    'microseed-chat-row bot';
+
+                const typing =
+                    document.createElement('div');
+
+                typing.className =
+                    'microseed-chat-typing';
+
+                typing.innerHTML =
+                    '<span></span><span></span><span></span>';
+
+                row.appendChild(
+                    typing
+                );
+
+                messages.appendChild(
+                    row
+                );
+
+                typingElement =
+                    row;
+
+                scrollAbajo();
+            };
+
+            const quitarEscribiendo = () => {
+                if(
+                    typingElement
+                    && typingElement.parentNode
+                ){
+                    typingElement.parentNode.removeChild(
+                        typingElement
+                    );
+                }
+
+                typingElement =
+                    null;
+            };
+
+            const obtenerRespuestaJson =
+                async (response) => {
+
+                    const contentType =
+                        response.headers.get(
+                            'content-type'
+                        ) || '';
+
+                    if(
+                        contentType.includes(
+                            'application/json'
+                        )
+                    ){
+                        return await response.json();
+                    }
+
+                    const text =
+                        await response.text();
+
+                    return {
+                        respuesta:
+                            text || null
+                    };
+                };
+
+            const enviarMensaje = async () => {
+                const texto =
+                    input.value.trim();
+
+                if(
+                    !texto
+                    || enviando
+                ){
+                    return;
+                }
+
+                agregarMensaje(
+                    'user',
+                    texto
+                );
+
+                input.value = '';
+
+                enviando = true;
+
+                actualizarEstadoBoton();
+
+                mostrarEscribiendo();
+
+                try{
+                    const response =
+                        await fetch(
+                            endpoint,
                             {
                                 method:'POST',
+
                                 headers:{
-                                    'Content-Type':'application/json',
-                                    'Accept':'application/json',
-                                    'X-CSRF-TOKEN':@json(csrf_token()),
-                                    'X-Requested-With':'XMLHttpRequest'
+                                    'Content-Type':
+                                        'application/json',
+
+                                    'Accept':
+                                        'application/json',
+
+                                    'X-CSRF-TOKEN':
+                                    csrf,
+
+                                    'X-Requested-With':
+                                        'XMLHttpRequest'
                                 },
+
                                 body:JSON.stringify({
-                                    mensaje:texto
+                                    mensaje:texto,
+                                    chat_id:chatId
                                 })
                             }
                         );
 
-                        const data=await response.json();
+                    const data =
+                        await obtenerRespuestaJson(
+                            response
+                        );
 
-                        if(!response.ok){
-                            throw new Error(
-                                data.respuesta
-                                ||'No fue posible procesar la consulta.'
-                            );
-                        }
+                    quitarEscribiendo();
 
-                        this.mensajes.push({
-                            tipo:'bot',
-                            texto:data.respuesta,
-                            hora:this.horaActual(),
-                            sugerencias:data.sugerencias||[]
-                        });
-
-                    }catch(error){
-
-                        this.mensajes.push({
-                            tipo:'bot',
-                            texto:error.message
-                                ||'Ocurrió un problema al consultar el asistente. Inténtalo nuevamente.',
-                            hora:this.horaActual(),
-                            sugerencias:[
-                                'Estado de mi incubadora',
-                                'Alertas activas',
-                                '¿Qué puedes hacer?'
-                            ]
-                        });
-
-                    }finally{
-                        this.cargando=false;
-
-                        this.$nextTick(()=>{
-                            this.scrollAbajo();
-                            this.$refs.input?.focus();
-                        });
+                    if(!response.ok){
+                        throw new Error(
+                            data.respuesta
+                            || data.message
+                            || `Error ${response.status}`
+                        );
                     }
-                },
 
-                scrollAbajo(){
-                    const contenedor=this.$refs.mensajes;
+                    const respuesta =
+                        data.respuesta
+                        || 'No recibí una respuesta válida del asistente.';
 
-                    if(contenedor){
-                        contenedor.scrollTop=contenedor.scrollHeight;
-                    }
-                },
+                    const sugerencias =
+                        Array.isArray(data.sugerencias)
+                            ? data.sugerencias
+                            : [];
 
-                horaActual(){
-                    return new Date().toLocaleTimeString(
-                        'es-MX',
-                        {
-                            hour:'2-digit',
-                            minute:'2-digit'
-                        }
+                    agregarMensaje(
+                        'bot',
+                        respuesta,
+                        sugerencias
                     );
-                }
-            }
-        }
 
-        function thisHora(){
-            return new Date().toLocaleTimeString(
-                'es-MX',
-                {
-                    hour:'2-digit',
-                    minute:'2-digit'
+                }catch(error){
+                    quitarEscribiendo();
+
+                    agregarMensaje(
+                        'bot',
+                        error?.message
+                        || 'Ocurrió un problema al consultar el asistente. Inténtalo nuevamente.',
+                        [
+                            'Estado de mi incubadora',
+                            'Alertas activas',
+                            '¿Qué puedes hacer?'
+                        ]
+                    );
+
+                }finally{
+                    enviando = false;
+
+                    actualizarEstadoBoton();
+
+                    input.focus();
+
+                    scrollAbajo();
+                }
+            };
+
+            toggle.addEventListener(
+                'click',
+                alternarChat
+            );
+
+            closeButton.addEventListener(
+                'click',
+                cerrarChat
+            );
+
+            form.addEventListener(
+                'submit',
+                (event) => {
+                    event.preventDefault();
+                    enviarMensaje();
                 }
             );
-        }
+
+            input.addEventListener(
+                'input',
+                actualizarEstadoBoton
+            );
+
+            input.addEventListener(
+                'keydown',
+                (event) => {
+                    if(
+                        event.key === 'Enter'
+                        && !event.shiftKey
+                    ){
+                        event.preventDefault();
+                        enviarMensaje();
+                    }
+                }
+            );
+
+            document.addEventListener(
+                'keydown',
+                (event) => {
+                    if(
+                        event.key === 'Escape'
+                        && abierto
+                    ){
+                        cerrarChat();
+                    }
+                }
+            );
+
+            agregarMensaje(
+                'bot',
+                @json(
+                    'Hola '.$usuario->name.'. Soy el asistente de MicroSeed Control. Puedo consultar información real del sistema. ¿En qué puedo ayudarte?'
+                ),
+                [
+                    'Estado de mi incubadora',
+                    'Última lectura',
+                    'Alertas activas',
+                    'Lotes activos',
+                    '¿Qué puedes hacer?'
+                ]
+            );
+
+            actualizarEstadoBoton();
+        })();
     </script>
 
 @endif

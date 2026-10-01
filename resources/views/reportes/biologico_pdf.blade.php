@@ -268,7 +268,7 @@
 <table class="summary">
     <tr>
         <td width="20%">
-            <div class="label">Total de registros</div>
+            <div class="label">Total de seguimientos</div>
             <div class="value">{{ number_format($resumen['total']) }}</div>
         </td>
 
@@ -299,14 +299,6 @@
             </div>
         </td>
 
-        <td width="20%">
-            <div class="label">Estratificación promedio</div>
-            <div class="value">
-                {{ $resumen['estratificacion_promedio']!==null
-                    ?number_format($resumen['estratificacion_promedio'],1).' días'
-                    :'—' }}
-            </div>
-        </td>
     </tr>
 </table>
 
@@ -346,13 +338,12 @@
 <table class="detail">
     <thead>
     <tr>
-        <th width="17%">Lote</th>
-        <th width="18%">Especie</th>
+        <th width="20%">Lote</th>
+        <th width="23%">Especie</th>
         <th width="11%">Fecha</th>
-        <th width="13%" class="center">Estratificación</th>
         <th width="13%" class="center">Germinación</th>
         <th width="14%">Responsable</th>
-        <th width="14%">Observaciones</th>
+        <th width="19%">Observaciones</th>
     </tr>
     </thead>
 
@@ -380,20 +371,15 @@
             </td>
 
             <td>
-                {{ $registro->fecha_registro
-                    ?\Carbon\Carbon::parse($registro->fecha_registro)->format('d/m/Y')
+                {{ $registro->fecha_revision
+                    ?\Carbon\Carbon::parse($registro->fecha_revision)->format('d/m/Y')
                     :'—' }}
             </td>
 
-            <td class="center">
-                {{ $registro->dias_estratificacion!==null
-                    ?$registro->dias_estratificacion.' días'
-                    :'—' }}
-            </td>
 
             <td class="center">
-                {{ $registro->tasa_germinacion!==null
-                    ?number_format((float)$registro->tasa_germinacion,1).' %'
+                {{ $registro->porcentaje_germinacion!==null
+                    ?number_format((float)$registro->porcentaje_germinacion,1).' %'
                     :'—' }}
             </td>
 
@@ -407,8 +393,8 @@
         </tr>
     @empty
         <tr>
-            <td colspan="7" class="center">
-                No se encontraron registros biológicos para los filtros seleccionados.
+            <td colspan="6" class="center">
+                No se encontraron seguimientos de lote para los filtros seleccionados.
             </td>
         </tr>
     @endforelse

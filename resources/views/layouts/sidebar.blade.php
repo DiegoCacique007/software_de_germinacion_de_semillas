@@ -55,7 +55,6 @@
             ['label'=>'Seguimientos lote','route'=>'super_admin.seguimientos-lote.index','active'=>['super_admin.seguimientos-lote.*']],
             ['label'=>'Seguimientos frasco','route'=>'super_admin.seguimientos-frasco.index','active'=>['super_admin.seguimientos-frasco.*']],
             ['label'=>'Evidencias lote','route'=>'super_admin.evidencias-lote.index','active'=>['super_admin.evidencias-lote.*']],
-            ['label'=>'Registros biológicos','route'=>'super_admin.registros-biologicos.index','active'=>['super_admin.registros-biologicos.*']],
         ]],
     ];
 
