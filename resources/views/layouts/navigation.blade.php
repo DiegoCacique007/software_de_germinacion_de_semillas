@@ -1,5 +1,6 @@
 @php
     use Illuminate\Support\Facades\Route;
+    use App\Models\Alerta;
 
     $usuario=auth()->user();
     $nombre=$usuario?->name??'Usuario';
@@ -10,7 +11,24 @@
     $isEncargado=$usuario?->isEncargado()??false;
     $foto=$usuario?->foto_perfil?asset('storage/'.$usuario->foto_perfil):null;
 
-    $cantidadAlertas=isset($alertasActivas)?(is_countable($alertasActivas)?count($alertasActivas):(int)$alertasActivas):0;
+    $alertasTopbar=collect();
+    $cantidadAlertas=0;
+
+    if($usuario&&($isSuperAdmin||$isEncargado)){
+        $consultaAlertas=Alerta::query()
+            ->with(['incubadora:id,nombre,codigo','tipo:id,nombre,clave','nivel:id,nombre,clave','estado:id,nombre,clave'])
+            ->whereHas('estado',fn($q)=>$q->whereIn('clave',['pendiente','atendida']));
+
+        if($isEncargado)$consultaAlertas->deEncargado($usuario->id);
+
+        $cantidadAlertas=(clone $consultaAlertas)->count();
+
+        $alertasTopbar=$consultaAlertas
+            ->orderByDesc('fecha_hora')
+            ->limit(5)
+            ->get();
+    }
+
     $cantidadActividad=isset($actividadNoLeida)?(int)$actividadNoLeida:0;
     $modulos=[];
 
@@ -51,7 +69,7 @@
             ['Mis lotes','Lotes de germinación asignados','encargado.lotes.index'],
             ['Mis frascos','Frascos pertenecientes a tus lotes','encargado.frascos.index'],
             ['Seguimientos de lote','Registrar y consultar lotes','encargado.seguimientos-lote.index'],
-            ['Seguimientos de frasco','Registrar y consultar frascos','encargado.seguimientos-frasco.index'],
+            ['Seguimientos de frasco','Registrar y consultar frascos','encargado.seguimientos-frascos.index'],
             ['Evidencias','Evidencias fotográficas','encargado.evidencias-lote.index'],
         ];
     }
@@ -78,7 +96,6 @@
     .topbar-content{width:100%;height:100%;display:flex;align-items:center;justify-content:space-between;gap:18px;padding:0 18px 0 24px}
     .topbar-left{min-width:0;flex:1}
     .topbar-actions{display:flex;align-items:center;gap:5px;flex-shrink:0}
-
     .topbar-search-wrap{position:relative;width:min(550px,100%)}
     .topbar-search{position:relative;height:46px;display:flex;align-items:center}
     .topbar-search svg{position:absolute;left:16px;width:18px;height:18px;color:#8294a3;pointer-events:none}
@@ -92,25 +109,33 @@
     .topbar-result-title{display:block;color:#334155;font-size:12px;font-weight:700}
     .topbar-result-desc{display:block;margin-top:2px;color:#94a3b8;font-size:10px}
     .topbar-empty{padding:25px;text-align:center;color:#94a3b8;font-size:12px}
-
     .topbar-action-wrap{position:relative}
     .topbar-action{position:relative;width:43px;height:43px;display:flex;align-items:center;justify-content:center;color:#64748b;border-radius:13px}
     .topbar-action:hover,.topbar-action.active{color:#216a73;background:#eef8f7}
     .topbar-action svg{width:20px;height:20px}
     .topbar-counter{position:absolute;top:0;right:-1px;min-width:18px;height:18px;display:flex;align-items:center;justify-content:center;padding:0 4px;color:#fff;background:#dc3545;border:2px solid #fff;border-radius:999px;font-size:8px;font-weight:800}
     .topbar-counter.green{background:#3bb49c}
-
-    .topbar-dropdown{position:absolute;top:55px;right:0;z-index:180;width:310px;overflow:hidden;background:#fff;border:1px solid #e2e8ea;border-radius:18px;box-shadow:0 24px 60px rgba(15,23,42,.2)}
+    .topbar-dropdown{position:absolute;top:55px;right:0;z-index:180;width:340px;overflow:hidden;background:#fff;border:1px solid #e2e8ea;border-radius:18px;box-shadow:0 24px 60px rgba(15,23,42,.2)}
     .topbar-dropdown-head{display:flex;align-items:center;justify-content:space-between;padding:15px 16px;border-bottom:1px solid #eef2f2}
     .topbar-dropdown-head strong{font-size:13px;color:#334155}
     .topbar-pill{padding:4px 8px;color:#1f756a;background:#e9f8f4;border-radius:999px;font-size:9px;font-weight:700}
-    .topbar-notification{display:flex;gap:11px;padding:14px 16px}
+    .topbar-notifications-list{max-height:360px;overflow-y:auto;scrollbar-width:thin;scrollbar-color:rgba(100,116,139,.25) transparent}
+    .topbar-notification{width:100%;display:flex;align-items:flex-start;gap:11px;padding:13px 16px;border-bottom:1px solid #f0f3f4;transition:background .16s ease}
+    .topbar-notification:last-child{border-bottom:0}
+    .topbar-notification:hover{background:#f7fbfa}
     .topbar-notification-icon{width:39px;height:39px;display:flex;align-items:center;justify-content:center;flex-shrink:0;color:#dc3545;background:#fff1f2;border-radius:12px}
-    .topbar-notification-title{display:block;color:#334155;font-size:12px;font-weight:700}
-    .topbar-notification-desc{display:block;margin-top:3px;color:#94a3b8;font-size:10px;line-height:1.45}
+    .topbar-notification-content{min-width:0;flex:1}
+    .topbar-notification-title{display:block;color:#334155;font-size:12px;font-weight:700;line-height:1.3}
+    .topbar-notification-desc{display:-webkit-box;margin-top:3px;overflow:hidden;color:#64748b;font-size:10px;line-height:1.45;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+    .topbar-notification-meta{display:flex;align-items:center;flex-wrap:wrap;gap:5px;margin-top:7px;color:#94a3b8;font-size:9px}
+    .topbar-notification-incubator{color:#47717c;font-weight:700}
+    .topbar-notification-level{display:inline-flex;align-items:center;padding:2px 6px;color:#b4232c;background:#fff1f2;border-radius:999px;font-weight:700}
+    .topbar-notification-time{margin-left:auto;white-space:nowrap}
     .topbar-empty-state{padding:26px 16px;text-align:center;color:#64748b;font-size:11px}
+    .topbar-empty-icon{width:38px;height:38px;margin:0 auto 9px;display:flex;align-items:center;justify-content:center;color:#25836f;background:#e9f8f4;border-radius:12px;font-size:18px;font-weight:800}
+    .topbar-empty-title{display:block;color:#334155;font-size:12px;font-weight:700}
+    .topbar-empty-desc{display:block;margin-top:4px;color:#94a3b8;font-size:10px}
     .topbar-dropdown-footer{display:block;padding:11px 15px;background:#f8faf9;border-top:1px solid #eef2f2;color:#1c607a;font-size:11px;font-weight:700;text-align:center}
-
     .topbar-profile-wrap{position:relative;margin-left:3px;padding-bottom:12px;margin-bottom:-12px}
     .topbar-profile{width:238px;height:52px;display:flex;align-items:center;gap:11px;padding:5px 9px 5px 6px;border-radius:16px}
     .topbar-profile:hover,.topbar-profile.active{background:linear-gradient(135deg,rgba(33,106,115,.055),rgba(59,180,156,.08))}
@@ -121,14 +146,11 @@
     .topbar-user-name,.topbar-user-role{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
     .topbar-user-name{color:#334155;font-size:13px;font-weight:700}
     .topbar-user-role{margin-top:4px;color:#3b9a96;font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase}
-
-    /* PERFIL */
     .topbar-profile-dropdown{width:320px;max-height:calc(100vh - 95px);overflow-x:hidden;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:rgba(100,116,139,.30) transparent}
     .topbar-profile-dropdown::-webkit-scrollbar{width:5px}
     .topbar-profile-dropdown::-webkit-scrollbar-track{background:transparent}
     .topbar-profile-dropdown::-webkit-scrollbar-thumb{background:rgba(100,116,139,.28);border-radius:999px}
     .topbar-profile-dropdown::-webkit-scrollbar-thumb:hover{background:rgba(100,116,139,.45)}
-
     .topbar-profile-header{display:flex;align-items:center;gap:13px;padding:17px;color:#fff;background:linear-gradient(135deg,#123f54,#176475,#2b9691)}
     .topbar-profile-large{width:58px;height:58px;display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0;background:rgba(10,52,66,.7);border-radius:15px;font-size:18px;font-weight:800}
     .topbar-profile-large img{width:100%;height:100%;object-fit:cover}
@@ -148,7 +170,6 @@
     .topbar-profile-link.danger .topbar-profile-icon{color:#dc3545;background:#fff1f2}
     .topbar-profile-link.danger:hover .topbar-profile-icon{color:#dc3545;background:#ffe7e9}
     .topbar-profile-photo{display:none!important}
-
     .mobile-button{display:none;width:42px;height:42px;align-items:center;justify-content:center;color:#64748b;background:#f5f7f7!important;border-radius:12px}
     .mobile-panel{position:absolute;top:100%;right:0;left:0;z-index:190;max-height:calc(100vh - 70px);overflow:auto;padding:12px;background:#fff;border-top:1px solid #e5eaed;box-shadow:0 18px 35px rgba(15,23,42,.12)}
     .mobile-user{display:flex;align-items:center;gap:11px;padding:12px;background:#f7faf9;border-radius:14px}
@@ -156,7 +177,6 @@
     .mobile-link{width:100%;min-height:43px;display:flex;align-items:center;gap:10px;padding:10px 12px;margin-top:4px;color:#64748b;border-radius:11px;font-size:12px;font-weight:600}
     .mobile-link:hover,.mobile-link.active{color:#216a73;background:#effaf8}
     .mobile-icon{width:32px;height:32px;display:flex;align-items:center;justify-content:center;background:#effaf8;border-radius:9px}
-
     .logout-backdrop{position:fixed;inset:0;z-index:99999;display:grid;place-items:center;padding:16px;background:rgba(15,23,42,.45);backdrop-filter:blur(2px)}
     .logout-modal{width:min(340px,100%);padding:22px;background:#fff;border-radius:20px;box-shadow:0 22px 60px rgba(15,23,42,.24);text-align:center}
     .logout-icon{width:50px;height:50px;margin:0 auto 13px;display:flex;align-items:center;justify-content:center;color:#216a73;background:#eaf8f5;border-radius:16px}
@@ -167,7 +187,6 @@
     .logout-actions button{min-height:41px;border-radius:13px!important;font-size:11px!important;font-weight:700!important}
     .logout-cancel{background:#f1f5f4!important;color:#475569!important}
     .logout-confirm{background:linear-gradient(135deg,#216a73,#3bb49c)!important;color:#fff!important}
-
     @media(max-width:900px){.topbar-profile{width:48px;padding:2px}.topbar-user{display:none}}
     @media(max-width:760px){.microseed-topbar{height:70px}.topbar-content{padding:0 12px}.topbar-search-wrap{max-width:250px}.topbar-dropdown{position:fixed;top:76px;right:12px;left:12px;width:auto}}
     @media(max-width:560px){.topbar-left,.topbar-actions,.topbar-profile-wrap{display:none}.topbar-content{justify-content:flex-end}.mobile-button{display:flex}}
@@ -181,7 +200,6 @@ go(url){if(url)window.location.href=url},
 openLogout(){this.panel=null;this.mobile=false;this.logout=true},
 confirmLogout(){this.$refs.logoutForm.submit()}
 }">
-
     <div class="topbar-content">
 
         <div class="topbar-left">
@@ -200,9 +218,9 @@ confirmLogout(){this.$refs.logoutForm.submit()}
                                 <button type="button" class="topbar-result" @click="go(module.url)">
                                     <span class="topbar-result-icon">→</span>
                                     <span>
-                                <span class="topbar-result-title" x-text="module.label"></span>
-                                <span class="topbar-result-desc" x-text="module.description"></span>
-                            </span>
+<span class="topbar-result-title" x-text="module.label"></span>
+<span class="topbar-result-desc" x-text="module.description"></span>
+</span>
                                 </button>
                             </template>
                         </div>
@@ -216,27 +234,69 @@ confirmLogout(){this.$refs.logoutForm.submit()}
         <div class="topbar-actions">
 
             <div class="topbar-action-wrap" @click.outside="if(panel==='alerts')panel=null">
-                <button type="button" class="topbar-action" :class="panel==='alerts'?'active':''" @click="toggle('alerts')">
-                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2" d="M15 17h5l-2-2v-4a6 6 0 10-12 0v4l-2 2h5m6 0a3 3 0 01-6 0"/></svg>
-                    @if($cantidadAlertas>0)<span class="topbar-counter">{{ $cantidadAlertas>99?'99+':$cantidadAlertas }}</span>@endif
-                </button>
-
-                <div x-show="panel==='alerts'" x-cloak class="topbar-dropdown">
-                    <div class="topbar-dropdown-head"><strong>Notificaciones</strong><span class="topbar-pill">{{ $cantidadAlertas }} activas</span></div>
+                <button type="button" class="topbar-action" :class="panel==='alerts'?'active':''" @click="toggle('alerts')" aria-label="Notificaciones">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-2-2v-4a6 6 0 10-12 0v4l-2 2h5m6 0a3 3 0 01-6 0"/></svg>
 
                     @if($cantidadAlertas>0)
-                        <div class="topbar-notification">
-                            <span class="topbar-notification-icon">!</span>
-                            <span>
-                        <span class="topbar-notification-title">Alertas pendientes</span>
-                        <span class="topbar-notification-desc">Existen {{ $cantidadAlertas }} incidencias pendientes de revisión.</span>
-                    </span>
+                        <span class="topbar-counter">{{ $cantidadAlertas>99?'99+':$cantidadAlertas }}</span>
+                    @endif
+                </button>
+
+                <div x-show="panel==='alerts'" x-cloak x-transition.opacity class="topbar-dropdown">
+                    <div class="topbar-dropdown-head">
+                        <strong>Notificaciones</strong>
+                        <span class="topbar-pill">{{ $cantidadAlertas }} {{ $cantidadAlertas===1?'activa':'activas' }}</span>
+                    </div>
+
+                    @if($alertasTopbar->isNotEmpty())
+                        <div class="topbar-notifications-list">
+
+                            @foreach($alertasTopbar as $alerta)
+                                <a href="{{ $rutaAlertas??'#' }}" class="topbar-notification">
+<span class="topbar-notification-icon">
+<svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3m0 4h.01M10.3 3.9 1.8 18a2 2 0 001.7 3h17a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0z"/>
+</svg>
+</span>
+
+                                    <span class="topbar-notification-content">
+<span class="topbar-notification-title">{{ $alerta->tipo?->nombre??'Alerta del sistema' }}</span>
+<span class="topbar-notification-desc">{{ $alerta->mensaje }}</span>
+
+<span class="topbar-notification-meta">
+@if($alerta->incubadora)
+        <span class="topbar-notification-incubator">
+{{ $alerta->incubadora->nombre }}
+            @if($alerta->incubadora->codigo)
+                · {{ $alerta->incubadora->codigo }}
+            @endif
+</span>
+    @endif
+
+    @if($alerta->nivel)
+        <span class="topbar-notification-level">{{ $alerta->nivel->nombre }}</span>
+    @endif
+
+    @if($alerta->fecha_hora)
+        <span class="topbar-notification-time">{{ $alerta->fecha_hora->locale('es')->diffForHumans() }}</span>
+    @endif
+</span>
+</span>
+                                </a>
+                            @endforeach
+
                         </div>
                     @else
-                        <div class="topbar-empty-state">Sin alertas activas.</div>
+                        <div class="topbar-empty-state">
+                            <span class="topbar-empty-icon">✓</span>
+                            <span class="topbar-empty-title">Sin alertas activas</span>
+                            <span class="topbar-empty-desc">No tienes incidencias pendientes.</span>
+                        </div>
                     @endif
 
-                    @if($rutaAlertas)<a href="{{ $rutaAlertas }}" class="topbar-dropdown-footer">Ver todas las alertas</a>@endif
+                    @if($rutaAlertas)
+                        <a href="{{ $rutaAlertas }}" class="topbar-dropdown-footer">Ver todas las alertas</a>
+                    @endif
                 </div>
             </div>
 
@@ -247,44 +307,51 @@ confirmLogout(){this.$refs.logoutForm.submit()}
                 </button>
 
                 <div x-show="panel==='activity'" x-cloak class="topbar-dropdown">
-                    <div class="topbar-dropdown-head"><strong>Actividad</strong><span class="topbar-pill">{{ $cantidadActividad }} nuevas</span></div>
+                    <div class="topbar-dropdown-head">
+                        <strong>Actividad</strong>
+                        <span class="topbar-pill">{{ $cantidadActividad }} nuevas</span>
+                    </div>
                     <div class="topbar-empty-state">Sin actividad nueva.</div>
                 </div>
             </div>
 
             <div class="topbar-profile-wrap" @mouseenter="panel='profile'" @mouseleave="if(panel==='profile')panel=null">
                 <button type="button" class="topbar-profile" :class="panel==='profile'?'active':''" @click="toggle('profile')">
-            <span class="topbar-avatar">
-                @if($foto)<img src="{{ $foto }}" alt="Foto de {{ $nombre }}">@else{{ strtoupper(substr($nombre,0,1)) }}@endif
-                <span class="topbar-online"></span>
-            </span>
+<span class="topbar-avatar">
+@if($foto)<img src="{{ $foto }}" alt="Foto de {{ $nombre }}">@else{{ strtoupper(substr($nombre,0,1)) }}@endif
+<span class="topbar-online"></span>
+</span>
+
                     <span class="topbar-user">
-                <span class="topbar-user-name">{{ $nombre }}</span>
-                <span class="topbar-user-role">{{ $rolVisible }}</span>
-            </span>
+<span class="topbar-user-name">{{ $nombre }}</span>
+<span class="topbar-user-role">{{ $rolVisible }}</span>
+</span>
                 </button>
 
                 <div x-show="panel==='profile'" x-cloak class="topbar-dropdown topbar-profile-dropdown">
 
                     <div class="topbar-profile-header">
-                        <span class="topbar-profile-large">@if($foto)<img src="{{ $foto }}" alt="Foto">@else{{ strtoupper(substr($nombre,0,1)) }}@endif</span>
+<span class="topbar-profile-large">
+@if($foto)<img src="{{ $foto }}" alt="Foto">@else{{ strtoupper(substr($nombre,0,1)) }}@endif
+</span>
+
                         <span>
-                    <span class="topbar-profile-name">{{ $nombre }}</span>
-                    <span class="topbar-profile-email">{{ $correo }}</span>
-                    <span class="topbar-profile-role">{{ $rolVisible }}</span>
-                </span>
+<span class="topbar-profile-name">{{ $nombre }}</span>
+<span class="topbar-profile-email">{{ $correo }}</span>
+<span class="topbar-profile-role">{{ $rolVisible }}</span>
+</span>
                     </div>
 
                     <div class="topbar-profile-body">
 
                         @if(Route::has('profile.edit'))
                             <a href="{{ route('profile.edit') }}" class="topbar-profile-link">
-                        <span class="topbar-profile-icon">
-                            <svg viewBox="0 0 24 24" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
-                                <circle cx="12" cy="7" r="4"/>
-                                <path d="M4 21a8 8 0 0 1 16 0"/>
-                            </svg>
-                        </span>
+<span class="topbar-profile-icon">
+<svg viewBox="0 0 24 24" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+<circle cx="12" cy="7" r="4"/>
+<path d="M4 21a8 8 0 0 1 16 0"/>
+</svg>
+</span>
                                 <span>Mi perfil</span>
                             </a>
                         @endif
@@ -295,12 +362,12 @@ confirmLogout(){this.$refs.logoutForm.submit()}
                                 @method('PATCH')
 
                                 <label for="nav_foto" class="topbar-profile-link">
-                            <span class="topbar-profile-icon">
-                                <svg viewBox="0 0 24 24" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
-                                    <path d="M12 20h9"/>
-                                    <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/>
-                                </svg>
-                            </span>
+<span class="topbar-profile-icon">
+<svg viewBox="0 0 24 24" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+<path d="M12 20h9"/>
+<path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/>
+</svg>
+</span>
                                     <span>Cambiar fotografía</span>
                                 </label>
 
@@ -309,13 +376,13 @@ confirmLogout(){this.$refs.logoutForm.submit()}
                         @endif
 
                         <button type="button" class="topbar-profile-link danger" @click="openLogout()">
-                    <span class="topbar-profile-icon">
-                        <svg viewBox="0 0 24 24" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M10 17l5-5-5-5"/>
-                            <path d="M15 12H3"/>
-                            <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/>
-                        </svg>
-                    </span>
+<span class="topbar-profile-icon">
+<svg viewBox="0 0 24 24" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+<path d="M10 17l5-5-5-5"/>
+<path d="M15 12H3"/>
+<path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/>
+</svg>
+</span>
                             <span>Cerrar sesión</span>
                         </button>
 
@@ -326,42 +393,61 @@ confirmLogout(){this.$refs.logoutForm.submit()}
         </div>
 
         <button type="button" class="mobile-button" @click="mobile=!mobile">
-            <svg width="21" height="21" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+            <svg width="21" height="21" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+            </svg>
         </button>
 
     </div>
 
     <div x-show="mobile" x-cloak class="mobile-panel">
         <div class="mobile-user">
-            <span class="topbar-avatar">@if($foto)<img src="{{ $foto }}" alt="Foto">@else{{ strtoupper(substr($nombre,0,1)) }}@endif</span>
+
+<span class="topbar-avatar">
+@if($foto)<img src="{{ $foto }}" alt="Foto">@else{{ strtoupper(substr($nombre,0,1)) }}@endif
+</span>
+
             <span class="topbar-user">
-            <span class="topbar-user-name">{{ $nombre }}</span>
-            <span class="topbar-user-role">{{ $rolVisible }}</span>
-        </span>
+<span class="topbar-user-name">{{ $nombre }}</span>
+<span class="topbar-user-role">{{ $rolVisible }}</span>
+</span>
         </div>
 
         <div class="mobile-title">Módulos</div>
 
         @foreach($modulos as $modulo)
-            @php $activo=request()->routeIs($modulo['route'])||request()->routeIs(str_replace('.index','.*',$modulo['route'])); @endphp
+            @php
+                $activo=request()->routeIs($modulo['route'])||request()->routeIs(str_replace('.index','.*',$modulo['route']));
+            @endphp
+
             <a href="{{ $modulo['url'] }}" class="mobile-link {{ $activo?'active':'' }}">
-                <span class="mobile-icon">→</span>{{ $modulo['label'] }}
+                <span class="mobile-icon">→</span>
+                {{ $modulo['label'] }}
             </a>
         @endforeach
 
         <div class="mobile-title">Cuenta</div>
 
         @if(Route::has('profile.edit'))
-            <a href="{{ route('profile.edit') }}" class="mobile-link"><span class="mobile-icon">👤</span>Mi perfil</a>
+            <a href="{{ route('profile.edit') }}" class="mobile-link">
+                <span class="mobile-icon">👤</span>
+                Mi perfil
+            </a>
         @endif
 
-        <button type="button" class="mobile-link" style="color:#dc3545;" @click="openLogout()"><span class="mobile-icon">↪</span>Cerrar sesión</button>
+        <button type="button" class="mobile-link" style="color:#dc3545;" @click="openLogout()">
+            <span class="mobile-icon">↪</span>
+            Cerrar sesión
+        </button>
     </div>
 
-    <form x-ref="logoutForm" method="POST" action="{{ route('logout') }}" style="display:none;">@csrf</form>
+    <form x-ref="logoutForm" method="POST" action="{{ route('logout') }}" style="display:none;">
+        @csrf
+    </form>
 
     <div x-show="logout" x-cloak class="logout-backdrop" @click.self="logout=false">
         <div class="logout-modal">
+
             <div class="logout-icon">
                 <svg viewBox="0 0 24 24" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M10 17l5-5-5-5"/>
@@ -371,13 +457,16 @@ confirmLogout(){this.$refs.logoutForm.submit()}
             </div>
 
             <h3 class="logout-title">¿Deseas cerrar sesión?</h3>
-            <p class="logout-text">Se cerrará tu sesión actual y tendrás que iniciar sesión nuevamente para acceder al sistema.</p>
+
+            <p class="logout-text">
+                Se cerrará tu sesión actual y tendrás que iniciar sesión nuevamente para acceder al sistema.
+            </p>
 
             <div class="logout-actions">
                 <button type="button" class="logout-cancel" @click="logout=false">No, cancelar</button>
                 <button type="button" class="logout-confirm" @click="confirmLogout()">Sí, cerrar sesión</button>
             </div>
+
         </div>
     </div>
-
 </nav>
